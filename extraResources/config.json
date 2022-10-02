@@ -1,0 +1,18 @@
+{ 
+"@digital-learning/number-line": "^1.0.8",
+"@digital-learning/ten-frame": "^1.1.2",
+"@digital-learning/hundred-chart": "^1.1.2",
+"@digital-learning/multiple-choice": "^1.0.5",
+"@digital-learning/fill-in-the-blank": "^2.0.0",
+"@digital-learning/grid-mapping": "^1.2.2",
+"@digital-learning/matching": "^1.1.1",
+"@digital-learning/three-d-shapes": "^1.2.3",
+"@digital-learning/protractor": "^1.1.2",
+"@digital-learning/charts": "^1.3.2",
+"@digital-learning/money": "^1.0.6",
+"@digital-learning/ebook-reader": "^1.3.2",
+"@digital-learning/flowchart": "^1.0.5-secondary-hk-1",
+"@digital-learning/sorting-table": "git+https://gitlab.tvo.org/digital-learning/interactives/sorting-table#ap-test-conflict",
+"@digital-learning/flashcards": "^1.0.7-secondary-hk-1",
+"@digital-learning/iframe-resizer": "^1.0.0"
+}

@@ -1,0 +1,17 @@
+{
+    "update-course-repos": [
+        "gitPull"
+    ],
+    "npm-rebuild": [
+        "gitPull",
+        "deleteBuildFiles",
+        "npmRunBuild"
+    ],
+    "ilos-update": [
+        "gitPull",
+        "updateILOsVersion",
+        "addDepartmentProperty",
+        "deleteBuildFiles",
+        "npmRunBuild"
+    ]
+}

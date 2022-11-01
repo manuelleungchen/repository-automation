@@ -5,41 +5,138 @@
 }
 
 .App {
-    background-color: #282c34;
+    /* CSS Variables */
+    --main-color: #68904D;
+    --main-color-light: #a3bf74;
+    --main-color-dark: #1a592c;
+
+    --secondary-color: #e6b6c2;
+    --secondary-color-light: #C8D2D1;
+    --secondary-color-dark: #9c6396;
+
+    --light-font-color: #fff;
+    --dark-font-color: #000;
+
+    --warning-color: #DC3545;
+
+
+    /* --secondary-color: #C8D2D1;
+    --secondary-color-hov: #EE9B01;
+    --secondary-font-color: #DA6A00; */
+
+    /* --selected-color: #84d698;
+    --unselected-color: #ea9c9c;
+    --header-color: #fff; */
+
     min-height: 100vh;
-    color: #fff;
+    color: var(--dark-font-color);
+    background-color: var(--secondary-color-light);
+    font-family: "TVOPlexSans-Medium", Arial, sans-serif;
 }
 
-input {
-    margin-top: 16px;
-    padding: 8px;
+h1,
+h2 {
+    color: var(--dark-font-color);
 }
 
-h3 {
-    margin-left: 16px;
+h3,
+h4 {
+    color: var(--light-font-color);
+}
+
+h2 {
+    text-align: center;
+    padding-top: 14px;
 }
 
 .App-header {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 1rem;
+    background-color: var(--secondary-color-light);
+    /* color: var(--main-font-color) */
+
+    /* align-items: center; */
 }
 
-.App-header button {
+#vpnStatus {
+    display: block;
+    width: 180px;
+    margin: 0 0 0 auto;
+    text-align: right;
+    color: var(--dark-font-color);
+}
+
+#vpn-connected-icon {
+    /* #198754 */
+    filter: invert(37%) sepia(97%) saturate(363%) hue-rotate(100deg) brightness(92%) contrast(91%);
+    /* filter: invert(26%) sepia(14%) saturate(2104%) hue-rotate(84deg) brightness(98%) contrast(91%); */
+}
+
+#vpn-disconnected-icon {
+    /* #c20909 */
+    /* #DC3545 */
+    filter: invert(28%) sepia(35%) saturate(3958%) hue-rotate(332deg) brightness(96%) contrast(92%);
+    /* filter: invert(17%) sepia(54%) saturate(4750%) hue-rotate(356deg) brightness(92%) contrast(99%); */
+}
+
+#repos-path {
+    word-break: break-all;
+}
+
+.step {
+    padding: 20px;
+    margin: 10px auto;
+    border-radius: 10px;
+    background-color: var(--main-color-light);
+    box-shadow: 3px 3px 0px 0px rgb(0 0 0 / 60%);
+    height: 90%;
+}
+
+#warningDiv {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    margin: 10px auto;
+    border-radius: 10px;
+    background-color: var(--warning-color);
+    box-shadow: 3px 3px 0px 0px rgb(0 0 0 / 60%);
+    height: 90%;
+}
+
+.selectButton {
+    /* margin-top: 16px; */
+    padding: 8px;
+    background-color: var(--secondary-color-light);
+    color: var(--dark-font-color);
+    box-shadow: 3px 3px 0px 0px rgb(0 0 0 / 60%);
     border: none;
-    padding: 10px 20px;
-    background: #777;
-    color: #fff;
-    z-index: 1;
-    margin-top: 16px;
-    cursor: pointer;
-    outline: none;
+    border-radius: 5px;
+}
+
+.selectButton:focus {
+    /* outline: none; */
+    outline: 3px solid var(--main-color-dark);
+    /* outline-offset: max(2px, 0.15em);  */
+}
+
+.selectButton:hover {
+    /* outline: none; */
+    background-color: var(--main-color-dark);
+    color: var(--light-font-color);
+
+    /* outline-offset: max(2px, 0.15em);  */
 }
 
 @keyframes App-logo-spin {
     from {
         transform: rotate(0deg);
     }
+
     to {
         transform: rotate(360deg);
     }
@@ -65,4 +162,56 @@ h3 {
     opacity: 0;
     transform: translateY(100%);
     transition: opacity 1s, transform 500ms;
+}
+
+#start-btn {
+    display: block;
+    margin: 20px auto;
+    padding: 8px;
+    width: 100%;
+    background-color: var(--main-color-light);
+    color: var(--dark-font-color);
+    box-shadow: 3px 3px 0px 0px rgb(0 0 0 / 60%);
+    border: none;
+    border-radius: 5px;
+}
+
+#start-btn:hover {
+    background-color: var(--main-color-dark);
+    color: var(--light-font-color);
+}
+
+#start-btn:focus {
+    outline: 3px solid var(--main-color-dark);
+}
+
+#start-btn:disabled {
+    background: var(--light-font-color);
+    color: var(--secondary-color-light);
+    cursor: no-drop;
+}
+
+
+@keyframes inAnimation {
+    0% {
+        opacity: 0;
+        max-height: 0px;
+    }
+
+    100% {
+        opacity: 1;
+        max-height: 600px;
+    }
+}
+
+@keyframes outAnimation {
+    0% {
+        opacity: 1;
+        max-height: 600px;
+    }
+
+    100% {
+        opacity: 0;
+        max-height: 0px;
+    }
 }

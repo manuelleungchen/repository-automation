@@ -1,21 +1,100 @@
+#searchBox {
+    display: block;
+    margin: auto;
+    padding: 10px;
+    height: 40px;
+    width: 100%;
+    background-color: var(--light-font-color);
+    border: none;
+    border-radius: 5px;
+    box-shadow: 3px 3px 0px 0px rgb(0 0 0 / 60%);
+}
 
+#searchBox:focus {
+    outline: 3px solid var(--main-color-dark);
+}
 
-  .item {
-    margin-left: auto;
-    margin-right: auto;
-    width: 80%;
-    border: 1px solid lightblue;
-    padding: 5px;
-  }
-  
-  .item.active,
-  .item:hover {
-    background: #d3d3d33b;
-  }
-  
-  .item:hover {
+#selectAllLabel {
+    display: flex;
+    align-items: center;
+    margin: 15px 0;
+}
+
+#selectAllLabel:hover {
     cursor: pointer;
-  }
+}
 
+#checklist-container {
+    width: 100%;
+    margin: 0px;
+}
 
-  
+.item {
+    display: flex;
+    text-align: center;
+    margin: 10px;
+    padding: 10px;
+    background-color: var(--secondary-color-dark);
+    color: var(--secondary-font-color);
+    border-radius: 10px;
+    box-shadow: 3px 3px 0px 0px rgb(0 0 0 / 60%);
+}
+
+.item.active {
+    background-color: var(--secondary-color-light);
+}
+
+.item:focus,
+.item:hover {
+    background-color: var(--secondary-color-light);
+    outline: 3px solid var(--main-color-dark);
+    cursor: pointer;
+}
+
+.checkmark {
+    /* Add if not using autoprefixer */
+    -webkit-appearance: none;
+    /* Remove most all native input styles */
+    appearance: none;
+    /* For iOS < 15 */
+    background-color: var(--light-font-color);
+    /* Not removed via appearance */
+    margin: 0;
+    margin-right: 15px;
+    font: inherit;
+    color: currentColor;
+    width: 25px;
+    height: 25px;
+    border-radius: 0.15em;
+    transform: translateY(-0.075em);
+
+    display: grid;
+    place-content: center;
+    box-shadow: 2px 2px 0px 0px rgb(0 0 0 / 60%);
+}
+
+.checkmark::before {
+    content: "";
+    width: 1em;
+    height: 1em;
+    clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+    transform: scale(0);
+    transform-origin: bottom left;
+    transition: 120ms transform ease-in-out;
+    box-shadow: inset 1em 1em var(--form-control-color);
+    /* Windows High Contrast Mode */
+    background-color: CanvasText;
+}
+
+.checkmark:checked::before {
+    transform: scale(1);
+}
+
+.checkmark:focus {
+    outline: 3px solid var(--main-color-dark);
+}
+
+.checkmark:hover {
+    background-color: var(--main-color-dark);
+    cursor: pointer;
+}

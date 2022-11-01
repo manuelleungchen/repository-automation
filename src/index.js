@@ -6,6 +6,18 @@ import reportWebVitals from './reportWebVitals';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 const root = ReactDOM.createRoot(document.getElementById('root'));
+
+
+if (window.process) {
+    window.process.on('uncaughtException', function (error) {
+        const {app, dialog} = window.require("electron").remote;
+        dialog.showMessageBoxSync({type: 'error', message: "Unexpected error occurred. Restarting the application.", title: "Error"});
+        // app.relaunch();
+        // app.quit();
+    });
+}
+
+
 root.render(
     <React.StrictMode>
         <App />

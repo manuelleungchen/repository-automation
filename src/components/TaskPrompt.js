@@ -4,8 +4,11 @@ import './TaskPrompt.css'
 function TaskPrompt({ tasks, handleTaskSelection }) {
 
     // Store all checkboxes checked state
-    const [checked, setChecked] = useState(new Array(tasks.length).fill(false));
+    const [checked, setChecked] = useState([]);
 
+    useEffect(() => {
+        setChecked(new Array(tasks.length).fill(false));
+    }, [tasks])
 
     function updateSelectedTasks(checkedTasks) {
         let tasksName = [];
@@ -17,6 +20,7 @@ function TaskPrompt({ tasks, handleTaskSelection }) {
 
     // Handle toggled checkbox
     const handleOnChange = (position) => {
+        console.log(checked)
         let updatedCheckedState = checked.map((item, index) =>
             index === position ? !item : item
         );
@@ -24,25 +28,16 @@ function TaskPrompt({ tasks, handleTaskSelection }) {
         updateSelectedTasks(updatedCheckedState)
     };
 
-
     return (
-        <div>
-            <h2>Select actions to perform:</h2>
+        <div className="step">
+            <h3>Step #2 - Select actions to perform</h3>
             {tasks.map((task, index) => {
                 return (
-                    <div className="container" key={index}>
-                <div className="toggle-switch">
-                    <input type="checkbox" className="checkbox"
-                        name={task.label} id={task.label} value={task.value} checked={checked[index] || false}
-                        onChange={() => handleOnChange(index)} />
-
-                    <label className="label" htmlFor={task.label}>
-                        <span className="inner" />
-                        <span className="switch" />
-                    </label>
-                </div>
-                {" "}{task.label}
-            </div>
+                    <div className="list-item" key={index}>
+                        <input type="checkbox" className="checkbox" name={task.label} id={task.label} value={task.value} checked={checked[index] || false}
+                            onChange={() => handleOnChange(index)} />
+                        <label className="checkbox-label" htmlFor={task.label}>{task.label}</label>
+                    </div>
                 )
             })}
         </div>

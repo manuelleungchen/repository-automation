@@ -1,135 +1,209 @@
 import { useState, useEffect, useRef } from "react";
 import "./ListGroup.css";
 
-// useKeyPress Hook
-const useKeyPress = (targetKey) => {
-    // State for keeping track of whether key is pressed
-    const [keyPressed, setKeyPressed] = useState(false);
-    // If pressed key is our target key then set to true
-    function downHandler({ key }) {
-        if (key === targetKey) {
-            setKeyPressed(true);
-        }
-    }
-    // If released key is our target key then set to false
-    const upHandler = ({ key }) => {
-        if (key === targetKey) {
-            setKeyPressed(false);
-        }
-    };
-    // Add event listeners
-    useEffect(() => {
-        window.addEventListener("keydown", downHandler);
-        window.addEventListener("keyup", upHandler);
-        // Remove event listeners on cleanup
-        return () => {
-            window.removeEventListener("keydown", downHandler);
-            window.removeEventListener("keyup", upHandler);
-        };
-    }, []);
-
-    return keyPressed;
-};
+// This function return the height and width
+const getWindowSize = () => {
+    const { innerWidth, innerHeight } = window;
+    return { innerWidth, innerHeight };
+}
 
 function ListGroup({ repos, handleSelectedRepos }) {
 
     // Store all checkboxes checked state
-    const [checked, setChecked] = useState([]);
+    const [reposList, setReposList] = useState(repos);
+    const [cursor, setCursor] = useState(undefined);   // Store position of current checklist item in state
+    const [windowSize, setWindowSize] = useState(getWindowSize());  // Store window width
+    const [gripColsCount, setGripColsCount] = useState(0);  // Store Grip Cols Count
 
-    // Call useKeyPress hook for each key (Arrow Down, Arrow Up, and Enter)
-    const downArrowPress = useKeyPress("ArrowDown");
-    const upArrowPress = useKeyPress("ArrowUp");
-    const spacePress = useKeyPress(" ");
-    const [cursor, setCursor] = useState(0);  // Store position of current checklist item in state
-    const [hovered, setHovered] = useState(undefined);  // Store hovered state
+    // Add event listener for window resize
+    useEffect(() => {
+        function handleWindowResize() {
+            setWindowSize(getWindowSize());
+        }
+
+        window.addEventListener('resize', handleWindowResize);
+
+        return () => {
+            window.removeEventListener('resize', handleWindowResize);
+        };
+    }, []);
+
+    // Update repos list when props repos change
+    useEffect(() => {
+        setReposList(repos)
+    }, [repos])
+
+    // Update setGripColsCount when window resize
+    useEffect(() => {
+        getColsCount(windowSize.innerWidth)
+    }, [windowSize.innerWidth])
+
+    // Use effect to update select all checkbox
+    useEffect(() => {
+        // Update checked value on Select All checkbox
+        selectedAllRef.current.checked = !(reposList.filter((obj) => { return obj.hidden === false }).some((obj) => {
+            return obj.selected === false;
+        }))
+    }, [reposList])
 
     // This function pass an array with repos location to handleSelectedRepos callback
-    function updateSelectedRepos(checkedRepos) {
+    const updateSelectedRepos = (checkedRepos) => {
         let reposPath = [];
         checkedRepos.forEach((checkedRepo, index) => {
-            if (checkedRepo === true) { reposPath.push(repos[index].location) }
+            if (checkedRepo.selected === true) { reposPath.push(reposList[index].path) }
         })
         handleSelectedRepos(reposPath)
     }
 
-    // useEffect 
-    // Update checked state once client side gets repos data
-    useEffect(() => {
-        setChecked(new Array(repos.length).fill(false))
-    }, [repos])
-
-    // Update cursor state once DOWN arrow is pressed
-    useEffect(() => {
-        if (downArrowPress) {
-            setCursor(prevState => (prevState < repos.length - 1 ? prevState + 1 : prevState));
+    // Get the number of columns in grip
+    const getColsCount = (width) => {
+        if (width < 768) {
+            setGripColsCount(1)
         }
-    }, [downArrowPress]);
-
-    // Update cursor state once UP arrow is pressed
-    useEffect(() => {
-        if (upArrowPress) {
-            setCursor(prevState => (prevState > 0 ? prevState - 1 : prevState));
+        else if (width >= 768 && width < 992) {
+            setGripColsCount(2)
         }
-    }, [upArrowPress]);
-
-    // Update checked and selected repos state once SPACE is pressed
-    useEffect(() => {
-        if (spacePress) {
-            var updatedList = [...checked]
-            updatedList[cursor] = !updatedList[cursor]
-
-            setChecked(updatedList)
-            updateSelectedRepos(updatedList)
-
+        else if (width >= 992 && width < 1200) {
+            setGripColsCount(3)
         }
-    }, [spacePress]);
-
-    // Update cursor state once hovering over a checkbox
-    useEffect(() => {
-        if (hovered) {
-            setCursor(repos.indexOf(hovered));
+        else if (width >= 1200) {
+            setGripColsCount(4)
         }
-    }, [hovered]);
+    }
 
-    // Handle toggled checkbox
-    const handleOnChange = (position) => {
-        let updatedCheckedState = checked.map((item, index) =>
-            index === position ? !item : item
-        );
-        setChecked(updatedCheckedState);
-        updateSelectedRepos(updatedCheckedState)
+    // Call useKeyDown hook for each key (Arrows Up, Down, Right, Left, Space and Enter)
+
+    // This function will filte repos checklist
+    const filterBySearch = (event) => {
+        // Access input value
+        const query = event.target.value;
+        // Create copy of item list
+        var updatedList = [...reposList];
+        // Include all elements which includes the search query
+        updatedList = updatedList.map((item) => {
+            if (item.name.includes(query.toLowerCase())) {
+                item.hidden = false;
+            }
+            else {
+                item.hidden = true;
+            }
+            return item;
+        });
+
+        // Updated Repos list with updated list
+        setReposList(updatedList);
     };
 
+    // Handle toggled checkbox
+    const handleOnCheckboxChange = (position) => {
+        let reposClone = [...reposList]
+        reposClone[position].selected = !reposClone[position].selected
+        setReposList(reposClone)
+        updateSelectedRepos(reposClone)
+    };
+
+    // This function set current checkbox on focus
+    const setCheckboxFocus = (index) => {
+        if (index >= 0 && index < repos.length) {
+            checkboxesRefs.current[index].focus()
+        }
+    };
+
+    // Handler for selectAll checkbox
+    const handleSelectAll = (event) => {
+        let newReposArr = reposList.map(obj => {
+            if (!obj.hidden) {
+                return { ...obj, selected: event.target.checked };
+            }
+            else {
+                return obj;
+            }
+        });
+        setReposList(newReposArr)
+        updateSelectedRepos(newReposArr)
+    };
+
+    // Handler for key down while focused on checkboxes-container
+    const handleKeyDown = (event) => {
+        switch (event.key) {
+            case "ArrowUp":
+                event.preventDefault();
+                setCursor(prevState => (prevState > 0 ? prevState - gripColsCount : prevState));
+                setCheckboxFocus(cursor - gripColsCount)
+                break;
+            case "ArrowDown":
+                event.preventDefault();
+                setCursor(prevState => (prevState < repos.length - 1 ? prevState + gripColsCount : prevState));
+                setCheckboxFocus(cursor + gripColsCount)
+                break;
+            case "ArrowLeft":
+                event.preventDefault();
+                setCursor(prevState => (prevState > 0 ? prevState - 1 : prevState));
+                setCheckboxFocus(cursor - 1)
+                break;
+            case "ArrowRight":
+                event.preventDefault();
+                setCursor(prevState => (prevState < repos.length - 1 ? prevState + 1 : prevState));
+                setCheckboxFocus(cursor + 1)
+                break;
+            case " ":
+            case "Enter":
+                event.preventDefault();
+                handleOnCheckboxChange(cursor)
+                break;
+        }
+    }
+
+    // References
+    const checkboxesRefs = useRef([]);
+    const selectedAllRef = useRef(undefined);
 
     return (
-        <div className="checklist">
-            <h3>Select Course Repos</h3>
-            <p>
-                <small>
-                    Use up down keys and hit enter to select, or use the mouse
-                </small>
-            </p>
-            {repos.map((repo, index) =>
-            (
+        <div className="step">
+            <h3>Step #3 - Select Course Repos</h3>
+            <input type="search" id="searchBox" placeholder="Search for a course" onChange={filterBySearch} />
+            <label htmlFor="selectAll" id="selectAllLabel">
+                <input type="checkbox"
+                    className="checkmark"
+                    name="selectAll"
+                    id="selectAll"
+                    onChange={handleSelectAll}
+                    ref={selectedAllRef}
+                />
+                Select All
+            </label>
 
-                <label key={index} htmlFor={`custom-checkbox-${index}`}
-                    className={`item ${(index === cursor) ? "active" : ""}`}
-                    onMouseEnter={() => setHovered(repo)}
-                    onMouseLeave={() => setHovered(undefined)}
-                >
-                    <input
-                        className="checkmark"
-                        type="checkbox"
-                        id={`custom-checkbox-${index}`}
-                        checked={checked[index] || false}
-                        onChange={() => handleOnChange(index)}
-                    />
-                    {repo.name}
+            <p id="nav-instructions"><small>Use arrows and space/enter keys, or mouse to select.</small></p>
 
-                </label>
-            )
-            )}
-
+            <div id="checklist-container" onKeyDown={handleKeyDown}>
+                <div className="row">
+                    {reposList.map((repo, index) => {
+                        if (!repo.hidden) {
+                            return (
+                                <div key={index} className="col-sm-12 col-md-6 col-lg-4 col-xl-3">
+                                    <label
+                                        ref={(element) => { checkboxesRefs.current[index] = element }}
+                                        className={`item ${(index === cursor) ? "active" : ""}`}
+                                        htmlFor={`checkbox-${index}`}
+                                        onFocus={() => setCursor(index)}
+                                        tabIndex={0}
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            className="checkmark"
+                                            id={`checkbox-${index}`}
+                                            checked={repo.selected || false}
+                                            onChange={() => handleOnCheckboxChange(index)}
+                                            tabIndex={-1}
+                                        />
+                                        {repo.name}
+                                    </label>
+                                </div>
+                            )
+                        }
+                    })}
+                </div>
+            </div>
         </div>
     );
 }

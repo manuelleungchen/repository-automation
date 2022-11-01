@@ -1,30 +1,55 @@
-//add this script in myWorker.js file
 const {parentPort, workerData} = require("worker_threads");
-// const path = require('path');
-// const fs = require("fs");
+const fs = require("fs");
 const { execSync } = require("child_process");   // Import exec method from child_process module
 
+parentPort.postMessage(executeShellCommands(workerData.commandType, workerData.repoPath))
 
-// parentPort.postMessage(getFibonacciNumber(workerData.commandString))
-
-// function getFibonacciNumber(command) {
-//     execSync(command);
-//     return "DONE"
-// }
-
-
-parentPort.postMessage(executeShellCommands(workerData.commandType, workerData.commandString))
-
-function executeShellCommands(type, command) {
+function executeShellCommands(type, repoPath) {
     switch (type) {
+        case "gitPull":
+            try {
+                execSync(`cd ${repoPath} && git pull`);
+            }
+            catch (error) {
+                console.log(error.message);
+            }
+            break;
         case "deleteBuildFiles":
-            execSync(command);
+            try {
+                fs.rmSync(`${repoPath}/dependencies/vendor.min.js`);
+            }
+            catch (error) {
+                console.log(error.message);
+            }
+            try {
+                fs.rmSync(`${repoPath}/dependencies/tvo_k8.css`);
+            }
+            catch (error) {
+                console.log(error.message);
+            }
+            try {
+                fs.rmSync(`${repoPath}/package-lock.json`);
+            }
+            catch (error) {
+                console.log(error.message);
+            }
+            // Delete node_modules folder
+            try {
+                fs.rmSync(`${repoPath}/node_modules`, { recursive: true });
+            }
+            catch (error) {
+                console.log(error.message);
+            }
             break;
         case "npmRunBuild":
-            execSync(command);
+            try {
+                execSync(`cd ${repoPath} && npm install && npm run build`);
+            }
+            catch (error) {
+                console.log(error.message);
+            }
             break;
-            default:
-                // code block
+        default:
     }
     return "DONE"
 }

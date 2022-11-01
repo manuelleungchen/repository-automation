@@ -1,78 +1,68 @@
-/* .container {
+.list-item {
+    display: flex;
+    flex-direction: row;
     text-align: center;
-    } */
-    .toggle-switch {
-        position: relative;
-        width: 75px;
-        display: inline-block;
-        text-align: left;
-        top: 8px;
-    }
-    
-    .checkbox {
-        display: none;
-    }
-    
-    .label {
-        display: block;
-        overflow: hidden;
-        cursor: pointer;
-        border: 0 solid #bbb;
-        border-radius: 20px;
-    }
-    
-    .inner {
-        display: block;
-        width: 200%;
-        margin-left: -100%;
-        transition: margin 0.3s ease-in 0s;
-    }
-    
-    .inner:before,
-    .inner:after {
-        float: left;
-        width: 50%;
-        height: 36px;
-        padding: 0;
-        line-height: 36px;
-        color: #fff;
-        font-weight: bold;
-        box-sizing: border-box;
-    }
-    
-    .inner:before {
-        content: "YES";
-        padding-left: 10px;
-        background-color: #060;
-        color: #fff;
-    }
-    
-    .inner:after {
-        content: "NO";
-        padding-right: 10px;
-        background-color: #bbb;
-        color: #fff;
-        text-align: right;
-    }
-    
-    .switch {
-        display: block;
-        width: 24px;
-        margin: 5px;
-        background: #fff;
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        right: 40px;
-        border: 0 solid #bbb;
-        border-radius: 20px;
-        transition: all 0.3s ease-in 0s;
-    }
-    
-    .checkbox:checked+.label .inner {
-        margin-left: 0;
-    }
-    
-    .checkbox:checked+.label .switch {
-        right: 0px;
-    }
+}
+
+.checkbox {
+    /* Add if not using autoprefixer */
+    -webkit-appearance: none;
+    /* Remove most all native input styles */
+    appearance: none;
+    /* For iOS < 15 */
+    background-color: var(--light-font-color);
+    /* Not removed via appearance */
+    margin: 0;
+    font: inherit;
+    color: currentColor;
+    width: 25px;
+    height: 25px;
+    border-radius: 0.15em;
+    transform: translateY(-0.075em);
+
+    display: grid;
+    place-content: center;
+    box-shadow: 2px 2px 0px 0px rgb(0 0 0 / 60%);
+}
+
+.checkbox::before {
+    content: "";
+    width: 1em;
+    height: 1em;
+    clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+    transform: scale(0);
+    transform-origin: bottom left;
+    transition: 120ms transform ease-in-out;
+    box-shadow: inset 1em 1em var(--form-control-color);
+    /* Windows High Contrast Mode */
+    background-color: CanvasText;
+}
+
+.checkbox:checked::before {
+    transform: scale(1);
+}
+
+.checkbox:focus {
+    outline: 3px solid var(--main-color-dark);
+}
+
+.checkbox:hover {
+    background-color: var(--main-color-dark);
+    cursor: pointer;
+}
+
+/* Customize the label (the container) */
+.checkbox-label {
+    display: block;
+    position: relative;
+    padding-left: 15px;
+    margin-bottom: 15px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.checkbox-label:hover {
+    cursor: pointer;
+}

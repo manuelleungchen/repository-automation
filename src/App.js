@@ -9,7 +9,6 @@ import ListGroup from './components/ListGroup.js';
 import TaskPrompt from './components/TaskPrompt.js';
 import ProgressBar from "./components/ProgressBar.js";
 
-
 function useDelayUnmount(isMounted, delayTime) {
     const [showDiv, setShowDiv] = useState(false);
     useEffect(() => {
@@ -30,7 +29,6 @@ const unmountedStyle = {
     animationFillMode: "forwards"
 };
 
-
 function App() {
     const [repos, setRepos] = useState([]);  // Store all repos
     const [reposPath, setReposPath] = useState("");  // Store path of where all repos are located
@@ -41,46 +39,27 @@ function App() {
     const [isMounted, setIsMounted] = useState(false);
     const showDiv = useDelayUnmount(isMounted, 250);
 
-
     const [isProgressbarMounted, setIsProgressbarMounted] = useState(false);
     const showProgressbar = useDelayUnmount(isProgressbarMounted, 250);
 
     // Array that containes all the tasks available to run in the App 
     const [tasksList, setTasksList] = useState([]);
 
-    // const tasksList = [
-    //     {
-    //         "label": "Update course repos",
-    //         "value": "update-course-repos"
-    //     },
-    //     {
-    //         "label": "Rebuild K8 CSS and vendor.min.js",
-    //         "value": "npm-rebuild"
-    //     },
-    //     {
-    //         "label": "Update ILOs version",
-    //         "value": "ilos-update"
-    //     }
-    // ]
-
     useEffect(() => {
         console.log("DOM ready")
 
         window.api.vpnStatus(arg => {
-            console.log("Status")
-            console.log(arg)
+            // console.log(arg)
             setVpnConnected(arg)
         })
 
         window.api.updateReposPath(arg => {
-            console.log(arg)
+            // console.log(arg)
             setReposPath(arg)
         })
 
         window.api.getConfigData(arg => {
-            console.log(arg)
-            console.log(`These are the tasks ${arg}`)
-
+            // console.log(arg)
             setTasksList(arg)
         })
 

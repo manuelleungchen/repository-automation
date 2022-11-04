@@ -20,7 +20,6 @@ function TaskPrompt({ tasks, handleTaskSelection }) {
 
     // Handle toggled checkbox
     const handleOnChange = (position) => {
-        console.log(checked)
         let updatedCheckedState = checked.map((item, index) =>
             index === position ? !item : item
         );

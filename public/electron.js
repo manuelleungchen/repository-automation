@@ -1,16 +1,15 @@
 // Modules to control application life and create native browser window
 const { app, BrowserWindow, ipcMain, Notification, dialog } = require('electron');  // electron
-const isDev = require('electron-is-dev'); // To check if electron is in development mode
 const path = require('path');
 const fs = require("fs");
 const { Worker } = require('worker_threads')
 
-const ASSETS_PATH = app.isPackaged ? path.join(process.resourcesPath, 'assets') : path.join(app.getAppPath(), `extraResources`);
+const ASSETS_PATH = app.isPackaged ? path.join(process.resourcesPath, '') : path.join(app.getAppPath(), `extraResources`);
 
 let mainWindow;
 
-// Read config.json file which contain latest ILOs versions.
-const configFile = path.join(ASSETS_PATH, `config.json`);
+// Read appConfig.json file which contain latest ILOs versions.
+const configFile = path.join(ASSETS_PATH, `appConfig.json`);
 const configContent = JSON.parse(fs.readFileSync(configFile, { encoding: "utf-8" }));
 
 let connectionInterval = null  // Global variable for setInterval
@@ -26,30 +25,26 @@ function createWindow() {
         // icon: path.join(ASSETS_PATH, './logo3.png'),
         webPreferences: {
             // The preload file where we will perform our app communication
-            preload: isDev
-                ? path.join(app.getAppPath(), './public/preload.js') // Loading it from the public folder for dev
-                : path.join(app.getAppPath(), './build/preload.js'), // Loading it from the build folder for production
+            preload: path.join(__dirname, "preload.js"),
             // worldSafeExecuteJavaScript: true, // If you're using Electron 12+, this should be enabled by default and does not need to be added here.
             contextIsolation: true, // Isolating context so our app is not exposed to random javascript executions making it safer.
             nodeIntegrationInWorker: true  // For Multithreading with Web Workers to run scripts in background threads.
         },
     });
 
-    // and loading a webpage inside the electron window we just created
-    mainWindow.loadURL(
-        isDev
-            ? 'http://localhost:3000' // Loading localhost if dev mode
-            : `file://${path.join(__dirname, '../build/index.html')}` // Loading build file if in production
-    )
+    // In production, set the initial browser path to the local bundle generated
+    // by the Create React App build process.
+    // In development, set it to localhost to allow live/hot-reloading.
+    const appURL = app.isPackaged ? `file://${__dirname}/../build/index.html` : "http://localhost:3000";
+    mainWindow.loadURL(appURL);
+
+    // Automatically open Chrome's DevTools in development mode.
+    if (!app.isPackaged) {
+        mainWindow.webContents.openDevTools();
+    }
 
     // Setting Window Icon - Asset file needs to be in the public/images folder.
     // mainWindow.setIcon(path.join(__dirname, 'images/appicon.ico'));
-
-    // Open the DevTools.
-    // In development mode, if the window has loaded, then load the dev tools.
-    if (isDev) {
-        mainWindow.webContents.openDevTools();
-    }
 
     // When Electron window finish loading,
     mainWindow.webContents.on('did-finish-load', () => {
@@ -166,7 +161,7 @@ function updateILOsVersion(filePath) {
     // List all ILOs included in the course
     let ILOs = [];
 
-    // Loop through each keys on config.json
+    // Loop through each keys on appConfig.json > ilosVersions
     for (const [key] of Object.entries(configContent.ilosVersions)) {
         // Check which dependencies are included in package.json
         if (packageFileContent.dependencies.hasOwnProperty(`${key}`)) {

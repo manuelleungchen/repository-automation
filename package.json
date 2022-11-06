@@ -1,5 +1,5 @@
 {
-    "name": "repository-automator",
+    "name": "repository-automation",
     "version": "0.1.0",
     "private": true,
     "author": "Manuel Leung Chen",
@@ -53,8 +53,8 @@
     },
     "build": {
         "appId": "com.tvo.npmbuilder",
-        "productName": "Repository Automator",
-        "copyright": "Repository Automator Copyrights",
+        "productName": "Repository Automation",
+        "copyright": "Repository Automation Copyrights",
         "files": [
             "build/**/*"
         ],
@@ -71,13 +71,16 @@
             }
         ],
         "mac": {
-            "target": "dmg"
+            "target": "dmg",
+            "icon": "build/logo.png"
         },
         "win": {
-            "target": "nsis"
+            "target": "nsis",
+            "icon": "build/logo.png"
         },
         "linux": {
-            "target": "deb"
+            "target": "deb",
+            "icon": "build/logo.png"
         }
     }
 }

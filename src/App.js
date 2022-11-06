@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import logo from './assets/img/logo.svg';
+import logo from './assets/img/logo.png';
 import vpnConnectedIcon from './assets/img/shield-check.svg';
 import vpnDisconnectedIcon from './assets/img/shield-exclamation.svg';
 
@@ -133,7 +133,7 @@ function App() {
         <div className="App">
             <header className="App-header">
                 <img src={logo} width={50} className="App-logo" alt="logo" />
-                <h1>Repository Automator</h1>
+                <h1>Repository Automation</h1>
             </header>
 
             <main className="container">

@@ -22,7 +22,6 @@ function createWindow() {
         height: 600, // height of window
         minWidth: 400, // min width of window
         minHeight: 400, // min height of window
-        // icon: path.join(ASSETS_PATH, './logo3.png'),
         webPreferences: {
             // The preload file where we will perform our app communication
             preload: path.join(__dirname, "preload.js"),
@@ -30,7 +29,7 @@ function createWindow() {
             contextIsolation: true, // Isolating context so our app is not exposed to random javascript executions making it safer.
             nodeIntegrationInWorker: true  // For Multithreading with Web Workers to run scripts in background threads.
         },
-    });
+    }); 
 
     // In production, set the initial browser path to the local bundle generated
     // by the Create React App build process.
@@ -42,9 +41,6 @@ function createWindow() {
     if (!app.isPackaged) {
         mainWindow.webContents.openDevTools();
     }
-
-    // Setting Window Icon - Asset file needs to be in the public/images folder.
-    // mainWindow.setIcon(path.join(__dirname, 'images/appicon.ico'));
 
     // When Electron window finish loading,
     mainWindow.webContents.on('did-finish-load', () => {
@@ -94,7 +90,6 @@ process.on('uncaughtException', (err) => {
     }
 })
 
-
 // This function checks if there is a VPN connection by issuing HTTP/HTTPS requests using Chromium's native networking library
 function checkVPNConnection() {
     const { net } = require('electron')  // Import net module (client-side API for issuing HTTP(S) requests).
@@ -115,8 +110,8 @@ function showNotification(message) {
         body: message,
         silent: false,
         // ASSETS_PATH, `worker.js`
-        // icon: path.join(ASSETS_PATH, './logo3.png'),
-        // icon: path.join(__dirname, '../assets/logo3.png'),
+        // icon: path.join(ASSETS_PATH, './logo.png'),
+        // icon: path.join(__dirname, '../assets/logo.png'),
         timeoutType: 'default'
     }
     new Notification(options).show()

@@ -9,8 +9,9 @@ const getWindowSize = () => {
 
 function ListGroup({ repos, handleSelectedRepos }) {
 
-    // Store all checkboxes checked state
-    const [reposList, setReposList] = useState(repos);
+    const [reposList, setReposList] = useState(repos);  // Store all checkboxes checked state
+    const [selectReposCount, setSelectReposCount] = useState(0);  // Store count of selected repos
+
     const [cursor, setCursor] = useState(undefined);   // Store position of current checklist item in state
     const [windowSize, setWindowSize] = useState(getWindowSize());  // Store window width
     const [gripColsCount, setGripColsCount] = useState(0);  // Store Grip Cols Count
@@ -52,6 +53,7 @@ function ListGroup({ repos, handleSelectedRepos }) {
         checkedRepos.forEach((checkedRepo, index) => {
             if (checkedRepo.selected === true) { reposPath.push(reposList[index].path) }
         })
+        setSelectReposCount(reposPath.length) // Update selected repos count
         handleSelectedRepos(reposPath)
     }
 
@@ -162,16 +164,19 @@ function ListGroup({ repos, handleSelectedRepos }) {
         <div className="step">
             <h3>Step #3 - Select Course Repos</h3>
             <input type="search" id="searchBox" placeholder="Search for a course" onChange={filterBySearch} />
-            <label htmlFor="selectAll" id="selectAllLabel">
-                <input type="checkbox"
-                    className="checkmark"
-                    name="selectAll"
-                    id="selectAll"
-                    onChange={handleSelectAll}
-                    ref={selectedAllRef}
-                />
-                Select All
-            </label>
+            <div className="pushToSides">
+                    <label htmlFor="selectAll" id="selectAllLabel">
+                        <input type="checkbox"
+                            name="selectAll"
+                            id="selectAll"
+                            onChange={handleSelectAll}
+                            ref={selectedAllRef}
+                        />
+                        Select All
+                    </label>
+                    <p id="selectedCount">{selectReposCount} selected</p>
+            </div>
+            
 
             <p id="nav-instructions"><small>Use arrows and space/enter keys, or mouse to select.</small></p>
 
@@ -190,7 +195,6 @@ function ListGroup({ repos, handleSelectedRepos }) {
                                     >
                                         <input
                                             type="checkbox"
-                                            className="checkmark"
                                             id={`checkbox-${index}`}
                                             checked={repo.selected || false}
                                             onChange={() => handleOnCheckboxChange(index)}

@@ -1,10 +1,14 @@
-import { useState, useEffect } from "react";
-import './TaskPrompt.css'
+import { useState, useEffect, useRef } from "react";
+import './TaskPrompt.css';
+import ReactMarkdown from 'react-markdown';
 
 function TaskPrompt({ tasks, handleTaskSelection }) {
 
     // Store all checkboxes checked state
     const [checked, setChecked] = useState([]);
+    // Store opened details tab
+    const [currentDetails, setCurrentDetails] = useState("");
+
 
     useEffect(() => {
         setChecked(new Array(tasks.length).fill(false));
@@ -27,15 +31,29 @@ function TaskPrompt({ tasks, handleTaskSelection }) {
         updateSelectedTasks(updatedCheckedState)
     };
 
+    // Handle toggled details tab
+    const toggleDetails = (event, detailsId) => {
+        event.preventDefault();
+        setCurrentDetails((detailsId === currentDetails) ? "" : detailsId);
+    };
+
     return (
         <div className="step">
             <h3>Step #2 - Select actions to perform</h3>
             {tasks.map((task, index) => {
                 return (
                     <div className="list-item" key={index}>
-                        <input type="checkbox" className="checkbox" name={task.label} id={task.label} value={task.value} checked={checked[index] || false}
+                        <label className="checkbox-label" htmlFor={task.label}>
+                            <input type="checkbox" name={task.label} id={task.label} value={task.value} checked={checked[index] || false}
                             onChange={() => handleOnChange(index)} />
-                        <label className="checkbox-label" htmlFor={task.label}>{task.label}</label>
+                            {task.label}
+                        </label>
+                        <details className="details" key={index} open={currentDetails === index} onClick={(event) => toggleDetails(event, index)}>
+                            <summary>More info</summary>
+                            <div className="details-content">
+                                <ReactMarkdown children={task.description} />
+                            </div>
+                        </details>
                     </div>
                 )
             })}

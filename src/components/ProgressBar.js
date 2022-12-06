@@ -1,29 +1,25 @@
 import React from 'react'
 import './ProgressBar.css'
 
-function ProgressBar(props) {
-    const { completed, handleCloseProgressbar } = props;
-
+function ProgressBar({ completed, status, handleCloseProgressbar }) {
     let bgColor = ""
 
-    if (completed < 20) {
+    if (completed < 50) {
         bgColor = "#ed4a3b"
     }
-    else if (completed >= 20 && completed < 40) {
+    else if (completed >= 50 && completed < 70) {
         bgColor = "#f09e4d"
     }
-    else if (completed >= 40 && completed < 60) {
-        bgColor = "#f0eb5d"
+    else if (completed >= 70 && completed < 90) {
+        bgColor = "#ffe599"
     }
-    else if (completed >= 60 && completed < 80) {
+    else if (completed >= 90) {
         bgColor = "#9EC899"
     }
-    else if (completed >= 80) {
-        bgColor = "#32e35d"
-    }
-
+    
     return (
         <div id="progressbarWrapper">
+            {status}
             <div id='progressbar'>
                 <div id='progressbarFiller' style={{
                     width: `${completed}%`,

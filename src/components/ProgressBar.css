@@ -3,30 +3,23 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    /* align-self: center; */
-    /* justify-content: space-evenly; */
+    padding: 5%;
     position: fixed;
-    /* Stay in place */
     z-index: 1;
-    /* Sit on top */
     left: 0;
     top: 0;
     width: 100%;
-    /* Full width */
     height: 100%;
-    /* Full height */
-    overflow: auto;
-    /* Enable scroll if needed */
     background-color: var(--light-font-color);
     opacity: 1;
 }
 
 #progressbar {
     height: 50px;
-    width: 90%;
+    width: 100%;
     background-color: #6c7f7b;
-    border-radius: 50px;
-    box-shadow: 2px 2px 0px 0px rgb(0 0 0 / 60%);
+    border-radius: 10px;
+    box-shadow: 2px 3px 0px 0px rgb(0 0 0 / 60%);
 }
 
 #progressbarFiller {
@@ -50,7 +43,7 @@
     padding: 8px;
     background-color: var(--secondary-color-light);
     color: var(--dark-font-color);
-    box-shadow: 3px 3px 0px 0px rgb(0 0 0 / 60%);
+    box-shadow: 2px 3px 0px 0px rgb(0 0 0 / 60%);
     border: none;
     border-radius: 5px;
 }

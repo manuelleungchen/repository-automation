@@ -20,15 +20,23 @@
     "tasksList": [
         {
             "label": "Update ILOs version",
-            "value": "ilos-update"
+            "value": "ilos-update",
+            "description": "This task will perform the following actions: \n 1. perform `git pull` command \n 2. update ILOs build version on package.json file \n 3. add &ldquo;department&rdquo; : &ldquo;elem&rdquo; in any widget .json files (containing **flowchart**, **flashcards**, **sorting**, **fill-in-the-blank**, **fillintheblank**, **fib**, **multiple-choice**, **multiplechoice**, or **matching** in their name) \n 4. delete **vendor.min.js**, **tvo_k8.css**, **package-lock.json**, and **node_modules** \n 5. perform `npm install` command follow by `npm run build` command"
         },
         {
             "label": "Rebuild K8 CSS and vendor.min.js",
-            "value": "npm-rebuild"
+            "value": "npm-rebuild",
+            "description": "This task will perform the following actions: \n 1. perform `git pull` command \n 2. delete **vendor.min.js**, **tvo_k8.css**, **package-lock.json**, and **node_modules** \n 3. perform `npm install` command follow by `npm run build` command"
         },
         {
-            "label": "Update course repos",
-            "value": "update-course-repos"
+            "label": "Pull from Gitlab",
+            "value": "pull-from-gitlab",
+            "description": "This task will perform a `git pull` command."
+        },
+        {
+            "label": "Push to Gitlab",
+            "value": "push-to-gitlab",
+            "description": "This task will perform a `git push` command."
         }
     ],
     "functionsList": {
@@ -44,8 +52,11 @@
             "deleteBuildFiles",
             "npmRunBuild"
         ],
-        "update-course-repos": [
+        "pull-from-gitlab": [
             "gitPull"
+        ],
+        "push-to-gitlab": [
+            "gitPush"
         ]
         
     }

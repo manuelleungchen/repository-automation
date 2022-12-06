@@ -25,7 +25,7 @@ function useDelayUnmount(isMounted, delayTime) {
 
 const mountedStyle = { animation: "inAnimation 450ms ease-in" };
 const unmountedStyle = {
-    animation: "outAnimation 470ms ease-out",
+    animation: "outAnimation 250ms ease-out",
     animationFillMode: "forwards"
 };
 
@@ -35,15 +35,19 @@ function App() {
     const [selectedRepos, setSelectedRepos] = useState([]);   // Store all selected repos
     const [selectedTasks, setSelectedTasks] = useState([]);   // Store all selected tasks
     const [progressbarValue, setProgressbarValue] = useState(0)  // Store progressbar percentage
+    const [progressbarStatus, setProgressbarStatus] = useState("")  // Store progressbar status
 
     const [isMounted, setIsMounted] = useState(false);
-    const showDiv = useDelayUnmount(isMounted, 250);
+    const showReposList = useDelayUnmount(isMounted, 200);
 
     const [isProgressbarMounted, setIsProgressbarMounted] = useState(false);
-    const showProgressbar = useDelayUnmount(isProgressbarMounted, 250);
+    const showProgressbar = useDelayUnmount(isProgressbarMounted, 0);
 
     // Array that containes all the tasks available to run in the App 
     const [tasksList, setTasksList] = useState([]);
+
+    // Variable that containes all the ILOs versions
+    const [ilosVersions, setIlosVersions] = useState([]);
 
     useEffect(() => {
         console.log("DOM ready")
@@ -60,7 +64,8 @@ function App() {
 
         window.api.getConfigData(arg => {
             // console.log(arg)
-            setTasksList(arg)
+            setTasksList(arg.tasksList)
+            setIlosVersions(arg.ilosVersions)
         })
 
         // Indicate to Main that Renderer is ready and recieve List of repos from Main
@@ -75,10 +80,7 @@ function App() {
 
     const onSelectFolder = () => {
         window.api.selectFolder('Select folder clicked').then(data => {
-            console.log("data saved ready to ready1")
-            console.log(data)
             if (data[0] === "saved") {
-                // console.log("data saved ready to ready2")
                 setReposPath(data[1])
                 window.api.getRepos("DOM ready").then(results => setRepos(results))
             }
@@ -88,21 +90,15 @@ function App() {
     // This function handle the Start button
     const handleSubmit = async () => {
         // Listen for progressbar updates from Main
-        window.api.updateProgressbar(arg => {
-            console.log("Updating progressbar")
-            console.log(arg)
-            setProgressbarValue(arg);
+        window.api.updateProgressbar((value, status) => {
+            setProgressbarValue(value)
+            setProgressbarStatus(status)
         })
         // Change state to show progressbar
-        // setShowProgrebar(true)
         setIsProgressbarMounted(true)
 
-
         // Send to Main repos and tasks to execute
-        const progress = await window.api.updateRepos(selectedRepos, selectedTasks)
-        if (progress === "update") {
-            console.log("Done")
-        }
+        await window.api.updateRepos(selectedRepos, selectedTasks)
     }
 
     // This function is passed to ListGroup component to update selectedRepos state
@@ -123,11 +119,10 @@ function App() {
     const handleCloseProgressbar = () => {
         setIsProgressbarMounted(false)  // Hide progressbar
         setProgressbarValue(0)   // Reset progressbar value to 0
+        setProgressbarStatus("")   // Reset progressbar status to ""
     }
 
     const [vpnConnected, setVpnConnected] = useState(false);
-    // const [showProgrebar, setShowProgrebar] = useState(false);
-
 
     return (
         <div className="App">
@@ -137,25 +132,26 @@ function App() {
             </header>
 
             <main className="container">
-                <span id='vpnStatus'>{vpnConnected ? (<img src={vpnConnectedIcon} width={25} id="vpn-connected-icon" alt="vpn connected icon" />
-                ) : (<img src={vpnDisconnectedIcon} width={25} id="vpn-disconnected-icon" alt="vpn disconnected icon" />
-                )} VPN {vpnConnected ? "connected" : "disconnected"}</span>
-
                 <div className="row">
-                    <div className="col-12 col-lg-6 col-xl-5 offset-xl-1">
+                    <div className="col-12 col-xl-10 offset-xl-1">
+                        <span id='vpnStatus'>{vpnConnected ? (<img src={vpnConnectedIcon} width={25} id="vpn-connected-icon" alt="vpn connected icon" />
+                        ) : (<img src={vpnDisconnectedIcon} width={25} id="vpn-disconnected-icon" alt="vpn disconnected icon" />
+                        )} VPN {vpnConnected ? "connected" : "disconnected"}</span>
+                    </div>
+                    <div className="col-12 col-xl-10 offset-xl-1">
                         <div className="step">
                             <h3>Step #1 - Select location of course repos</h3>
                             <p id='repos-path'>{reposPath}</p>
                             <input type="button" className="selectButton" onClick={onSelectFolder} value="Select folder" />
                         </div>
                     </div>
-                    <div className="col-12 col-lg-6 col-xl-5">
+                    <div className="col-12 col-xl-10 offset-xl-1">
                         {repos.length > 0 ? <TaskPrompt tasks={tasksList} handleTaskSelection={handleSelectedTasks} /> : <div id="warningDiv" >
                             <p><strong>There aren't course repos available</strong></p>
                         </div>}
                     </div>
                     <div className="col-12 col-xl-10 offset-xl-1">
-                        {showDiv &&
+                        {showReposList &&
                             <div style={isMounted ? mountedStyle : unmountedStyle}>
                                 <ListGroup repos={repos} handleSelectedRepos={handleSelectedRepos} />
                                 <input type="button" id="start-btn" value="START" onClick={handleSubmit} disabled={(selectedRepos.length === 0 || vpnConnected === false) ? true : false} tabIndex={0} />
@@ -166,7 +162,7 @@ function App() {
 
                 {showProgressbar &&
                     <div style={isProgressbarMounted ? mountedStyle : unmountedStyle}>
-                        <ProgressBar completed={progressbarValue} handleCloseProgressbar={handleCloseProgressbar} />
+                        <ProgressBar completed={progressbarValue} status={progressbarStatus} handleCloseProgressbar={handleCloseProgressbar} />
                     </div>
                 }
             </main>

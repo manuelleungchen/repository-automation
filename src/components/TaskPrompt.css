@@ -1,68 +1,36 @@
 .list-item {
     display: flex;
-    flex-direction: row;
-    text-align: center;
-}
-
-.checkbox {
-    /* Add if not using autoprefixer */
-    -webkit-appearance: none;
-    /* Remove most all native input styles */
-    appearance: none;
-    /* For iOS < 15 */
-    background-color: var(--light-font-color);
-    /* Not removed via appearance */
-    margin: 0;
-    font: inherit;
-    color: currentColor;
-    width: 25px;
-    height: 25px;
-    border-radius: 0.15em;
-    transform: translateY(-0.075em);
-
-    display: grid;
-    place-content: center;
-    box-shadow: 2px 2px 0px 0px rgb(0 0 0 / 60%);
-}
-
-.checkbox::before {
-    content: "";
-    width: 1em;
-    height: 1em;
-    clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
-    transform: scale(0);
-    transform-origin: bottom left;
-    transition: 120ms transform ease-in-out;
-    box-shadow: inset 1em 1em var(--form-control-color);
-    /* Windows High Contrast Mode */
-    background-color: CanvasText;
-}
-
-.checkbox:checked::before {
-    transform: scale(1);
-}
-
-.checkbox:focus {
-    outline: 3px solid var(--main-color-dark);
-}
-
-.checkbox:hover {
-    background-color: var(--main-color-dark);
-    cursor: pointer;
+    flex-direction: column;
 }
 
 /* Customize the label (the container) */
 .checkbox-label {
-    display: block;
-    position: relative;
-    padding-left: 15px;
-    margin-bottom: 15px;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
+    display: flex;
+    margin: 15px auto 8px 0;
+    font-weight: bold;
 }
 
 .checkbox-label:hover {
     cursor: pointer;
+}
+
+.details > summary {
+    background-color: var(--main-color-dark);
+    color: var(--light-font-color);
+    cursor: pointer;
+    padding: 0.1rem 1rem;
+    border-radius: 0.15em;
+}
+
+.details[open] > summary {
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
+}
+
+.details > div {
+    border: 2px solid var(--main-color-dark);
+    padding: 0.8rem;
+    background-color: var(--light-font-color);
+    border-bottom-left-radius: 0.15em;
+    border-bottom-right-radius: 0.15em;
 }

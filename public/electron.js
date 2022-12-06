@@ -4,6 +4,10 @@ const path = require('path');
 const fs = require("fs");
 const { Worker } = require('worker_threads')
 
+// Useful for Electron apps as GUI apps on macOS and Linux do not inherit the $PATH defined in your dotfiles (.bashrc/.bash_profile/.zshrc/etc).
+// Only Version 3.0 works.
+const fixPath = require('fix-path');
+
 const ASSETS_PATH = app.isPackaged ? path.join(process.resourcesPath, '') : path.join(app.getAppPath(), `extraResources`);
 
 let mainWindow;
@@ -29,13 +33,18 @@ function createWindow() {
             contextIsolation: true, // Isolating context so our app is not exposed to random javascript executions making it safer.
             nodeIntegrationInWorker: true  // For Multithreading with Web Workers to run scripts in background threads.
         },
-    }); 
+    });
 
     // In production, set the initial browser path to the local bundle generated
     // by the Create React App build process.
     // In development, set it to localhost to allow live/hot-reloading.
     const appURL = app.isPackaged ? `file://${__dirname}/../build/index.html` : "http://localhost:3000";
     mainWindow.loadURL(appURL);
+
+    // If app is packaged, fixed the $PATH on macOS and Linux
+    if (app.isPackaged) {
+        fixPath();
+    }
 
     // Automatically open Chrome's DevTools in development mode.
     if (!app.isPackaged) {
@@ -71,21 +80,18 @@ app.on('window-all-closed', function () {
 
 // When electron app is on focus, set interval to call checkVPNConnection func
 app.on('browser-window-focus', (event, win) => {
-    console.log('browser-window-focus', win.webContents.id)
     checkVPNConnection()
     connectionInterval = setInterval(checkVPNConnection, 600000) // Check VPN every 10 mins
 })
 
 // // When electron app is out focus, stop interval calling checkVPNConnection func
 app.on('browser-window-blur', (event, win) => {
-    console.log('browser-window-blur', win.webContents.id)
     clearInterval(connectionInterval);
 })
 
 // Catch Error: net::ERR_NAME_NOT_RESOLVED from HTTP/HTTPS requests inside checkVPNConnection()
 process.on('uncaughtException', (err) => {
     if (err.toString() === "Error: net::ERR_NAME_NOT_RESOLVED") {
-        console.log("VPN disconnected")
         mainWindow.webContents.send('vpn-status', false)
     }
 })
@@ -106,15 +112,15 @@ function showNotification(message) {
     // Options for notifications
     const options = {
         title: 'Repository Automator',
-        // subtitle: subtitle,
         body: message,
         silent: false,
-        // ASSETS_PATH, `worker.js`
-        // icon: path.join(ASSETS_PATH, './logo.png'),
-        // icon: path.join(__dirname, '../assets/logo.png'),
         timeoutType: 'default'
     }
     new Notification(options).show()
+}
+
+function showErrorBox(message) {
+    dialog.showErrorBox('Oops! Something went wrong!', message)
 }
 
 // This function gets a list of all Elementary course repos
@@ -135,7 +141,28 @@ function gitPull(repoPath) {
     return new Promise((resolve, reject) => {
         const worker = new Worker(path.join(ASSETS_PATH, `worker.js`), { workerData: { commandType: "gitPull", repoPath: repoPath } });
         worker.on('message', resolve);
-        worker.on('error', reject);
+        worker.on('error', (error) => {
+            reject(error)
+            console.log(error)
+            showErrorBox(`${error}`)
+        });
+        worker.on('exit', (code) => {
+            if (code !== 0)
+                reject(new Error(`Worker stopped with exit code ${code}`));
+        })
+    })
+}
+
+// This function executes git push command in shell
+function gitPush(repoPath) {
+    return new Promise((resolve, reject) => {
+        const worker = new Worker(path.join(ASSETS_PATH, `worker.js`), { workerData: { commandType: "gitPush", repoPath: repoPath } });
+        worker.on('message', resolve);
+        worker.on('error', (error) => {
+            reject(error)
+            console.log(error)
+            showErrorBox(`${error}`)
+        });
         worker.on('exit', (code) => {
             if (code !== 0)
                 reject(new Error(`Worker stopped with exit code ${code}`));
@@ -194,8 +221,12 @@ function updateILOsVersion(filePath) {
 function deleteBuildFiles(repoPath) {
     return new Promise((resolve, reject) => {
         const worker = new Worker(path.join(ASSETS_PATH, `worker.js`), { workerData: { commandType: "deleteBuildFiles", repoPath: repoPath } });
-        worker.once('message', resolve);
-        worker.on('error', reject);
+        worker.on('message', resolve);
+        worker.on('error', (error) => {
+            reject(error)
+            console.log(error)
+            showErrorBox(`${error}`)
+        });
         worker.on('exit', (code) => {
             if (code !== 0)
                 reject(new Error(`Worker stopped with exit code ${code}`));
@@ -211,7 +242,7 @@ function addDepartmentProperty(widgetsPath) {
         .map((file) => path.join(widgetsPath, file.name))
         .filter((file) => {
             // Match only json files containing at least one of the ILOs name in RegEx
-            return file.match(/flowchart|flashcards|sorting|fill-in-the-blank|multiple-choice|matching/) && file.includes(".json");
+            return file.match(/flowchart|flashcards|sorting|fill-in-the-blank|fillintheblank|fib|multiple-choice|multiplechoice|matching/) && file.includes(".json");
         });
 
     widgetsFiles.forEach((jsonPath) => {
@@ -232,8 +263,12 @@ function addDepartmentProperty(widgetsPath) {
 function npmRunBuild(repoPath) {
     return new Promise((resolve, reject) => {
         const worker = new Worker(path.join(ASSETS_PATH, `worker.js`), { workerData: { commandType: "npmRunBuild", repoPath: repoPath } });
-        worker.once('message', resolve);
-        worker.on('error', reject);
+        worker.on('message', resolve);
+        worker.on('error', (error) => {
+            reject(error)
+            console.log(error)
+            showErrorBox(`${error}`)
+        });
         worker.on('exit', (code) => {
             if (code !== 0)
                 reject(new Error(`Worker stopped with exit code ${code}`));
@@ -253,8 +288,8 @@ ipcMain.handle("get-repos", () => {
         savedReposLoc = fs.readFileSync(path.join(app.getPath("userData"), "reposLocation.json"), { encoding: "utf-8" });
         // Send repos path to renderer
         mainWindow.webContents.send('update-repos-path', JSON.parse(savedReposLoc).reposLocation)
-        // Send list of tasks 
-        mainWindow.webContents.send('get-config-data', configContent["tasksList"])
+        // Send config data 
+        mainWindow.webContents.send('get-config-data', configContent)
     }
     catch (err) {
         // Here we print the error when the file was not found, and return empty array.
@@ -280,54 +315,77 @@ ipcMain.handle("update-repos", async (event, reposPath, tasks) => {
     let progressBarValue = 0
     const progressIncrement = 1 / (reposPath.length * functionsList.length)
 
-    mainWindow.setProgressBar(progressBarValue)
-    // console.log(`List of functions to run ${functionsList}`)
-
     for (let index = 0; index < reposPath.length; index++) {
-        mainWindow.setProgressBar(progressBarValue)
+        mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), `Updating ${reposPath}`)
 
         for (let i = 0; i < functionsList.length; i++) {
             switch (functionsList[i]) {
                 case "gitPull":
+                    // Update progressbars
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Pulling repo")
+
                     // This function updates course by doing a git pull command
                     await gitPull(reposPath[index]);
                     // Update progressbars
                     progressBarValue += progressIncrement
                     mainWindow.setProgressBar(progressBarValue)
-                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100))
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Pulling repo")
+                    break;
+                case "gitPush":
+                    // Update progressbars
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Pushing repo")
+
+                    // This function updates course by doing a git pull command
+                    await gitPush(reposPath[index]);
+                    // Update progressbars
+                    progressBarValue += progressIncrement
+                    mainWindow.setProgressBar(progressBarValue)
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Pushing repo")
                     break;
                 case "updateILOsVersion":
+                    // Update progressbars
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Updating ILOs version")
+
                     // This function updates the ILOs versions in package.json and index.js
                     updateILOsVersion(reposPath[index]);
                     // Update progressbars
                     progressBarValue += progressIncrement
                     mainWindow.setProgressBar(progressBarValue)
-                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100))
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Updating ILOs version")
                     break;
                 case "deleteBuildFiles":
+                    // Update progressbars
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Deleting tvo_k8.css, vendor.min.js, node_modules and package-lock.json")
+
                     // Delete tvo_k8.css, vendor.min.js, node_modules and package-lock.json
                     await deleteBuildFiles(reposPath[index])
                     // Update progressbars
                     progressBarValue += progressIncrement
                     mainWindow.setProgressBar(progressBarValue)
-                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100))
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Deleting tvo_k8.css, vendor.min.js, node_modules and package-lock.json")
                     break;
 
                 case "addDepartmentProperty":
+                    // Update progressbars
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Adding Dept property")
+
                     // Update widgets .json files
                     addDepartmentProperty(`${path.join(reposPath[index], "widgets")}`)
                     // Update progressbars
                     progressBarValue += progressIncrement
                     mainWindow.setProgressBar(progressBarValue)
-                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100))
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Adding Dept property")
                     break;
                 case "npmRunBuild":
-                    // Run Script for npm install and npm run build (possible git commands)
+                    // Update progressbars
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Running commands 'NPM install' and 'NPM rebuild'")
+
+                    // Run commands for npm install and npm run build (possible git commands)
                     await npmRunBuild(reposPath[index])
                     // Update progressbars
                     progressBarValue += progressIncrement
                     mainWindow.setProgressBar(progressBarValue)
-                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100))
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Running commands 'NPM install' and 'NPM rebuild'")
                     break;
                 default:
             }
@@ -340,8 +398,6 @@ ipcMain.handle("update-repos", async (event, reposPath, tasks) => {
     }
     // Once done with all repos, hide progressbar
     mainWindow.setProgressBar(-1)
-    return "updated";
-
 })
 
 // Handle request to select folder

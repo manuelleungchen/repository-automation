@@ -49,7 +49,6 @@ h2 {
     width: 180px;
     margin: 0 0 0 auto;
     text-align: right;
-    color: var(--dark-font-color);
 }
 
 #vpn-connected-icon {

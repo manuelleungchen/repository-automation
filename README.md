@@ -1,70 +1,95 @@
-# Getting Started with Create React App
+# Repository Automation App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+![License](https://img.shields.io/badge/License%3A-mit-darkgreen.svg)
 
-## Available Scripts
+## Overview  
+Desktop application that allows running multiple scripts on one or more repository courses synchronously. At the moment, this App can only run on elementary course repos.
 
+![Repository Automation App overview screenshot](./src/assets/screenshots/screenshot1.png)
+
+## Table of Contents   
+* [Features](#Features)
+* [Installation](#Installation)
+* [How to use the App ](#How-to-use-the-App)
+* [Available scripts](#Available-scripts)
+* [Credits](#Credits)
+* [License](#License)
+* [Questions](#Questions)
+
+## Features
+* Detect if GitLab is online
+* Search and select multiple repos
+* Pull selected repos
+* Push selected repos
+* Rebuild k8 css and vendor.min files
+* Add `"department" : "elem"` in `.json` files located in **widgets** folder
+
+## Installation
+1. Clone the repo.
+2. Navigate to the project directory.
+3. Run command ```npm install``` to install any dependencies.
+
+## How to use the App    
+1. Launch the App.
+2. Verify location of course repos is correct. Otherwise select the correct folder.
+![Re screenshot](./src/assets/screenshots/screenshot2.png)
+3. Select one or more actions to perform.
+![Re screenshot](./src/assets/screenshots/screenshot3.png)
+4. Click on **More info** tab to discover detailed explanation of each action.
+![Re screenshot](./src/assets/screenshots/screenshot4.png)
+5. Select one or more repos to execute the previous selected actions.
+![Re screenshot](./src/assets/screenshots/screenshot5.png)
+6. Click **Start** button once ready. If the button is the clickable, verify that your computer can access GitLab. This will be indicated with a green cloud icon on the top right corner.
+![Re screenshot](./src/assets/screenshots/screenshot6.png)
+7. Check the progress on the automation. Allow notifications for this App to receive updates via push notifications.
+![Re screenshot](./src/assets/screenshots/screenshot7.png)
+
+## Available scripts
 In the project directory, you can run:
 
-### `npm start`
-
+### `npm run dev`
 Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Open **http://localhost:3000** to view it in an instance of Chromium browser that comes Electron.
 
 The page will reload when you make changes.\
-You may also see any lint errors in the console.
 
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
+### `npm run pack-mac`
 Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Package the app for MacOS in the `dist` folder.\
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### `npm run pack-win`
+Builds the app for production to the `build` folder.\
+Package the app for Windows in the `dist` folder.\
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### `npm run pack-linux`
+Builds the app for production to the `build` folder.\
+Package the app for Linux in the `dist` folder.\
 
-### `npm run eject`
+## Credits  
+Developed by: 
+Manuel Leung Chen ([GitHub](https://github.com/manuelleungchen))
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Tools used to develop this application: 
+* [Bootstrap](https://getbootstrap.com)
+* [Electron](https://www.electronjs.org)
+* [Node.js](https://nodejs.org/en/)
+* [React.js](https://reactjs.org/)
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Dev Dependencies:
+* [Bootstrap](https://www.npmjs.com/package/bootstrap)
+* [Concurrently](https://www.npmjs.com/package/concurrently)
+* [Electron](https://www.npmjs.com/package/electron)
+* [Electron-Builder](https://www.npmjs.com/package/electron-builder)
+* [React](https://www.npmjs.com/package/react)
+* [React-Markdown](https://www.npmjs.com/package/react-markdown)
+* [Fix-path](https://www.npmjs.com/package/fix-path)
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## License
+Copyright (c) 2020 - Manuel Leung Chen
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Licensed under the [MIT License](https://choosealicense.com/licenses/mit/).
 
-## Learn More
+## Questions
+Manuel Leung Chen - [GitHub](https://github.com/manuelleungchen )
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+If you have any question about this application, please reach out me by [Email](manuel.leungchen@gmail.com)

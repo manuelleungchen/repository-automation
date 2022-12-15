@@ -29,7 +29,6 @@ function createWindow() {
         webPreferences: {
             // The preload file where we will perform our app communication
             preload: path.join(__dirname, "preload.js"),
-            // worldSafeExecuteJavaScript: true, // If you're using Electron 12+, this should be enabled by default and does not need to be added here.
             contextIsolation: true, // Isolating context so our app is not exposed to random javascript executions making it safer.
             nodeIntegrationInWorker: true  // For Multithreading with Web Workers to run scripts in background threads.
         },
@@ -329,7 +328,7 @@ ipcMain.handle("update-repos", async (event, reposPath, tasks) => {
                     // Update progressbars
                     progressBarValue += progressIncrement
                     mainWindow.setProgressBar(progressBarValue)
-                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Pulling repo")
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "")
                     break;
                 case "gitPush":
                     // Update progressbars
@@ -340,7 +339,7 @@ ipcMain.handle("update-repos", async (event, reposPath, tasks) => {
                     // Update progressbars
                     progressBarValue += progressIncrement
                     mainWindow.setProgressBar(progressBarValue)
-                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Pushing repo")
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "")
                     break;
                 case "updateILOsVersion":
                     // Update progressbars
@@ -351,7 +350,7 @@ ipcMain.handle("update-repos", async (event, reposPath, tasks) => {
                     // Update progressbars
                     progressBarValue += progressIncrement
                     mainWindow.setProgressBar(progressBarValue)
-                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Updating ILOs version")
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "")
                     break;
                 case "deleteBuildFiles":
                     // Update progressbars
@@ -362,7 +361,7 @@ ipcMain.handle("update-repos", async (event, reposPath, tasks) => {
                     // Update progressbars
                     progressBarValue += progressIncrement
                     mainWindow.setProgressBar(progressBarValue)
-                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Deleting tvo_k8.css, vendor.min.js, node_modules and package-lock.json")
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "")
                     break;
 
                 case "addDepartmentProperty":
@@ -374,7 +373,7 @@ ipcMain.handle("update-repos", async (event, reposPath, tasks) => {
                     // Update progressbars
                     progressBarValue += progressIncrement
                     mainWindow.setProgressBar(progressBarValue)
-                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Adding Dept property")
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "")
                     break;
                 case "npmRunBuild":
                     // Update progressbars
@@ -385,7 +384,7 @@ ipcMain.handle("update-repos", async (event, reposPath, tasks) => {
                     // Update progressbars
                     progressBarValue += progressIncrement
                     mainWindow.setProgressBar(progressBarValue)
-                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Running commands 'NPM install' and 'NPM rebuild'")
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "")
                     break;
                 default:
             }

@@ -1,6 +1,6 @@
 {
     "name": "repository-automation",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "private": true,
     "author": "Manuel Leung Chen",
     "description": "Electron app for running automations on repositories",
@@ -54,7 +54,7 @@
         "web-vitals": "^2.1.4"
     },
     "build": {
-        "appId": "com.tvo.npmbuilder",
+        "appId": "com.repository-automation",
         "productName": "Repository Automation",
         "copyright": "Repository Automation Copyrights",
         "files": [

@@ -15,11 +15,15 @@
 }
 
 .details > summary {
-    background-color: var(--main-color-dark);
+    background-color: var(--main-color);
     color: var(--light-font-color);
     cursor: pointer;
     padding: 0.1rem 1rem;
-    border-radius: 0.15em;
+    /* border-radius: 0.15em; */
+}
+
+.details > summary:focus {
+    outline: 3px solid var(--main-color-dark);
 }
 
 .details[open] > summary {
@@ -28,7 +32,7 @@
 }
 
 .details > div {
-    border: 2px solid var(--main-color-dark);
+    border: 2px solid var(--main-color);
     padding: 0.8rem;
     background-color: var(--light-font-color);
     border-bottom-left-radius: 0.15em;

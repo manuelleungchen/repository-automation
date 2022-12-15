@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import logo from './assets/img/logo.png';
-import vpnConnectedIcon from './assets/img/shield-check.svg';
-import vpnDisconnectedIcon from './assets/img/shield-exclamation.svg';
+import connectedIcon from './assets/img/cloud-check.svg';
+import disconnectedIcon from './assets/img/emoji-frown.svg';
+import gitlabLogo from './assets/img/gitlab-logo.svg';
 
 import './App.css';
 
@@ -54,7 +55,7 @@ function App() {
 
         window.api.vpnStatus(arg => {
             // console.log(arg)
-            setVpnConnected(arg)
+            setGitlabConnected(arg)
         })
 
         window.api.updateReposPath(arg => {
@@ -122,7 +123,7 @@ function App() {
         setProgressbarStatus("")   // Reset progressbar status to ""
     }
 
-    const [vpnConnected, setVpnConnected] = useState(false);
+    const [gitlabConnected, setGitlabConnected] = useState(false);
 
     return (
         <div className="App">
@@ -134,9 +135,12 @@ function App() {
             <main className="container">
                 <div className="row">
                     <div className="col-12 col-xl-10 offset-xl-1">
-                        <span id='vpnStatus'>{vpnConnected ? (<img src={vpnConnectedIcon} width={25} id="vpn-connected-icon" alt="vpn connected icon" />
-                        ) : (<img src={vpnDisconnectedIcon} width={25} id="vpn-disconnected-icon" alt="vpn disconnected icon" />
-                        )} VPN {vpnConnected ? "connected" : "disconnected"}</span>
+                        <span id='vpnStatus'>
+                            <img src={gitlabLogo} height={40} alt="GitLab icon" />
+                            {gitlabConnected ? (<img src={connectedIcon} width={25} id="vpn-connected-icon" alt="Cloud check icon" />
+                            ) : (<img src={disconnectedIcon} width={25} id="vpn-disconnected-icon" alt="Emoji frown icon" />
+                            )}
+                        </span>
                     </div>
                     <div className="col-12 col-xl-10 offset-xl-1">
                         <div className="step">
@@ -154,7 +158,7 @@ function App() {
                         {showReposList &&
                             <div style={isMounted ? mountedStyle : unmountedStyle}>
                                 <ListGroup repos={repos} handleSelectedRepos={handleSelectedRepos} />
-                                <input type="button" id="start-btn" value="START" onClick={handleSubmit} disabled={(selectedRepos.length === 0 || vpnConnected === false) ? true : false} tabIndex={0} />
+                                <input type="button" id="start-btn" value="START" onClick={handleSubmit} disabled={(selectedRepos.length === 0 || gitlabConnected === false) ? true : false} tabIndex={0} />
                             </div>
                         }
                     </div>

@@ -9,6 +9,7 @@ import './App.css';
 import ListGroup from './components/ListGroup.js';
 import TaskPrompt from './components/TaskPrompt.js';
 import ProgressBar from "./components/ProgressBar.js";
+import DepartDropDown from "./components/DepartDropDown.js";
 
 function useDelayUnmount(isMounted, delayTime) {
     const [showDiv, setShowDiv] = useState(false);
@@ -47,43 +48,46 @@ function App() {
     // Array that containes all the tasks available to run in the App 
     const [tasksList, setTasksList] = useState([]);
 
+    // State for selected depart
+    const [selectedDepart, setSelectedDepart] = useState("elem")
+
     // Variable that containes all the ILOs versions
-    const [ilosVersions, setIlosVersions] = useState([]);
+    // const [ilosVersions, setIlosVersions] = useState([]);
+
+    // State for Gitlab connection
+    const [gitlabConnected, setGitlabConnected] = useState(false);
 
     useEffect(() => {
         console.log("DOM ready")
 
         window.api.vpnStatus(arg => {
-            // console.log(arg)
             setGitlabConnected(arg)
         })
 
         window.api.updateReposPath(arg => {
-            // console.log(arg)
             setReposPath(arg)
         })
 
         window.api.getConfigData(arg => {
-            // console.log(arg)
-            setTasksList(arg.tasksList)
-            setIlosVersions(arg.ilosVersions)
+            setTasksList(arg.tasksList.filter(task => task.department === selectedDepart || task.department === "all"))
+            // setIlosVersions(arg.ilosVersions)
         })
 
         // Indicate to Main that Renderer is ready and recieve List of repos from Main
-        window.api.getRepos("DOM ready").then(results => setRepos(results))
+        window.api.getRepos(selectedDepart).then(results => setRepos(results))
 
         // Clean the listener after the component is dismounted
         return () => {
             console.log("removing all event")
             window.api.removeAll()
         };
-    }, []);
+    }, [selectedDepart]);
 
     const onSelectFolder = () => {
         window.api.selectFolder('Select folder clicked').then(data => {
             if (data[0] === "saved") {
                 setReposPath(data[1])
-                window.api.getRepos("DOM ready").then(results => setRepos(results))
+                window.api.getRepos(selectedDepart).then(results => setRepos(results))
             }
         })
     }
@@ -112,8 +116,12 @@ function App() {
     const handleSelectedTasks = newTasks => {
         if (newTasks.length === 0 || (newTasks.length > 0 && selectedTasks.length === 0)) {
             setIsMounted(!isMounted)
+            // Reset selected repos
+            console.log("Resetting selected repos")
+            // setSelectedRepos([])
         }
         setSelectedTasks(newTasks);
+        console.log(newTasks)
     };
 
     // This function is passed to handle the close button pressed on progressbar
@@ -123,7 +131,15 @@ function App() {
         setProgressbarStatus("")   // Reset progressbar status to ""
     }
 
-    const [gitlabConnected, setGitlabConnected] = useState(false);
+    // This function is passed to DepartDropDown component to update selectedDepart state
+    const handleSelectedDepart = (e) => {
+        setSelectedDepart(e.target.value );
+        // Reset tasks checkboxes states
+        setIsMounted(false)
+        setTasksList([])
+        setSelectedRepos([])
+        setSelectedTasks([])
+    }
 
     return (
         <div className="App">
@@ -143,6 +159,9 @@ function App() {
                         </span>
                     </div>
                     <div className="col-12 col-xl-10 offset-xl-1">
+                        <DepartDropDown value={selectedDepart} handleChange={handleSelectedDepart} />
+                    </div>
+                    <div className="col-12 col-xl-10 offset-xl-1">
                         <div className="step">
                             <h3>Step #1 - Select location of course repos</h3>
                             <p id='repos-path'>{reposPath}</p>
@@ -150,7 +169,7 @@ function App() {
                         </div>
                     </div>
                     <div className="col-12 col-xl-10 offset-xl-1">
-                        {repos.length > 0 ? <TaskPrompt tasks={tasksList} handleTaskSelection={handleSelectedTasks} /> : <div id="warningDiv" >
+                        {repos.length > 0 ? <TaskPrompt tasks={tasksList} depart={selectedDepart} handleTaskSelection={handleSelectedTasks} /> : <div id="warningDiv" >
                             <p><strong>There aren't course repos available</strong></p>
                         </div>}
                     </div>

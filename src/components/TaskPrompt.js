@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import './TaskPrompt.css';
 import ReactMarkdown from 'react-markdown';
 
-function TaskPrompt({ tasks, handleTaskSelection }) {
+function TaskPrompt({ tasks, depart, handleTaskSelection }) {
 
     // Store all checkboxes checked state
     const [checked, setChecked] = useState([]);
@@ -11,6 +11,9 @@ function TaskPrompt({ tasks, handleTaskSelection }) {
 
 
     useEffect(() => {
+        console.log(checked)
+        console.log(tasks)
+
         setChecked(new Array(tasks.length).fill(false));
     }, [tasks])
 
@@ -40,7 +43,7 @@ function TaskPrompt({ tasks, handleTaskSelection }) {
     return (
         <div className="step">
             <h3>Step #2 - Select actions to perform</h3>
-            {tasks.map((task, index) => {
+            {tasks.filter(task => task.department === depart || task.department === "all").map((task, index) => {
                 return (
                     <div className="list-item" key={index}>
                         <label className="checkbox-label" htmlFor={task.label}>

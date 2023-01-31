@@ -98,7 +98,7 @@ process.on('uncaughtException', (err) => {
 // This function checks if there is a VPN connection by issuing HTTP/HTTPS requests using Chromium's native networking library
 function checkVPNConnection() {
     const { net } = require('electron')  // Import net module (client-side API for issuing HTTP(S) requests).
-    const request = net.request('https://gitlab.tvo.org')
+    const request = net.request('https://gitlab.com/tvontario/')
     request.on('response', (response) => {
         console.log("VPN connected")
         mainWindow.webContents.send('vpn-status', true)
@@ -123,14 +123,17 @@ function showErrorBox(message) {
 }
 
 // This function gets a list of all Elementary course repos
-function getAllElementaryRepos(parentDirPath) {
+function getAllRepos(parentDirPath, depart) {
+
+    const searchFilter = (depart === "elem") ? "test" : "test"
+
     // Store all elementary repos
     const dirFolders = fs
         .readdirSync(parentDirPath, { withFileTypes: true })
         .filter((dir) => dir.isDirectory())
         .map((dir) => ({ name: dir.name, path: path.join(parentDirPath, dir.name), selected: false, hidden: false }))
         .filter((dir) => {
-            return fs.existsSync(path.join(dir.path, "lessons")) && dir.path.includes("elem");
+            return fs.existsSync(path.join(dir.path, "lessons")) && dir.path.includes(searchFilter);
         });
     return dirFolders;
 }
@@ -233,6 +236,23 @@ function deleteBuildFiles(repoPath) {
     })
 }
 
+// This function executes rm -f and rm -r commands in shell for vendor.min.js, ilc_core.css, package-lock.json, and node_modules folder
+function deleteBuildFilesSec(repoPath) {
+    return new Promise((resolve, reject) => {
+        const worker = new Worker(path.join(ASSETS_PATH, `worker.js`), { workerData: { commandType: "deleteBuildFilesSec", repoPath: repoPath } });
+        worker.on('message', resolve);
+        worker.on('error', (error) => {
+            reject(error)
+            console.log(error)
+            showErrorBox(`${error}`)
+        });
+        worker.on('exit', (code) => {
+            if (code !== 0)
+                reject(new Error(`Worker stopped with exit code ${code}`));
+        })
+    })
+}
+
 // This function make sure each json file in widgets folder contains "department": "elem"
 function addDepartmentProperty(widgetsPath) {
     const widgetsFiles = fs
@@ -278,7 +298,7 @@ function npmRunBuild(repoPath) {
 // End of all script functions
 
 // Handle request to get repos
-ipcMain.handle("get-repos", () => {
+ipcMain.handle("get-repos", (event, depart) => {
     let savedReposLoc;
     checkVPNConnection()
 
@@ -296,7 +316,7 @@ ipcMain.handle("get-repos", () => {
         return []
     }
     // Return repos location saved on reposLocation.json file
-    return getAllElementaryRepos(JSON.parse(savedReposLoc).reposLocation)
+    return getAllRepos(JSON.parse(savedReposLoc).reposLocation, depart)
 })
 
 // Handle request to update repos
@@ -313,6 +333,8 @@ ipcMain.handle("update-repos", async (event, reposPath, tasks) => {
     // Create progress bar
     let progressBarValue = 0
     const progressIncrement = 1 / (reposPath.length * functionsList.length)
+
+    console.log(functionsList)
 
     for (let index = 0; index < reposPath.length; index++) {
         mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), `Updating ${reposPath}`)
@@ -363,7 +385,17 @@ ipcMain.handle("update-repos", async (event, reposPath, tasks) => {
                     mainWindow.setProgressBar(progressBarValue)
                     mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "")
                     break;
+                case "deleteBuildFilesSec":
+                    // Update progressbars
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Deleting vendor.min.js, node_modules and package-lock.json")
 
+                    // Delete vendor.min.js, node_modules and package-lock.json
+                    await deleteBuildFilesSec(reposPath[index])
+                    // Update progressbars
+                    progressBarValue += progressIncrement
+                    mainWindow.setProgressBar(progressBarValue)
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "")
+                    break;
                 case "addDepartmentProperty":
                     // Update progressbars
                     mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Adding Dept property")
@@ -377,7 +409,7 @@ ipcMain.handle("update-repos", async (event, reposPath, tasks) => {
                     break;
                 case "npmRunBuild":
                     // Update progressbars
-                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Running commands 'NPM install' and 'NPM rebuild'")
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Running commands 'NPM install' and 'NPM build'")
 
                     // Run commands for npm install and npm run build (possible git commands)
                     await npmRunBuild(reposPath[index])

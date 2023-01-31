@@ -1,0 +1,21 @@
+#depart-container {
+    display: inline-block;
+}
+
+#depart-label {
+    margin-right: 0.5em;
+}
+
+#depart-select {
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+#depart-select:hover {
+    border: var(--main-color-dark) 2px solid;
+}
+
+#depart-select:focus {
+    outline: 3px solid var(--main-color-dark);
+    outline-offset: 2px;
+}

@@ -1,3 +1,4 @@
+import React from 'react'
 import './ProgressBar.css'   // Import styles
 
 function ProgressBar({ completed, status, handleCloseProgressbar }) {
@@ -27,7 +28,8 @@ function ProgressBar({ completed, status, handleCloseProgressbar }) {
                     <span id='progressbarLabel'>{`${completed}%`}</span>
                 </div>
             </div>
-            {completed === 100 && <button id='returnButon' onClick={handleCloseProgressbar}>Close</button>}
+            {completed === 100 ? <button id='returnButon' onClick={handleCloseProgressbar}>Close</button> : <div id="emptyBlock"></div>
+}
         </div>
     )
 }

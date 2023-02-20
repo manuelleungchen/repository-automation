@@ -46,6 +46,13 @@
     box-shadow: 2px 3px 0px 0px rgb(0 0 0 / 60%);
     border: none;
     border-radius: 5px;
+    height: 40px;
+}
+
+#emptyBlock {
+    margin-top: 1rem;
+    padding: 8px;
+    height: 40px;
 }
 
 #returnButon:focus {

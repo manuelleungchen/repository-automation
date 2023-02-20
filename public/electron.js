@@ -420,8 +420,11 @@ ipcMain.handle("update-repos", async (event, reposPath, tasks) => {
         // Show diff notification depending this is the last repo in the loop
         index + 1 < reposPath.length ?
             showNotification(`Finished with ${path.basename(reposPath[index])}`) :
-            showNotification("Automation completed");
+            showNotification("Automation completed!");
     }
+    // Update progressbar status
+    mainWindow.webContents.send('update-progressbar', 100, "Automation completed!")
+
     // Once done with all repos, hide progressbar
     mainWindow.setProgressBar(-1)
 })

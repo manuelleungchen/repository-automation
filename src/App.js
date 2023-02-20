@@ -103,10 +103,11 @@ function App() {
 
     // This function is passed to handle the close button pressed on progressbar
     const handleCloseProgressbar = () => {
-        setProgressbarValue(0)   // Reset progressbar value to 0
-        setProgressbarStatus("")   // Reset progressbar status to ""
         setSelectedTasks([]) // Reset selectedTasks context
         setSelectedRepos([]) // Reset selectedRepos context
+        setShowProgressbar(!showProgressbar) // Change state to show progressbar
+        setProgressbarValue(0)   // Reset progressbar value to 0
+        setProgressbarStatus("")   // Reset progressbar status to ""
     }
 
     return (<>

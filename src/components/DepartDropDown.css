@@ -1,5 +1,7 @@
 #depart-container {
     display: inline-block;
+    width: 60%;
+    font-size: large;
 }
 
 #depart-label {

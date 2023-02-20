@@ -1,5 +1,4 @@
-import React from 'react'
-import './ProgressBar.css'
+import './ProgressBar.css'   // Import styles
 
 function ProgressBar({ completed, status, handleCloseProgressbar }) {
     let bgColor = ""
@@ -16,7 +15,7 @@ function ProgressBar({ completed, status, handleCloseProgressbar }) {
     else if (completed >= 90) {
         bgColor = "#9EC899"
     }
-    
+
     return (
         <div id="progressbarWrapper">
             {status}

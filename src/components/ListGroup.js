@@ -1,5 +1,7 @@
-import { useState, useEffect, useRef } from "react";
-import "./ListGroup.css";
+import { useState, useEffect, useRef, useContext } from "react";
+import { DepartContext, SelectedReposContext } from '../context';   // import contexts
+
+import "./ListGroup.css";   // Import styles
 
 // This function return the height and width
 const getWindowSize = () => {
@@ -7,10 +9,12 @@ const getWindowSize = () => {
     return { innerWidth, innerHeight };
 }
 
-function ListGroup({ repos, handleSelectedRepos }) {
+function ListGroup({ repos }) {
+    // Get contexts
+    const { selectedDepart } = useContext(DepartContext);
+    const { selectedRepos, setSelectedRepos } = useContext(SelectedReposContext);
 
-    const [reposList, setReposList] = useState(repos);  // Store all checkboxes checked state
-    const [selectReposCount, setSelectReposCount] = useState(0);  // Store count of selected repos
+    const [filtedRepos, setFiltedRepos] = useState([]);  // Store all course repos by depart
 
     const [cursor, setCursor] = useState(undefined);   // Store position of current checklist item in state
     const [windowSize, setWindowSize] = useState(getWindowSize());  // Store window width
@@ -21,7 +25,7 @@ function ListGroup({ repos, handleSelectedRepos }) {
         function handleWindowResize() {
             setWindowSize(getWindowSize());
         }
-
+        // Event listener for window resizing
         window.addEventListener('resize', handleWindowResize);
 
         return () => {
@@ -29,32 +33,32 @@ function ListGroup({ repos, handleSelectedRepos }) {
         };
     }, []);
 
-    // Update repos list when props repos change
-    useEffect(() => {
-        setReposList(repos)
-    }, [repos])
-
     // Update setGripColsCount when window resize
     useEffect(() => {
         getColsCount(windowSize.innerWidth)
     }, [windowSize.innerWidth])
 
-    // Use effect to update select all checkbox
+    // Update repos list when props repos change
+    useEffect(() => {
+        // Create new array selected and hidden properties and filter items by depart
+        setFiltedRepos(repos.map(repo => ({...repo, selected : false, hidden : false})).filter(repo => repo.name.includes((selectedDepart === "elem") ? "elem" : "html")))
+    }, [repos, selectedDepart])
+
+    // Use effect to update select all checkbox if all repos are checked
     useEffect(() => {
         // Update checked value on Select All checkbox
-        selectedAllRef.current.checked = !(reposList.filter((obj) => { return obj.hidden === false }).some((obj) => {
+        selectedAllRef.current.checked = !(filtedRepos.filter((obj) => { return obj.hidden === false }).some((obj) => {
             return obj.selected === false;
         }))
-    }, [reposList])
+    }, [filtedRepos])
 
-    // This function pass an array with repos location to handleSelectedRepos callback
+    // Handle update of selectedRepos context
     const updateSelectedRepos = (checkedRepos) => {
         let reposPath = [];
         checkedRepos.forEach((checkedRepo, index) => {
-            if (checkedRepo.selected === true) { reposPath.push(reposList[index].path) }
+            if (checkedRepo.selected === true) { reposPath.push(filtedRepos[index].path) }
         })
-        setSelectReposCount(reposPath.length) // Update selected repos count
-        handleSelectedRepos(reposPath)
+        setSelectedRepos(reposPath)
     }
 
     // Get the number of columns in grip
@@ -73,14 +77,12 @@ function ListGroup({ repos, handleSelectedRepos }) {
         }
     }
 
-    // Call useKeyDown hook for each key (Arrows Up, Down, Right, Left, Space and Enter)
-
     // This function will filte repos checklist
     const filterBySearch = (event) => {
         // Access input value
         const query = event.target.value;
         // Create copy of item list
-        var updatedList = [...reposList];
+        var updatedList = [...filtedRepos];
         // Include all elements which includes the search query
         updatedList = updatedList.map((item) => {
             if (item.name.includes(query.toLowerCase())) {
@@ -91,16 +93,15 @@ function ListGroup({ repos, handleSelectedRepos }) {
             }
             return item;
         });
-
         // Updated Repos list with updated list
-        setReposList(updatedList);
+        setFiltedRepos(updatedList);
     };
 
     // Handle toggled checkbox
     const handleOnCheckboxChange = (position) => {
-        let reposClone = [...reposList]
+        let reposClone = [...filtedRepos]
         reposClone[position].selected = !reposClone[position].selected
-        setReposList(reposClone)
+        setFiltedRepos(reposClone)
         updateSelectedRepos(reposClone)
     };
 
@@ -113,7 +114,7 @@ function ListGroup({ repos, handleSelectedRepos }) {
 
     // Handler for selectAll checkbox
     const handleSelectAll = (event) => {
-        let newReposArr = reposList.map(obj => {
+        let newReposArr = filtedRepos.map(obj => {
             if (!obj.hidden) {
                 return { ...obj, selected: event.target.checked };
             }
@@ -121,10 +122,11 @@ function ListGroup({ repos, handleSelectedRepos }) {
                 return obj;
             }
         });
-        setReposList(newReposArr)
+        setFiltedRepos(newReposArr)
         updateSelectedRepos(newReposArr)
     };
 
+    // Call useKeyDown hook for each key (Arrows Up, Down, Right, Left, Space and Enter)
     // Handler for key down while focused on checkboxes-container
     const handleKeyDown = (event) => {
         switch (event.key) {
@@ -165,24 +167,21 @@ function ListGroup({ repos, handleSelectedRepos }) {
             <h3>Step #3 - Select Course Repos</h3>
             <input type="search" id="searchBox" placeholder="Search for a course" onChange={filterBySearch} />
             <div className="pushToSides">
-                    <label htmlFor="selectAll" id="selectAllLabel">
-                        <input type="checkbox"
-                            name="selectAll"
-                            id="selectAll"
-                            onChange={handleSelectAll}
-                            ref={selectedAllRef}
-                        />
-                        Select All
-                    </label>
-                    <p id="selectedCount">{selectReposCount} selected</p>
+                <label htmlFor="selectAll" id="selectAllLabel">
+                    <input type="checkbox"
+                        name="selectAll"
+                        id="selectAll"
+                        onChange={handleSelectAll}
+                        ref={selectedAllRef}
+                    />
+                    Select All
+                </label>
+                <p id="selectedCount">{selectedRepos.length} selected</p>
             </div>
-            
-
             <p id="nav-instructions"><small>Use arrows and space/enter keys, or mouse to select.</small></p>
-
             <div id="checklist-container" onKeyDown={handleKeyDown}>
                 <div className="row">
-                    {reposList.map((repo, index) => {
+                    {filtedRepos.map((repo, index) => {
                         if (!repo.hidden) {
                             return (
                                 <div key={index} className="col-sm-12 col-md-6 col-lg-4 col-xl-3">
@@ -200,7 +199,7 @@ function ListGroup({ repos, handleSelectedRepos }) {
                                             onChange={() => handleOnCheckboxChange(index)}
                                             tabIndex={-1}
                                         />
-                                        {repo.name}
+                                        <span>{repo.name}</span>
                                     </label>
                                 </div>
                             )

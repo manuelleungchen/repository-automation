@@ -39,13 +39,21 @@
 
 .item {
     display: flex;
-    text-align: center;
-    margin: 10px;
-    padding: 10px;
+    width: 100%;
+    margin: 5px 0;
+    padding: 8px;
     background-color: var(--secondary-color-dark);
     color: var(--secondary-font-color);
     border-radius: 10px;
     box-shadow: 2px 3px 0px 0px rgb(0 0 0 / 60%);
+}
+
+.item span {
+    text-align: left;
+    width: 100%; 
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; 
 }
 
 .item.active {

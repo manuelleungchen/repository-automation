@@ -24,8 +24,8 @@ function createWindow() {
     mainWindow = new BrowserWindow({
         width: 1000, // width of window
         height: 600, // height of window
-        minWidth: 400, // min width of window
-        minHeight: 400, // min height of window
+        minWidth: 450, // min width of window
+        minHeight: 450, // min height of window
         webPreferences: {
             // The preload file where we will perform our app communication
             preload: path.join(__dirname, "preload.js"),
@@ -77,31 +77,31 @@ app.on('window-all-closed', function () {
     app.quit()
 })
 
-// When electron app is on focus, set interval to call checkVPNConnection func
+// When electron app is on focus, set interval to call checkGitlabConnection func
 app.on('browser-window-focus', (event, win) => {
-    checkVPNConnection()
-    connectionInterval = setInterval(checkVPNConnection, 600000) // Check VPN every 10 mins
+    checkGitlabConnection()
+    connectionInterval = setInterval(checkGitlabConnection, 600000) // Check VPN every 10 mins
 })
 
-// // When electron app is out focus, stop interval calling checkVPNConnection func
+// // When electron app is out focus, stop interval calling checkGitlabConnection func
 app.on('browser-window-blur', (event, win) => {
     clearInterval(connectionInterval);
 })
 
-// Catch Error: net::ERR_NAME_NOT_RESOLVED from HTTP/HTTPS requests inside checkVPNConnection()
+// Catch Error: net::ERR_NAME_NOT_RESOLVED from HTTP/HTTPS requests inside checkGitlabConnection()
 process.on('uncaughtException', (err) => {
     if (err.toString() === "Error: net::ERR_NAME_NOT_RESOLVED") {
-        mainWindow.webContents.send('vpn-status', false)
+        mainWindow.webContents.send('gitlab-status', false)
     }
 })
 
 // This function checks if there is a VPN connection by issuing HTTP/HTTPS requests using Chromium's native networking library
-function checkVPNConnection() {
+function checkGitlabConnection() {
     const { net } = require('electron')  // Import net module (client-side API for issuing HTTP(S) requests).
     const request = net.request('https://gitlab.com/tvontario/')
     request.on('response', (response) => {
-        console.log("VPN connected")
-        mainWindow.webContents.send('vpn-status', true)
+        console.log("Gitlab connected")
+        mainWindow.webContents.send('gitlab-status', true)
     })
     request.end()
 }
@@ -122,18 +122,15 @@ function showErrorBox(message) {
     dialog.showErrorBox('Oops! Something went wrong!', message)
 }
 
-// This function gets a list of all Elementary course repos
-function getAllRepos(parentDirPath, depart) {
-
-    const searchFilter = (depart === "elem") ? "test" : "test"
-
+// This function gets a list of all course repos (Elementary and Secondary)
+function getAllRepos(parentDirPath) {
     // Store all elementary repos
     const dirFolders = fs
         .readdirSync(parentDirPath, { withFileTypes: true })
         .filter((dir) => dir.isDirectory())
-        .map((dir) => ({ name: dir.name, path: path.join(parentDirPath, dir.name), selected: false, hidden: false }))
+        .map((dir) => ({ name: dir.name, path: path.join(parentDirPath, dir.name) }))
         .filter((dir) => {
-            return fs.existsSync(path.join(dir.path, "lessons")) && dir.path.includes(searchFilter);
+            return fs.existsSync(path.join(dir.path, "lessons")) && (dir.path.includes("elem") || dir.path.includes("html"));
         });
     return dirFolders;
 }
@@ -298,25 +295,23 @@ function npmRunBuild(repoPath) {
 // End of all script functions
 
 // Handle request to get repos
-ipcMain.handle("get-repos", (event, depart) => {
+ipcMain.handle("get-repos", () => {
     let savedReposLoc;
-    checkVPNConnection()
+    // checkGitlabConnection()
 
-    try {
-        // Here we try to update read reposLocation.json file from userdata folder.
+    // try {
+    //     // Here we try to update read reposLocation.json file from userdata folder.
         savedReposLoc = fs.readFileSync(path.join(app.getPath("userData"), "reposLocation.json"), { encoding: "utf-8" });
-        // Send repos path to renderer
-        mainWindow.webContents.send('update-repos-path', JSON.parse(savedReposLoc).reposLocation)
-        // Send config data 
-        mainWindow.webContents.send('get-config-data', configContent)
-    }
-    catch (err) {
-        // Here we print the error when the file was not found, and return empty array.
-        console.log(err)
-        return []
-    }
+    //     // Send repos path to renderer
+    //     mainWindow.webContents.send('update-repos-path', JSON.parse(savedReposLoc).reposLocation)
+    // }
+    // catch (err) {
+    //     // Here we print the error when the file was not found, and return empty array.
+    //     console.log(err)
+    //     return []
+    // }
     // Return repos location saved on reposLocation.json file
-    return getAllRepos(JSON.parse(savedReposLoc).reposLocation, depart)
+    return getAllRepos(JSON.parse(savedReposLoc).reposLocation)
 })
 
 // Handle request to update repos
@@ -431,6 +426,17 @@ ipcMain.handle("update-repos", async (event, reposPath, tasks) => {
     mainWindow.setProgressBar(-1)
 })
 
+// Handle request to update repos path
+ipcMain.handle('update-repos-path', () => {
+    let savedReposLoc;
+    checkGitlabConnection()
+
+    // Here we try to update read reposLocation.json file from userdata folder.
+    savedReposLoc = fs.readFileSync(path.join(app.getPath("userData"), "reposLocation.json"), { encoding: "utf-8" });
+    // Send repos path to renderer
+    return JSON.parse(savedReposLoc).reposLocation
+})
+
 // Handle request to select folder
 ipcMain.handle('select-folder', async (event, data) => {
     // Config options for dialog prompt
@@ -458,4 +464,9 @@ ipcMain.handle('select-folder', async (event, data) => {
         // Send repos path to renderer
         return ["saved", filePaths[0]];
     }
+})
+
+// Handle request to get config data 
+ipcMain.handle('get-config-data', () => {
+    return configContent
 })

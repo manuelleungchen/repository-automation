@@ -45,9 +45,8 @@ h2 {
 }
 
 #vpnStatus {
-    display: block;
-    width: 180px;
-    margin: 0 0 0 auto;
+    display: inline-block;
+    width: 40%;
     text-align: right;
 }
 
@@ -101,16 +100,6 @@ h2 {
     color: var(--light-font-color);
 }
 
-@keyframes App-logo-spin {
-    from {
-        transform: rotate(0deg);
-    }
-
-    to {
-        transform: rotate(360deg);
-    }
-}
-
 .repos-list-enter {
     opacity: 0;
     transform: translateY(100%);
@@ -133,7 +122,7 @@ h2 {
     transition: opacity 1s, transform 500ms;
 }
 
-#start-btn {
+#run-btn {
     display: block;
     margin: 20px auto;
     padding: 8px;
@@ -145,16 +134,16 @@ h2 {
     border-radius: 5px;
 }
 
-#start-btn:hover {
+#run-btn:hover {
     background-color: var(--main-color-dark);
     color: var(--light-font-color);
 }
 
-#start-btn:focus {
+#run-btn:focus {
     outline: 3px solid var(--main-color-dark);
 }
 
-#start-btn:disabled {
+#run-btn:disabled {
     background: var(--light-font-color);
     color: var(--secondary-color-light);
     cursor: no-drop;
@@ -211,23 +200,29 @@ input[type=checkbox]:hover {
 @keyframes inAnimation {
     0% {
         opacity: 0;
-        max-height: 0px;
+        max-height: 0;
+    }
+
+    75% {
+        opacity: 1;
     }
 
     100% {
-        opacity: 1;
-        max-height: 600px;
+        max-height: 1200px;
     }
 }
 
 @keyframes outAnimation {
     0% {
+        max-height: 1200px;
+    }
+
+    75% {
         opacity: 1;
-        max-height: 600px;
     }
 
     100% {
         opacity: 0;
-        max-height: 0px;
+        max-height: 0;
     }
 }

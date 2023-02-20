@@ -1,28 +1,47 @@
-import { useState, useEffect } from "react";
-import './TaskPrompt.css';
+import { useState, useEffect, useContext } from "react";
+import { DepartContext, SelectedTasksContext, SelectedReposContext } from '../context';   // import contexts
+
+import './TaskPrompt.css';   // Import styles
 import ReactMarkdown from 'react-markdown';
 
-function TaskPrompt({ tasks, depart, handleTaskSelection }) {
+function TaskPrompt() {
+    // Get contexts
+    const { selectedDepart } = useContext(DepartContext);
+    const { selectedTasks, setSelectedTasks } = useContext(SelectedTasksContext);
+    const { setSelectedRepos } = useContext(SelectedReposContext);
+
+    // Array that containes all the tasks available to run in the App 
+    const [tasks, setTasks] = useState([])
 
     // Store all checkboxes checked state
     const [checked, setChecked] = useState([]);
     // Store opened details tab
     const [currentDetails, setCurrentDetails] = useState("");
 
-
+    // Re-render component when selectedDepart context change
     useEffect(() => {
-        console.log(checked)
-        console.log(tasks)
+        console.log("Rendering Tasks Component")
+        // Get tasks by depart
+        window.api.getConfigData().then(arg => {
+            const filtedTasks = arg.tasksList.filter(task => task.department === selectedDepart || task.department === "all")
+            setTasks(filtedTasks)
+            // Reset checked checkboxes
+            setChecked(new Array(filtedTasks.length).fill(false));
+        })
+    }, [selectedDepart])
 
-        setChecked(new Array(tasks.length).fill(false));
-    }, [tasks])
-
-    function updateSelectedTasks(checkedTasks) {
+    // Handle updating selectedTasks context
+    const updateSelectedTasks = (checkedTasks) => {
         let tasksName = [];
         checkedTasks.forEach((checkedTask, index) => {
             if (checkedTask === true) { tasksName.push(tasks[index].value) }
         })
-        handleTaskSelection(tasksName)
+        if (tasksName.length === 0 || (tasksName.length > 0 && selectedTasks.length === 0)) {
+            // Reset selectedRepos context
+            setSelectedRepos([])
+        }
+        // Reset selectedTasks context
+        setSelectedTasks(tasksName);
     }
 
     // Handle toggled checkbox
@@ -30,6 +49,7 @@ function TaskPrompt({ tasks, depart, handleTaskSelection }) {
         let updatedCheckedState = checked.map((item, index) =>
             index === position ? !item : item
         );
+
         setChecked(updatedCheckedState);
         updateSelectedTasks(updatedCheckedState)
     };
@@ -43,12 +63,12 @@ function TaskPrompt({ tasks, depart, handleTaskSelection }) {
     return (
         <div className="step">
             <h3>Step #2 - Select actions to perform</h3>
-            {tasks.filter(task => task.department === depart || task.department === "all").map((task, index) => {
+            {tasks.filter(task => task.department === selectedDepart || task.department === "all").map((task, index) => {
                 return (
                     <div className="list-item" key={index}>
                         <label className="checkbox-label" htmlFor={task.label}>
                             <input type="checkbox" name={task.label} id={task.label} value={task.value} checked={checked[index] || false}
-                            onChange={() => handleOnChange(index)} />
+                                onChange={() => handleOnChange(index)} />
                             {task.label}
                         </label>
                         <details className="details" key={index} open={currentDetails === index} onClick={(event) => toggleDetails(event, index)}>

@@ -41,7 +41,7 @@ function ListGroup({ repos }) {
     // Update repos list when props repos change
     useEffect(() => {
         // Create new array selected and hidden properties and filter items by depart
-        setFiltedRepos(repos.map(repo => ({...repo, selected : false, hidden : false})).filter(repo => repo.name.includes((selectedDepart === "elem") ? "elem" : "html")))
+        setFiltedRepos(repos.map(repo => ({ ...repo, selected: false, hidden: false })).filter(repo => repo.name.includes((selectedDepart === "elem") ? "elem" : "html")))
     }, [repos, selectedDepart])
 
     // Use effect to update select all checkbox if all repos are checked

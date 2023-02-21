@@ -1,5 +1,5 @@
-import { useState, useEffect, useContext } from 'react'; 
-import { SelectedTasksContext, SelectedReposContext } from './context';  // import contexts
+import { useState, useEffect, useContext } from 'react';
+import { DepartContext, SelectedTasksContext, SelectedReposContext } from './context';  // import contexts
 
 // Import images
 import logo from './assets/img/logo.png';
@@ -43,6 +43,7 @@ const unmountedStyle = {
 
 function App() {
     // Get contexts
+    const { selectedDepart, setSelectedDepart } = useContext(DepartContext);
     const { selectedTasks, setSelectedTasks } = useContext(SelectedTasksContext);
     const { selectedRepos, setSelectedRepos } = useContext(SelectedReposContext);
 
@@ -137,10 +138,10 @@ function App() {
                             </div>
                         </div>
                         <div className="col-12">
-                            {repos.length > 0 ?
-                                <TaskPrompt />
-                                : <div id="warningDiv">
-                                    <p><strong>Course repos are not available in this location. Please select another location.</strong></p>
+                            {repos.some((obj) => obj.name.includes(selectedDepart === "elem" ? "elem" : "html")) ?
+                                <TaskPrompt /> :
+                                <div id="warningDiv">
+                                    <p><strong>{selectedDepart === "elem" ? "Elementary" : "Secondary"} course repos are not available in this location. Please select another depart or location.</strong></p>
                                 </div>
                             }
                         </div>

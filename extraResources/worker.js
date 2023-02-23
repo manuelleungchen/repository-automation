@@ -2,13 +2,13 @@ const { parentPort, workerData } = require("worker_threads");
 const fs = require("fs");
 const { execSync } = require("child_process");   // Import exec method from child_process module
 
-function executeShellCommands(type, repoPath) {
+function executeShellCommands(type, repoPath, commitMessage) {
     switch (type) {
         case "gitPull":
             execSync(`cd ${repoPath} && git checkout main && git pull`);
             break;
         case "gitPush":
-            execSync(`cd ${repoPath} && git add . && git commit -m "First commit" && git push`);
+            execSync(`cd ${repoPath} && git add . && git commit -m "${commitMessage}" && git push`);
             break;
         case "deleteBuildFiles":
             fs.rm(`${repoPath}/dependencies/vendor.min.js`, (err) => {
@@ -68,4 +68,4 @@ function executeShellCommands(type, repoPath) {
     return "Done"
 }
 
-parentPort.postMessage(executeShellCommands(workerData.commandType, workerData.repoPath))
+parentPort.postMessage(executeShellCommands(workerData.commandType, workerData.repoPath, workerData.commitMessage))

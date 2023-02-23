@@ -14,5 +14,5 @@ contextBridge.exposeInMainWorld('api', {
     selectFolder: (args) => ipcRenderer.invoke("select-folder", args),
     getConfigData: (args) => ipcRenderer.invoke("get-config-data", args),
     getRepos: (args) => ipcRenderer.invoke('get-repos', args),
-    updateRepos: (repos, tasks) => ipcRenderer.invoke('update-repos', repos, tasks)
+    updateRepos: (repos, tasks, commitMessage) => ipcRenderer.invoke('update-repos', repos, tasks, commitMessage)
 });

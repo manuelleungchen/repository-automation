@@ -1,0 +1,11 @@
+#commitContainer {
+    margin-top: 1.5rem;
+}
+
+#commitContainer > legend {
+    font-size: large;
+}
+
+#commitMessage {
+    width: 100%;
+}

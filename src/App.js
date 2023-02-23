@@ -14,6 +14,7 @@ import ListGroup from './components/ListGroup.js';
 import TaskPrompt from './components/TaskPrompt.js';
 import ProgressBar from "./components/ProgressBar.js";
 import DepartDropDown from "./components/DepartDropDown.js";
+import CommitMessage from './components/CommitMessage.js';
 
 // This function will delay the mount and unmount of a component
 function useDelayUnmount(isMounted, delayTime) {
@@ -54,6 +55,7 @@ function App() {
     const showReposList = useDelayUnmount(selectedTasks.length > 0 ? true : false, 750);  // Delay unmount of component to allow animation 
     const [showProgressbar, setShowProgressbar] = useState(false);   // State to toggle Progress bar component
     const [gitlabConnected, setGitlabConnected] = useState(false);   // State for Gitlab connection
+    const [commit, setCommit] = useState('');   // State for commit message
 
     // On reload and reposPath change, this will check GitLab connection, update repos path, and get repos list
     useEffect(() => {
@@ -88,6 +90,11 @@ function App() {
         })
     }
 
+    // This function update commitMessage state
+    const updateCommitMessage = (e) => {
+        setCommit(e.target.value)
+    }
+
     // This function handle the Start button
     const handleSubmit = async () => {
         // Listen for progressbar updates from Main
@@ -99,7 +106,7 @@ function App() {
         setShowProgressbar(!showProgressbar)
 
         // Send to Main repos and tasks to execute
-        await window.api.updateRepos(selectedRepos, selectedTasks)
+        await window.api.updateRepos(selectedRepos, selectedTasks, commit)
     }
 
     // This function is passed to handle the close button pressed on progressbar
@@ -138,6 +145,7 @@ function App() {
                             </div>
                         </div>
                         <div className="col-12">
+                            {/* Show tasks list when there are repos for selected department */}
                             {repos.some((obj) => obj.name.includes(selectedDepart === "elem" ? "elem" : "html")) ?
                                 <TaskPrompt /> :
                                 <div id="warningDiv">
@@ -145,10 +153,14 @@ function App() {
                                 </div>
                             }
                         </div>
+                        {/* Show repos list and RUN button when there is 1 or more tasks are selected */}
                         {showReposList &&
                             <div className="col-12" style={selectedTasks.length > 0 ? mountedStyle : unmountedStyle}>
                                 <ListGroup repos={repos} />
-                                <input type="button" id="run-btn" value="RUN" onClick={handleSubmit} disabled={(selectedTasks.length === 0 || selectedRepos.length === 0 || gitlabConnected === false) ? true : false} tabIndex={0} />
+                                {/* Show commit message input when 'push-to-gitlab' task is selected */}
+                                {selectedTasks.includes('push-to-gitlab') && <CommitMessage updateCommitMessage={updateCommitMessage} />}
+                                {/* Disable RUN button if selectedTasks are 0, selectedRepos are 0, gitlabConnected is false, or (task 'push-to-gitlab' was selected and commit message is empty) */}
+                                <input type="button" id="run-btn" value="RUN" onClick={handleSubmit} disabled={(selectedTasks.length === 0 || selectedRepos.length === 0 || gitlabConnected === false || (selectedTasks.includes('push-to-gitlab') && commit === "")) ? true : false} tabIndex={0} />
                             </div>
                         }
                     </div>

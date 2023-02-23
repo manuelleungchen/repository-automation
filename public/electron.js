@@ -153,9 +153,9 @@ function gitPull(repoPath) {
 }
 
 // This function executes git push command in shell
-function gitPush(repoPath) {
+function gitPush(repoPath, commitMessage) {
     return new Promise((resolve, reject) => {
-        const worker = new Worker(path.join(ASSETS_PATH, `worker.js`), { workerData: { commandType: "gitPush", repoPath: repoPath } });
+        const worker = new Worker(path.join(ASSETS_PATH, `worker.js`), { workerData: { commandType: "gitPush", repoPath: repoPath, commitMessage: commitMessage } });
         worker.on('message', resolve);
         worker.on('error', (error) => {
             reject(error)
@@ -315,7 +315,7 @@ ipcMain.handle("get-repos", () => {
 })
 
 // Handle request to update repos
-ipcMain.handle("update-repos", async (event, reposPath, tasks) => {
+ipcMain.handle("update-repos", async (event, reposPath, tasks, commitMessage) => {
     // This will loop through selected repos perfom the following actions:
 
     // Loop through all selected tasks and merge all the functions needed.
@@ -352,7 +352,7 @@ ipcMain.handle("update-repos", async (event, reposPath, tasks) => {
                     mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Pushing repo")
 
                     // This function updates course by doing a git pull command
-                    await gitPush(reposPath[index]);
+                    await gitPush(reposPath[index], commitMessage);
                     // Update progressbars
                     progressBarValue += progressIncrement
                     mainWindow.setProgressBar(progressBarValue)

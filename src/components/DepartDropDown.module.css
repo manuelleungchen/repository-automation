@@ -1,6 +1,5 @@
 #depart-container {
-    display: inline-block;
-    width: 60%;
+    display: flex;
     font-size: large;
 }
 
@@ -11,6 +10,7 @@
 #depart-select {
     border-radius: 5px;
     font-weight: bold;
+    width: 100%;
 }
 
 #depart-select:hover {

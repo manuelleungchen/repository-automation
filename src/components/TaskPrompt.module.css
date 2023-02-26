@@ -19,7 +19,6 @@
     color: var(--light-font-color);
     cursor: pointer;
     padding: 0.1rem 1rem;
-    /* border-radius: 0.15em; */
 }
 
 .details > summary:focus {

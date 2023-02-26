@@ -297,19 +297,10 @@ function npmRunBuild(repoPath) {
 // Handle request to get repos
 ipcMain.handle("get-repos", () => {
     let savedReposLoc;
-    // checkGitlabConnection()
 
-    // try {
-    //     // Here we try to update read reposLocation.json file from userdata folder.
-        savedReposLoc = fs.readFileSync(path.join(app.getPath("userData"), "reposLocation.json"), { encoding: "utf-8" });
-    //     // Send repos path to renderer
-    //     mainWindow.webContents.send('update-repos-path', JSON.parse(savedReposLoc).reposLocation)
-    // }
-    // catch (err) {
-    //     // Here we print the error when the file was not found, and return empty array.
-    //     console.log(err)
-    //     return []
-    // }
+    // Here we try to update read reposLocation.json file from userdata folder.
+    savedReposLoc = fs.readFileSync(path.join(app.getPath("userData"), "reposLocation.json"), { encoding: "utf-8" });
+
     // Return repos location saved on reposLocation.json file
     return getAllRepos(JSON.parse(savedReposLoc).reposLocation)
 })

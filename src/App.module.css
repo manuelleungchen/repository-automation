@@ -1,37 +1,8 @@
 .App {
-    /* CSS Variables */
-    --main-color: #68904D;
-    --main-color-light: #a3bf74;
-    --main-color-dark: #1a592c;
-
-    --secondary-color: #e6b6c2;
-    --secondary-color-light: #C8D2D1;
-    --secondary-color-dark: #9c6396;
-
-    --light-font-color: #fff;
-    --dark-font-color: #000;
-
-    --warning-color: #DC3545;
-
     min-height: 100vh;
     color: var(--dark-font-color);
     background-color: var(--secondary-color-light);
     font-family: "TVOPlexSans-Medium", Arial, sans-serif;
-}
-
-h1,
-h2 {
-    color: var(--dark-font-color);
-}
-
-h3,
-h4 {
-    color: var(--light-font-color);
-}
-
-h2 {
-    text-align: center;
-    padding-top: 14px;
 }
 
 .App-header {
@@ -44,9 +15,9 @@ h2 {
     background-color: var(--secondary-color-light);
 }
 
-#vpnStatus {
-    display: inline-block;
-    width: 40%;
+#vpn-status {
+    display: block;
+    margin: 0 auto;
     text-align: right;
 }
 
@@ -62,15 +33,7 @@ h2 {
     word-break: break-all;
 }
 
-.step {
-    padding: 20px;
-    margin: 10px auto;
-    border-radius: 10px;
-    background-color: var(--main-color-light);
-    box-shadow: 2px 3px 0px 0px rgb(0 0 0 / 60%);
-}
-
-#warningDiv {
+#warning-div {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -82,7 +45,7 @@ h2 {
     height: 90%;
 }
 
-.selectButton {
+.select-button {
     padding: 8px;
     background-color: var(--secondary-color-light);
     color: var(--dark-font-color);
@@ -91,11 +54,11 @@ h2 {
     border-radius: 5px;
 }
 
-.selectButton:focus {
+.select-button:focus {
     outline: 3px solid var(--main-color-dark);
 }
 
-.selectButton:hover {
+.select-button:hover {
     background-color: var(--main-color-dark);
     color: var(--light-font-color);
 }
@@ -127,20 +90,23 @@ h2 {
     margin: 20px auto;
     padding: 8px;
     width: 100%;
-    background-color: var(--main-color-light);
-    color: var(--dark-font-color);
-    box-shadow: 2px 3px 0px 0px rgb(0 0 0 / 60%);
+    background-color: var(--main-color-dark);
+    color: var(--light-font-color);
+    box-shadow: none;
     border: none;
     border-radius: 5px;
 }
 
 #run-btn:hover {
-    background-color: var(--main-color-dark);
+    background-color: var(--warning-color);
     color: var(--light-font-color);
 }
 
 #run-btn:focus {
-    outline: 3px solid var(--main-color-dark);
+    background-color: var(--warning-color);
+    box-shadow: none;
+    outline: 3px solid var(--warning-color);
+    outline-offset: 3px;
 }
 
 #run-btn:disabled {
@@ -149,52 +115,16 @@ h2 {
     cursor: no-drop;
 }
 
-input[type=checkbox] {
-    /* Add if not using autoprefixer */
-    -webkit-appearance: none;
-    /* Remove most all native input styles */
-    appearance: none;
-    /* For iOS < 15 */
-    background-color: var(--light-font-color);
-    /* Not removed via appearance */
-    margin: 0;
-    margin-right: 15px;
-    font: inherit;
-    color: currentColor;
-    width: 25px;
-    height: 25px;
-    border-radius: 0.15em;
-    transform: translateY(-0.075em);
-
-    display: grid;
-    place-content: center;
-    box-shadow: 2px 2px 0px 0px rgb(0 0 0 / 60%);
+/* Component mount and unmount animation */
+.mounted-style {
+    animation: inAnimation 450ms ease-in;
+    overflow-y: hidden
 }
 
-input[type=checkbox]::before {
-    content: "";
-    width: 1em;
-    height: 1em;
-    clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
-    transform: scale(0);
-    transform-origin: bottom left;
-    transition: 120ms transform ease-in-out;
-    box-shadow: inset 1em 1em var(--form-control-color);
-    /* Windows High Contrast Mode */
-    background-color: CanvasText;
-}
-
-input[type=checkbox]:checked::before {
-    transform: scale(1);
-}
-
-input[type=checkbox]:focus {
-    outline: 3px solid var(--main-color-dark);
-}
-
-input[type=checkbox]:hover {
-    background-color: var(--main-color-dark);
-    cursor: pointer;
+.unmounted-style {
+    animation: outAnimation 700ms ease-out;
+    animation-fill-mode: forwards;
+    overflow-y: hidden
 }
 
 @keyframes inAnimation {
@@ -215,10 +145,12 @@ input[type=checkbox]:hover {
 @keyframes outAnimation {
     0% {
         max-height: 1200px;
+        opacity: 1;
+
     }
 
     75% {
-        opacity: 1;
+        opacity: 0;
     }
 
     100% {

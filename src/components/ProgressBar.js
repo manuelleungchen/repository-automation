@@ -1,5 +1,5 @@
 import React from 'react'
-import './ProgressBar.css'   // Import styles
+import styles from "./ProgressBar.module.css";  // Import styles
 
 function ProgressBar({ completed, status, handleCloseProgressbar }) {
     let bgColor = ""
@@ -18,18 +18,18 @@ function ProgressBar({ completed, status, handleCloseProgressbar }) {
     }
 
     return (
-        <div id="progressbarWrapper">
+        <div id={styles["progressbar-rapper"]}>
             {status}
-            <div id='progressbar'>
-                <div id='progressbarFiller' style={{
+            <div id={styles["progressbar"]}>
+                <div id={styles["progressbar-filler"]} style={{
                     width: `${completed}%`,
                     backgroundColor: bgColor
                 }}>
-                    <span id='progressbarLabel'>{`${completed}%`}</span>
+                    <span id={styles["progressbar-label"]}>{`${completed}%`}</span>
                 </div>
             </div>
-            {completed === 100 ? <button id='returnButon' onClick={handleCloseProgressbar}>Close</button> : <div id="emptyBlock"></div>
-}
+            {completed === 100 ? <button id={styles["close-buton"]} onClick={handleCloseProgressbar}>Close</button> : <div id={styles["empty-block"]}></div>
+            }
         </div>
     )
 }

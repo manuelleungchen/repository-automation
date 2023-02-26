@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext } from "react";
 import { DepartContext, SelectedTasksContext, SelectedReposContext } from '../context';   // import contexts
 
-import './TaskPrompt.css';   // Import styles
+import styles from "./TaskPrompt.module.css";  // Import styles
 import ReactMarkdown from 'react-markdown';
 
 function TaskPrompt() {
@@ -61,26 +61,26 @@ function TaskPrompt() {
     };
 
     return (
-        <div className="step">
-            <h3>Step #2 - Select actions to perform</h3>
+        <section>
+            <h2>Step #3 - Select actions to perform</h2>
             {tasks.filter(task => task.department === selectedDepart || task.department === "all").map((task, index) => {
                 return (
-                    <div className="list-item" key={index}>
-                        <label className="checkbox-label" htmlFor={task.label}>
+                    <div className={styles["list-item"]} key={index}>
+                        <label className={styles["checkbox-label"]} htmlFor={task.label}>
                             <input type="checkbox" name={task.label} id={task.label} value={task.value} checked={checked[index] || false}
                                 onChange={() => handleOnChange(index)} />
                             {task.label}
                         </label>
-                        <details className="details" key={index} open={currentDetails === index} onClick={(event) => toggleDetails(event, index)}>
+                        <details className={styles["details"]} key={index} open={currentDetails === index} onClick={(event) => toggleDetails(event, index)}>
                             <summary>More info</summary>
-                            <div className="details-content">
+                            <div className={styles["details-content"]}>
                                 <ReactMarkdown children={task.description} />
                             </div>
                         </details>
                     </div>
                 )
             })}
-        </div>
+        </section>
     )
 }
 

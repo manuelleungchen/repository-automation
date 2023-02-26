@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import { DepartContext, SelectedTasksContext, SelectedReposContext } from '../context';   // import contexts
 
-import "./DepartDropDown.css";  // Import styles
+import styles from "./DepartDropDown.module.css";  // Import styles
 
 const DepartDropDown = () => {
     // Get contexts
@@ -18,9 +18,9 @@ const DepartDropDown = () => {
     }
 
     return (
-        <div id="depart-container">
-            <label id="depart-label" htmlFor="depart-select">Department:</label>
-            <select name="depart" id="depart-select" value={selectedDepart} onChange={handleChange}>
+        <div id={styles["depart-container"]}>
+            <label id={styles["depart-label"]} htmlFor="depart-select">Department:</label>
+            <select name="depart" id={styles["depart-select"]} value={selectedDepart} onChange={handleChange}>
                 <option value="elem">Elementary</option>
                 <option value="sec">Secondary</option>
             </select>

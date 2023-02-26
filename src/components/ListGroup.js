@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useContext } from "react";
 import { DepartContext, SelectedReposContext } from '../context';   // import contexts
 
-import "./ListGroup.css";   // Import styles
+import styles from "./ListGroup.module.css";  // Import styles
 
 // This function return the height and width
 const getWindowSize = () => {
@@ -163,23 +163,23 @@ function ListGroup({ repos }) {
     const selectedAllRef = useRef(undefined);
 
     return (
-        <div className="step">
-            <h3>Step #3 - Select Course Repos</h3>
-            <input type="search" id="searchBox" placeholder="Search for a course" onChange={filterBySearch} />
-            <div className="pushToSides">
-                <label htmlFor="selectAll" id="selectAllLabel">
+        <section>
+            <h2>Step #4 - Select course repositories</h2>
+            <input type="search" id={styles["search-box"]} placeholder="Search for a course" onChange={filterBySearch} />
+            <div className={styles["push-to-sides"]}>
+                <label htmlFor="select-all" id={styles["select-all-label"]}>
                     <input type="checkbox"
-                        name="selectAll"
-                        id="selectAll"
+                        name="select-all"
+                        id="select-all"
                         onChange={handleSelectAll}
                         ref={selectedAllRef}
                     />
                     Select All
                 </label>
-                <p id="selectedCount">{selectedRepos.length} selected</p>
+                <p id={styles["selected-count"]}>{selectedRepos.length} selected</p>
             </div>
-            <p id="nav-instructions"><small>Use arrows and space/enter keys, or mouse to select.</small></p>
-            <div id="checklist-container" onKeyDown={handleKeyDown}>
+            <p id={styles["nav-instructions"]}><small>Use arrows and space/enter keys, or mouse to select.</small></p>
+            <div id={styles["checklist-container"]} onKeyDown={handleKeyDown}>
                 <div className="row">
                     {filtedRepos.map((repo, index) => {
                         if (!repo.hidden) {
@@ -187,7 +187,7 @@ function ListGroup({ repos }) {
                                 <div key={index} className="col-sm-12 col-md-6 col-lg-4 col-xl-3">
                                     <label
                                         ref={(element) => { checkboxesRefs.current[index] = element }}
-                                        className={`item ${(index === cursor) ? "active" : ""}`}
+                                        className={`${styles.item} ${(index === cursor) ? styles.active : ""}`}
                                         htmlFor={`checkbox-${index}`}
                                         onFocus={() => setCursor(index)}
                                         tabIndex={0}
@@ -207,7 +207,7 @@ function ListGroup({ repos }) {
                     })}
                 </div>
             </div>
-        </div>
+        </section>
     );
 }
 

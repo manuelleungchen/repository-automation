@@ -1,4 +1,4 @@
-#searchBox {
+#search-box {
     display: block;
     margin: auto;
     padding: 10px;
@@ -10,25 +10,25 @@
     box-shadow: 2px 3px 0px 0px rgb(0 0 0 / 60%);
 }
 
-#searchBox:focus {
+#search-box:focus {
     outline: 3px solid var(--main-color-dark);
 }
 
-#selectAllLabel {
+#select-all-label {
     display: flex;
     margin: 15px 0;
 }
 
-#selectAllLabel:hover {
+#select-all-label:hover {
     cursor: pointer;
 }
 
-.pushToSides {
+.push-to-sides {
     display: flex;
     justify-content: space-between;
 }
 
-#selectedCount {
+#selected-count {
     margin: 15px 0;
 }
 

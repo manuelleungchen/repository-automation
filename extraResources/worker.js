@@ -5,7 +5,7 @@ const { execSync } = require("child_process");   // Import exec method from chil
 function executeShellCommands(type, repoPath, commitMessage) {
     switch (type) {
         case "gitPull":
-            execSync(`cd ${repoPath} && git checkout main && git pull`);
+            execSync(`cd ${repoPath} && git checkout master && git pull`);
             break;
         case "gitPush":
             execSync(`cd ${repoPath} && git add . && git commit -m "${commitMessage}" && git push`);

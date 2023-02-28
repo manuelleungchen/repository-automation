@@ -27,6 +27,25 @@ function executeShellCommands(type, repoPath, commitMessage) {
                 }
             })
 
+            // try {
+            //     fs.rmSync(`${repoPath}/dependencies/vendor.min.js`);
+            // }
+            // catch (error) {
+            //     console.log(error.message);
+            // }
+            // try {
+            //     fs.rmSync(`${repoPath}/dependencies/tvo_k8.css`);
+            // }
+            // catch (error) {
+            //     console.log(error.message);
+            // }
+            // try {
+            //     fs.rmSync(`${repoPath}/package-lock.json`);
+            // }
+            // catch (error) {
+            //     console.log(error.message);
+            // }
+
             // // Delete node_modules folder
             try {
                 fs.rmSync(`${repoPath}/node_modules`, { recursive: true });
@@ -51,6 +70,25 @@ function executeShellCommands(type, repoPath, commitMessage) {
                     console.error(err.message);
                 }
             })
+
+            // try {
+            //     fs.rmSync(`${repoPath}/dependencies/vendor.min.js`);
+            // }
+            // catch (error) {
+            //     console.log(error.message);
+            // }
+            // try {
+            //     fs.rmSync(`${repoPath}/dependencies/ilc_core.css`);
+            // }
+            // catch (error) {
+            //     console.log(error.message);
+            // }
+            // try {
+            //     fs.rmSync(`${repoPath}/package-lock.json`);
+            // }
+            // catch (error) {
+            //     console.log(error.message);
+            // }
 
             // // Delete node_modules folder
             try {

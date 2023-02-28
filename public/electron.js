@@ -328,6 +328,7 @@ ipcMain.handle("update-repos", async (event, reposPath, tasks, commitMessage) =>
         for (let i = 0; i < functionsList.length; i++) {
             switch (functionsList[i]) {
                 case "gitPull":
+                    console.log("gitPull")
                     // Update progressbars
                     mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Pulling repo")
 
@@ -372,6 +373,7 @@ ipcMain.handle("update-repos", async (event, reposPath, tasks, commitMessage) =>
                     mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "")
                     break;
                 case "deleteBuildFilesSec":
+                    console.log("deleteBuildFilesSec")
                     // Update progressbars
                     mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Deleting vendor.min.js, node_modules and package-lock.json")
 
@@ -394,6 +396,7 @@ ipcMain.handle("update-repos", async (event, reposPath, tasks, commitMessage) =>
                     mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "")
                     break;
                 case "npmRunBuild":
+                    console.log("npmRunBuild")
                     // Update progressbars
                     mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Running commands 'NPM install' and 'NPM build'")
 

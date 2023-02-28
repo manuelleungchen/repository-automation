@@ -40,13 +40,13 @@
             "label": "Pull from Gitlab",
             "value": "pull-from-gitlab",
             "department": "all",
-            "description": "This task will perform a `git pull` command."
+            "description": "This task will perform `git checkout master` and `git pull` commands respectively."
         },
         {
             "label": "Push to Gitlab",
             "value": "push-to-gitlab",
             "department": "all",
-            "description": "This task will perform a `git push` command."
+            "description": "This task will perform `git add .`, `git commit` and `git push` commands respectively."
         }
     ],
     "functionsList": {
@@ -64,8 +64,8 @@
         ],
         "npm-rebuild-sec": [
             "gitPull",
-            "deleteBuildFilesSecs",
-            "npmRunBuilds"
+            "deleteBuildFilesSec",
+            "npmRunBuild"
         ],
         "pull-from-gitlab": [
             "gitPull"

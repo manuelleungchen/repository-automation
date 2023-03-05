@@ -3,6 +3,7 @@ const { app, BrowserWindow, ipcMain, Notification, dialog } = require('electron'
 const path = require('path');
 const fs = require("fs");
 const { Worker } = require('worker_threads')
+const { autoUpdater } = require('electron-updater');  // electron-updater
 
 // Useful for Electron apps as GUI apps on macOS and Linux do not inherit the $PATH defined in your dotfiles (.bashrc/.bash_profile/.zshrc/etc).
 // Only Version 3.0 works.
@@ -54,6 +55,11 @@ function createWindow() {
     mainWindow.webContents.on('did-finish-load', () => {
         console.log("Finished loading")
     })
+
+    // Check whether there are any available updates once the main window is ready. If there are, they will automatically be downloaded
+    mainWindow.once('ready-to-show', () => {
+        autoUpdater.checkForUpdatesAndNotify();
+    });
 }
 
 // This method will be called when Electron has finished
@@ -467,3 +473,18 @@ ipcMain.handle('select-folder', async (event, data) => {
 ipcMain.handle('get-config-data', () => {
     return configContent
 })
+
+// Event listeners to handle update events
+// When a new update is available we’ll send a message to the main window, notifying the user of the update. 
+autoUpdater.on('update-available', () => {
+    mainWindow.webContents.send('update_available');
+});
+// Once it downloads, we’ll send another message notifying them that the update will be installed when they quit the app.
+autoUpdater.on('update-downloaded', () => {
+    mainWindow.webContents.send('update_downloaded');
+});
+
+// When a restart button is pressed, quit app and install new update.
+ipcMain.on('restart_app', () => {
+    autoUpdater.quitAndInstall();
+});

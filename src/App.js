@@ -15,6 +15,7 @@ import TaskPrompt from './components/TaskPrompt.js';
 import ProgressBar from "./components/ProgressBar.js";
 import DepartDropDown from "./components/DepartDropDown.js";
 import CommitMessage from './components/CommitMessage.js';
+import UpdatePopUp from './components/UpdatePopUp.js';
 
 // This function will delay the mount and unmount of a component
 function useDelayUnmount(isMounted, delayTime) {
@@ -45,11 +46,14 @@ function App() {
     const [showProgressbar, setShowProgressbar] = useState(false);   // State to toggle Progress bar component
     const [gitlabConnected, setGitlabConnected] = useState(false);   // State for Gitlab connection
     const [commit, setCommit] = useState('');   // State for commit message
+    const [updateStatus, setUpdateStatus] = useState("update_available");   // State for App update status
 
     // On reload and reposPath change, this will check GitLab connection, update repos path, and get repos list
     useEffect(() => {
         console.log("Rendering App component")
         // Setting event listeners
+
+        // Update gitlab connection status
         window.api.gitlabStatus(arg => {
             setGitlabConnected(arg)
         })
@@ -62,6 +66,16 @@ function App() {
         window.api.getRepos().then(results => {
             setRepos(results)
             console.log("Courses", results)
+        })
+
+        // Listen for update available
+        window.api.updateAvailable(() => {
+            setUpdateStatus("update_available")
+        })
+
+        // Listen for update downloaded
+        window.api.updateDownloaded(() => {
+            setUpdateStatus("update_downloaded")
         })
 
         // Clean the listener after the component is dismounted
@@ -107,6 +121,16 @@ function App() {
         setProgressbarStatus("")   // Reset progressbar status to ""
     }
 
+    // This function handle hiding of updater component
+    const closeNotification = () => {
+        setUpdateStatus("")
+    }
+
+    // This function handle App restart
+    const restartApp = () => {
+        window.api.restartApp('restart_app');
+    }
+
     return (<>
         {!showProgressbar ?
             (<div className={styles["App"]}>
@@ -114,7 +138,6 @@ function App() {
                     <img src={logo} width={50} alt="logo" />
                     <h1>Repository Automation</h1>
                 </header>
-
                 <main className="container">
                     <div className="row">
                         <div className="col-12">
@@ -159,6 +182,7 @@ function App() {
                             </div>
                         }
                     </div>
+                    {(updateStatus === "update_available" || updateStatus === "update_downloaded") && <UpdatePopUp status={updateStatus} closeNotification={closeNotification} restartApp={restartApp} />}
                 </main>
             </div>)
             : (

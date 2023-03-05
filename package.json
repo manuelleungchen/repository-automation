@@ -5,6 +5,7 @@
     "author": "Manuel Leung Chen",
     "description": "Electron app for running automations on repositories",
     "dependencies": {
+        "electron-updater": "^5.3.0",
         "fix-path": "3.0"
     },
     "main": "public/electron.js",

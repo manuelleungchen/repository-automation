@@ -298,6 +298,40 @@ function npmRunBuild(repoPath) {
     })
 }
 
+// This function updates the .gitlab-ci.yml file
+function ymlFileUpdate(repoPath) {
+    return new Promise((resolve, reject) => {
+        const worker = new Worker(path.join(ASSETS_PATH, `worker.js`), { workerData: { commandType: "ymlFileUpdate", repoPath: repoPath, filePath: path.join(ASSETS_PATH, `.gitlab-ci.yml`) } });
+        worker.on('message', resolve);
+        worker.on('error', (error) => {
+            reject(error)
+            console.log(error)
+            showErrorBox(`${error}`)
+        });
+        worker.on('exit', (code) => {
+            if (code !== 0)
+                reject(new Error(`Worker stopped with exit code ${code}`));
+        })
+    })
+}
+
+// This function updates the .gitlab-ci.yml file
+function webpackConfigFileUpdate(repoPath) {
+    return new Promise((resolve, reject) => {
+        const worker = new Worker(path.join(ASSETS_PATH, `worker.js`), { workerData: { commandType: "webpackConfigFileUpdate", repoPath: repoPath, filePath: path.join(ASSETS_PATH, `webpack.config.js`) } });
+        worker.on('message', resolve);
+        worker.on('error', (error) => {
+            reject(error)
+            console.log(error)
+            showErrorBox(`${error}`)
+        });
+        worker.on('exit', (code) => {
+            if (code !== 0)
+                reject(new Error(`Worker stopped with exit code ${code}`));
+        })
+    })
+}
+
 // End of all script functions
 
 // Handle request to get repos
@@ -408,6 +442,30 @@ ipcMain.handle("update-repos", async (event, reposPath, tasks, commitMessage) =>
 
                     // Run commands for npm install and npm run build (possible git commands)
                     await npmRunBuild(reposPath[index])
+                    // Update progressbars
+                    progressBarValue += progressIncrement
+                    mainWindow.setProgressBar(progressBarValue)
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "")
+                    break;
+                case "ymlFileUpdate":
+                    console.log("ymlFileUpdate")
+                    // Update progressbars
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Updating .gitlab-ci.yml file")
+
+                    // Update .gitlab-ci.yml file
+                    await ymlFileUpdate(reposPath[index])
+                    // Update progressbars
+                    progressBarValue += progressIncrement
+                    mainWindow.setProgressBar(progressBarValue)
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "")
+                    break;
+                case "webpackConfigFileUpdate":
+                    console.log("webpackConfigFileUpdate")
+                    // Update progressbars
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Updating webpack.config.js file")
+
+                    // Update webpack.config.js file
+                    await webpackConfigFileUpdate(reposPath[index])
                     // Update progressbars
                     progressBarValue += progressIncrement
                     mainWindow.setProgressBar(progressBarValue)

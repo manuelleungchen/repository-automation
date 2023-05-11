@@ -19,6 +19,12 @@
     },
     "tasksList": [
         {
+            "label": "Update Gitlab to tvontario",
+            "value": "update-gitlab-to-tvontario",
+            "department": "elem",
+            "description": "This task will perform the following actions: \n 1. perform `git pull` command \n 2. update **.gitlab-ci.yml** and **webpack.config.js** files \n 3. update **package.json** to point to `@tvontario` \n 4. delete **vendor.min.js**, **tvo_k8.css**, **package-lock.json**, and **node_modules** \n 5. perform `npm install` command follow by `npm run build` command"
+        },
+        {
             "label": "Update ILOs version",
             "value": "ilos-update",
             "department": "elem",
@@ -50,6 +56,11 @@
         }
     ],
     "functionsList": {
+        "update-gitlab-to-tvontario": [
+            "gitPull",
+            "ymlFileUpdate",
+            "webpackConfigFileUpdate"
+        ],
         "ilos-update": [
             "gitPull",
             "updateILOsVersion",

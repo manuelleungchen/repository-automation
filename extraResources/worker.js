@@ -2,7 +2,7 @@ const { parentPort, workerData } = require("worker_threads");
 const fs = require("fs");
 const { execSync } = require("child_process");   // Import exec method from child_process module
 
-function executeShellCommands(type, repoPath, commitMessage) {
+function executeShellCommands(type, repoPath, filePath, commitMessage) {
     switch (type) {
         case "gitPull":
             execSync(`cd ${repoPath} && git checkout master && git pull`);
@@ -101,9 +101,15 @@ function executeShellCommands(type, repoPath, commitMessage) {
         case "npmRunBuild":
             execSync(`cd ${repoPath} && npm install && npm run build`);
             break;
+        case "ymlFileUpdate":
+            execSync(`cd ${repoPath} && cp -r ${filePath} .gitlab-ci.yml`);
+            break;
+        case "webpackConfigFileUpdate":
+            execSync(`cd ${repoPath} && cp -r ${filePath} webpack.config.js`);
+            break;
         default:
     }
     return "Done"
 }
 
-parentPort.postMessage(executeShellCommands(workerData.commandType, workerData.repoPath, workerData.commitMessage))
+parentPort.postMessage(executeShellCommands(workerData.commandType, workerData.repoPath, workerData.filePath, workerData.commitMessage))

@@ -182,7 +182,7 @@ function App() {
                             </div>
                         }
                     </div>
-                    {(updateStatus === "update_available" || updateStatus === "update_downloaded") && <UpdatePopUp status={updateStatus} closeNotification={closeNotification} restartApp={restartApp} />}
+                    {/* {(updateStatus === "update_available" || updateStatus === "update_downloaded") && <UpdatePopUp status={updateStatus} closeNotification={closeNotification} restartApp={restartApp} />} */}
                 </main>
             </div>)
             : (

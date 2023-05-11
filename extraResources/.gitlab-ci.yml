@@ -1,0 +1,3 @@
+include:
+- project: 'tvontario/digital-learning-projects/elementary/s3_uploads_elem'
+  file: '.gitlab-ci-template.yml'

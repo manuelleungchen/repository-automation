@@ -192,7 +192,6 @@ function updateILOsVersion(filePath) {
     for (const [key] of Object.entries(configContent.ilosVersions)) {
         // Check which dependencies are included in package.json
         if (packageFileContent.dependencies.hasOwnProperty(`${key}`)) {
-
             // Update package.json dependencies to match most stable version of each ILOs
             packageFileContent.dependencies[key] = configContent.ilosVersions[key];
             // Saved all ILOs installed in each course
@@ -332,6 +331,55 @@ function webpackConfigFileUpdate(repoPath) {
     })
 }
 
+// This function search and replace @digital-learning for @tvontario in src/index.js. 
+function updateIndexFileForTvontario(filePath) {
+    // Read data from index.js
+    const indexFileData = fs.readFileSync(`${path.join(filePath, "src/index.js")}`);
+    let indexFileContent = indexFileData.toString();
+
+    const regex = new RegExp(`@digital-learning`, "gm");
+
+    // Replace @digital-learning for @tvontario in index.js
+    indexFileContent = indexFileContent.replace(regex, "@tvontario");
+
+    // Write new content into index.js
+    fs.writeFileSync(`${path.join(filePath, "src/index.js")}`, indexFileContent)
+}
+
+// This function search and replace @digital-learning for @tvontario in package.json. 
+// In addition, it will update the dependencies html5-media-controller, k8-bootstrap-css, k8-components and k8-top-nav 
+// as well as repository url.
+function updatePackageFileForTvontario(filePath) {
+    // Read data from package.json
+    const packageFileData = fs.readFileSync(`${path.join(filePath, "package.json")}`);
+    let packageFileContent = JSON.parse(packageFileData);
+
+    const regex = new RegExp(`@digital-learning`, "gm");
+
+    // Loop through all dependencies in package.json
+    for (const [key] of Object.entries(packageFileContent.dependencies)) {
+        // Check which dependencies include "@digital-learning"
+        if (key.includes("@digital-learning")) {
+            // Replace @digital-learning for @tvontario in key
+            const newKeyName = key.replace(regex, "@tvontario");
+            
+            packageFileContent.dependencies[newKeyName] = packageFileContent.dependencies[key]; // Assign new key
+            delete packageFileContent.dependencies[key]; // Delete old key
+        }
+    }
+    
+    // Update miscellaneous tvo dependancies and repository url
+    packageFileContent.dependencies["html5-media-controller"] = "gitlab:tvontario/digital-learning-projects/course-components/secondary/html5-media-controller.git#1.0.1"
+    packageFileContent.dependencies["k8-bootstrap-css"] = "gitlab:tvontario/digital-learning-projects/course-components/elementary/k8-bootstrap-css.git"
+    packageFileContent.dependencies["k8-components"] = "gitlab:tvontario/digital-learning-projects/course-components/elementary/k8-components.git"
+    packageFileContent.dependencies["k8-top-nav"] = "gitlab:tvontario/digital-learning-projects/course-components/elementary/k8-top-nav.git"
+    
+    packageFileContent.repository["url"] = "https://gitlab.com/tvontario/digital-learning-projects/elementary/k8-course-repo.git"
+
+    // Write new content into package.json
+    fs.writeFileSync(`${path.join(filePath, "package.json")}`, JSON.stringify(packageFileContent, null, 2))
+}
+
 // End of all script functions
 
 // Handle request to get repos
@@ -466,6 +514,30 @@ ipcMain.handle("update-repos", async (event, reposPath, tasks, commitMessage) =>
 
                     // Update webpack.config.js file
                     await webpackConfigFileUpdate(reposPath[index])
+                    // Update progressbars
+                    progressBarValue += progressIncrement
+                    mainWindow.setProgressBar(progressBarValue)
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "")
+                    break;
+                case "updateIndexFileForTvontario":
+                    console.log("updateIndexFileForTvontario")
+                    // Update progressbars
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Replace @digital-learning for @tvontario in index.js")
+
+                    // This function replace @digital-learning for @tvontario in index.js
+                    updateIndexFileForTvontario(reposPath[index]);
+                    // Update progressbars
+                    progressBarValue += progressIncrement
+                    mainWindow.setProgressBar(progressBarValue)
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "")
+                    break;
+                case "updatePackageFileForTvontario":
+                    console.log("updatePackageFileForTvontario")
+                    // Update progressbars
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Replace @digital-learning for @tvontario in package.json")
+
+                    // This function replace @digital-learning for @tvontario in package.json
+                    updatePackageFileForTvontario(reposPath[index]);
                     // Update progressbars
                     progressBarValue += progressIncrement
                     mainWindow.setProgressBar(progressBarValue)

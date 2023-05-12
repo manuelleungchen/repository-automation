@@ -59,7 +59,11 @@
         "update-gitlab-to-tvontario": [
             "gitPull",
             "ymlFileUpdate",
-            "webpackConfigFileUpdate"
+            "webpackConfigFileUpdate",
+            "updateIndexFileForTvontario",
+            "updatePackageFileForTvontario",
+            "installILOsLatestVersion",
+            "addPropertiesToILOsWidgetsFiles"
         ],
         "ilos-update": [
             "gitPull",

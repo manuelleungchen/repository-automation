@@ -175,52 +175,6 @@ function gitPush(repoPath, commitMessage) {
     })
 }
 
-// This function updates the ILOs versions in package.json and make sure that installed ILOs are referenced in index.js
-function updateILOsVersion(filePath) {
-    // This function updated the ILOs versions in package.json
-
-    // Read data from package.json and index.js
-    const packageFileData = fs.readFileSync(`${path.join(filePath, "package.json")}`);
-    let packageFileContent = JSON.parse(packageFileData);
-    const indexFileData = fs.readFileSync(`${path.join(filePath, "src/index.js")}`);
-    let indexFileContent = indexFileData.toString();
-
-    // List all ILOs included in the course
-    let ILOs = [];
-
-    // Loop through each keys on appConfig.json > ilosVersions
-    for (const [key] of Object.entries(configContent.ilosVersions)) {
-        // Check which dependencies are included in package.json
-        if (packageFileContent.dependencies.hasOwnProperty(`${key}`)) {
-            // Update package.json dependencies to match most stable version of each ILOs
-            packageFileContent.dependencies[key] = configContent.ilosVersions[key];
-            // Saved all ILOs installed in each course
-            ILOs.push(key);
-        }
-    }
-    // Write new content into package.json
-    fs.writeFileSync(`${path.join(filePath, "package.json")}`, JSON.stringify(packageFileContent, null, 2))
-
-    // Loop through each item on ILOs array
-    ILOs.forEach(ilo => {
-        // Get ILO name
-        const ILOname = ilo.split("/")[1];
-        // Create new Regex "^\/\/\s*(require\(('|")@digital-learning\/ILO_NAME.*\n)""
-        const regex_comment = new RegExp(`^\\/\\/\\s*(require\\(('|")@digital-learning\\/${ILOname}.*\\n)`, "gm");
-        // match lines
-        // starting with //
-        // ignore following whitespaces
-        // having text "app" afterwards, capture from app to line-ending as group ($1 reference)
-        const replacement = `$1`;
-
-        // Uncomment lines in index.js
-        indexFileContent = indexFileContent.replace(regex_comment, replacement);
-    })
-    // Write new content into index.js
-    fs.writeFileSync(`${path.join(filePath, "src/index.js")}`, indexFileContent)
-    // return "ILOs included in index.js";
-}
-
 // This function executes rm -f and rm -r commands in shell for vendor.min.js, tvo_k8.css, package-lock.json, and node_modules folder
 function deleteBuildFiles(repoPath) {
     return new Promise((resolve, reject) => {
@@ -255,27 +209,111 @@ function deleteBuildFilesSec(repoPath) {
     })
 }
 
-// This function make sure each json file in widgets folder contains "department": "elem"
-function addDepartmentProperty(widgetsPath) {
+// This function make sure each json file in widgets folder contains "department": "elem" 
+// as well as iloStartText, iloEndText, iloStartLink and iloEndLink properties
+function addPropertiesToILOsWidgetsFiles(widgetsPath) {
     const widgetsFiles = fs
         .readdirSync(widgetsPath, { withFileTypes: true })
-        .filter((file) => file.isFile())
-        .map((file) => path.join(widgetsPath, file.name))
         .filter((file) => {
             // Match only json files containing at least one of the ILOs name in RegEx
-            return file.match(/flowchart|flashcards|sorting|fill-in-the-blank|fillintheblank|fib|multiple-choice|multiplechoice|matching/) && file.includes(".json");
-        });
+            return file.isFile() && file.name.match(/flowchart|flashcards|sorting|fill-in-the-blank|fillintheblank|fib|f-i-b|multiple-choice|multiplechoice|matching/) && file.name.includes(".json")})
+        .map((file) => path.join(widgetsPath, file.name));
 
+    // Loop through all ilo_name.json files
     widgetsFiles.forEach((jsonPath) => {
+        // Read data from json file
         const jsonFileData = fs.readFileSync(jsonPath);
-
         let jsonFileContent = JSON.parse(jsonFileData);
+
+        const jsonFileName = path.basename(jsonPath);
+
+        let iloName = ""
+
+        // Check if ILO is Number line
+        if (jsonFileName.match(/number-line|numberline|number_line/)) {
+            iloName = "Number line"
+        }
+        // Check if ILO is Ten frame
+        else if (jsonFileName.match(/ten-frame|tenframe|ten_frame/)) {
+            iloName = "Ten frame"
+        }
+        // Check if ILO is Hundred chart
+        else if (jsonFileName.match(/hundred-chart|hundredchart|hundred_chart/)) {
+            iloName = "Hundred chart"
+        }
+        // Check if ILO is Multiple choice
+        else if (jsonFileName.match(/multiple-choice|multiplechoice/)) {
+            iloName = "Multiple choice"
+        }
+        // Check if ILO is Fill in the blanks
+        else if (jsonFileName.match(/fill-in-the-blank|fillintheblank|fib|f-i-b/)) {
+            iloName = "Fill in the Blanks"
+        }
+        // Check if ILO is Grid mapping
+        else if (jsonFileName.match(/grid-mapping|gridmapping|grid_mapping/)) {
+            iloName = "Grid mapping"
+        }
+         // Check if ILO is Matching
+         else if (jsonFileName.match(/matching/)) {
+            iloName = "Matching"
+        }
+         // Check if ILO is Three-d-shapes
+         else if (jsonFileName.match(/three-d-shape|three_d_shape|3d-shape|3dshape|3d_shape/)) {
+            iloName = "Three-d-shapes"
+        }
+         // Check if ILO is Protractor
+         else if (jsonFileName.match(/protractor/)) {
+            iloName = "Protractor"
+        }
+         // Check if ILO is Charts
+         else if (jsonFileName.match(/chart/)) {
+            iloName = "Charts"
+        }
+         // Check if ILO is Money
+         else if (jsonFileName.match(/money/)) {
+            iloName = "Money"
+        }
+         // Check if ILO is Ebook reader
+         else if (jsonFileName.match(/ebook-reader|ebookreader|ebook_reader/)) {
+            iloName = "Ebook reader"
+        }
+        // Check if ILO is Flowchart
+        else if (jsonFileName.match(/flowchart/)) {
+            iloName = "Flowchart"
+        }
+        // Check if ILO is Sorting table
+        else if (jsonFileName.match(/sorting/)) {
+            iloName = "Sorting table"
+        }
+        // Check if ILO is Flashcards
+        else if (jsonFileName.match(/flashcard/)) {
+            iloName = "Flashcards"
+        }
 
         // If key and value "department" = "elem" is not present, add it.
         if (!(jsonFileContent.hasOwnProperty("department")) || jsonFileContent.department !== "elem") {
             jsonFileContent.department = "elem";
             fs.writeFileSync(jsonPath, JSON.stringify(jsonFileContent, null, 2))
-            console.log(`Added 'elem' ${jsonPath}`)
+        }
+        // If key and value "iloStartText" = "Beginning of ILO name interactive activity." is not present, add it.
+        if (!(jsonFileContent.hasOwnProperty("iloStartText"))) {
+            jsonFileContent.iloStartText = `Beginning of ${iloName} interactive activity.`;
+            fs.writeFileSync(jsonPath, JSON.stringify(jsonFileContent, null, 2))
+        }
+        // If key and value "iloEndText" = "End of ILO name interactive activity." is not present, add it.
+        if (!(jsonFileContent.hasOwnProperty("iloEndText"))) {
+            jsonFileContent.iloEndText = `End of ${iloName} interactive activity.`;
+            fs.writeFileSync(jsonPath, JSON.stringify(jsonFileContent, null, 2))
+        }
+        // If key and value "iloStartLink" = "Enter interactive activity ILO name or press link to skip to end of activity." is not present, add it.
+        if (!(jsonFileContent.hasOwnProperty("iloStartLink"))) {
+            jsonFileContent.iloStartLink = `Enter interactive activity ${iloName} or press link to skip to end of activity.`;
+            fs.writeFileSync(jsonPath, JSON.stringify(jsonFileContent, null, 2))
+        }
+         // If key and value "iloEndLink" = "Press link to return to start of interactive activity ILO name." is not present, add it.
+         if (!(jsonFileContent.hasOwnProperty("iloEndLink"))) {
+            jsonFileContent.iloEndLink = `Press link to return to start of interactive activity ${iloName}.`;
+            fs.writeFileSync(jsonPath, JSON.stringify(jsonFileContent, null, 2))
         }
     })
 }
@@ -284,6 +322,23 @@ function addDepartmentProperty(widgetsPath) {
 function npmRunBuild(repoPath) {
     return new Promise((resolve, reject) => {
         const worker = new Worker(path.join(ASSETS_PATH, `worker.js`), { workerData: { commandType: "npmRunBuild", repoPath: repoPath } });
+        worker.on('message', resolve);
+        worker.on('error', (error) => {
+            reject(error)
+            console.log(error)
+            showErrorBox(`${error}`)
+        });
+        worker.on('exit', (code) => {
+            if (code !== 0)
+                reject(new Error(`Worker stopped with exit code ${code}`));
+        })
+    })
+}
+
+// This function runs "npm install packageName"
+function npmInstallPackage(repoPath, commandString) {
+    return new Promise((resolve, reject) => {
+        const worker = new Worker(path.join(ASSETS_PATH, `worker.js`), { workerData: { commandType: "npmInstallPackage", repoPath: repoPath, commandString: commandString } });
         worker.on('message', resolve);
         worker.on('error', (error) => {
             reject(error)
@@ -314,7 +369,7 @@ function ymlFileUpdate(repoPath) {
     })
 }
 
-// This function updates the .gitlab-ci.yml file
+// This function updates the webpack.config.js file
 function webpackConfigFileUpdate(repoPath) {
     return new Promise((resolve, reject) => {
         const worker = new Worker(path.join(ASSETS_PATH, `worker.js`), { workerData: { commandType: "webpackConfigFileUpdate", repoPath: repoPath, filePath: path.join(ASSETS_PATH, `webpack.config.js`) } });
@@ -332,9 +387,9 @@ function webpackConfigFileUpdate(repoPath) {
 }
 
 // This function search and replace @digital-learning for @tvontario in src/index.js. 
-function updateIndexFileForTvontario(filePath) {
+function updateIndexFileForTvontario(repoPath) {
     // Read data from index.js
-    const indexFileData = fs.readFileSync(`${path.join(filePath, "src/index.js")}`);
+    const indexFileData = fs.readFileSync(`${path.join(repoPath, "src/index.js")}`);
     let indexFileContent = indexFileData.toString();
 
     const regex = new RegExp(`@digital-learning`, "gm");
@@ -343,15 +398,15 @@ function updateIndexFileForTvontario(filePath) {
     indexFileContent = indexFileContent.replace(regex, "@tvontario");
 
     // Write new content into index.js
-    fs.writeFileSync(`${path.join(filePath, "src/index.js")}`, indexFileContent)
+    fs.writeFileSync(`${path.join(repoPath, "src/index.js")}`, indexFileContent)
 }
 
 // This function search and replace @digital-learning for @tvontario in package.json. 
 // In addition, it will update the dependencies html5-media-controller, k8-bootstrap-css, k8-components and k8-top-nav 
 // as well as repository url.
-function updatePackageFileForTvontario(filePath) {
+function updatePackageFileForTvontario(repoPath) {
     // Read data from package.json
-    const packageFileData = fs.readFileSync(`${path.join(filePath, "package.json")}`);
+    const packageFileData = fs.readFileSync(`${path.join(repoPath, "package.json")}`);
     let packageFileContent = JSON.parse(packageFileData);
 
     const regex = new RegExp(`@digital-learning`, "gm");
@@ -367,7 +422,7 @@ function updatePackageFileForTvontario(filePath) {
             delete packageFileContent.dependencies[key]; // Delete old key
         }
     }
-    
+
     // Update miscellaneous tvo dependancies and repository url
     packageFileContent.dependencies["html5-media-controller"] = "gitlab:tvontario/digital-learning-projects/course-components/secondary/html5-media-controller.git#1.0.1"
     packageFileContent.dependencies["k8-bootstrap-css"] = "gitlab:tvontario/digital-learning-projects/course-components/elementary/k8-bootstrap-css.git"
@@ -377,7 +432,58 @@ function updatePackageFileForTvontario(filePath) {
     packageFileContent.repository["url"] = "https://gitlab.com/tvontario/digital-learning-projects/elementary/k8-course-repo.git"
 
     // Write new content into package.json
-    fs.writeFileSync(`${path.join(filePath, "package.json")}`, JSON.stringify(packageFileContent, null, 2))
+    fs.writeFileSync(`${path.join(repoPath, "package.json")}`, JSON.stringify(packageFileContent, null, 2))
+}
+
+// This function updates the ILOs versions in package.json and make sure that installed ILOs are referenced in index.js
+async function updateILOsToLatestVersion(repoPath) {
+    // This function updated the ILOs versions in package.json
+
+    // Read data from package.json and index.js
+    const packageFileData = fs.readFileSync(`${path.join(repoPath, "package.json")}`);
+    let packageFileContent = JSON.parse(packageFileData);
+    const indexFileData = fs.readFileSync(`${path.join(repoPath, "src/index.js")}`);
+    let indexFileContent = indexFileData.toString();
+
+    // List all ILOs included in the course
+    let ILOs = [];
+
+    // Loop through all dependencies in package.json
+    for (const [key] of Object.entries(packageFileContent.dependencies)) {
+        // Check which dependencies include "@tvontario"
+        if (key.includes("@tvontario")) {
+            // Saved all ILOs installed
+            ILOs.push(key);
+        }
+    }
+    
+    // Loop through each item on ILOs array and uncomment ILOs included in package.json
+    // return each ilo with "@latest" added
+    const ILOsInstallList = ILOs.map(ilo => {
+        // Get ILO name
+        const ILOname = ilo.split("/")[1];
+        // Create new Regex "^\/\/\s*(require\(('|")@tvontario\/ILO_NAME.*\n)""
+        const regex_comment = new RegExp(`^\\/\\/\\s*(require\\(('|")@tvontario\\/${ILOname}.*\\n)`, "gm");
+        // match lines
+        // starting with //
+        // ignore following whitespaces
+        // having text "app" afterwards, capture from app to line-ending as group ($1 reference)
+        const replacement = `$1`;
+
+        // Uncomment lines in index.js
+        indexFileContent = indexFileContent.replace(regex_comment, replacement);
+
+        return `${ilo}@latest`
+
+    }).join(" ")
+
+    // Update package.json dependencies to match most stable version of each ILOs
+    // Run commands for npm install @tvontario/ilo_name@latest
+    await npmInstallPackage(repoPath, `npm install ${ILOsInstallList}`)
+
+    // Write new content into index.js
+    fs.writeFileSync(`${path.join(repoPath, "src/index.js")}`, indexFileContent)
+    // return "ILOs included in index.js";
 }
 
 // End of all script functions
@@ -416,7 +522,6 @@ ipcMain.handle("update-repos", async (event, reposPath, tasks, commitMessage) =>
         for (let i = 0; i < functionsList.length; i++) {
             switch (functionsList[i]) {
                 case "gitPull":
-                    console.log("gitPull")
                     // Update progressbars
                     mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Pulling repo")
 
@@ -438,17 +543,6 @@ ipcMain.handle("update-repos", async (event, reposPath, tasks, commitMessage) =>
                     mainWindow.setProgressBar(progressBarValue)
                     mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "")
                     break;
-                case "updateILOsVersion":
-                    // Update progressbars
-                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Updating ILOs version")
-
-                    // This function updates the ILOs versions in package.json and index.js
-                    updateILOsVersion(reposPath[index]);
-                    // Update progressbars
-                    progressBarValue += progressIncrement
-                    mainWindow.setProgressBar(progressBarValue)
-                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "")
-                    break;
                 case "deleteBuildFiles":
                     // Update progressbars
                     mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Deleting tvo_k8.css, vendor.min.js, node_modules and package-lock.json")
@@ -461,7 +555,6 @@ ipcMain.handle("update-repos", async (event, reposPath, tasks, commitMessage) =>
                     mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "")
                     break;
                 case "deleteBuildFilesSec":
-                    console.log("deleteBuildFilesSec")
                     // Update progressbars
                     mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Deleting vendor.min.js, node_modules and package-lock.json")
 
@@ -472,19 +565,18 @@ ipcMain.handle("update-repos", async (event, reposPath, tasks, commitMessage) =>
                     mainWindow.setProgressBar(progressBarValue)
                     mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "")
                     break;
-                case "addDepartmentProperty":
+                case "addPropertiesToILOsWidgetsFiles":
                     // Update progressbars
-                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Adding Dept property")
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Updating ILOs json files")
 
                     // Update widgets .json files
-                    addDepartmentProperty(`${path.join(reposPath[index], "widgets")}`)
+                    addPropertiesToILOsWidgetsFiles(`${path.join(reposPath[index], "widgets")}`)
                     // Update progressbars
                     progressBarValue += progressIncrement
                     mainWindow.setProgressBar(progressBarValue)
                     mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "")
                     break;
                 case "npmRunBuild":
-                    console.log("npmRunBuild")
                     // Update progressbars
                     mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Running commands 'NPM install' and 'NPM build'")
 
@@ -496,7 +588,6 @@ ipcMain.handle("update-repos", async (event, reposPath, tasks, commitMessage) =>
                     mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "")
                     break;
                 case "ymlFileUpdate":
-                    console.log("ymlFileUpdate")
                     // Update progressbars
                     mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Updating .gitlab-ci.yml file")
 
@@ -508,7 +599,6 @@ ipcMain.handle("update-repos", async (event, reposPath, tasks, commitMessage) =>
                     mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "")
                     break;
                 case "webpackConfigFileUpdate":
-                    console.log("webpackConfigFileUpdate")
                     // Update progressbars
                     mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Updating webpack.config.js file")
 
@@ -520,7 +610,6 @@ ipcMain.handle("update-repos", async (event, reposPath, tasks, commitMessage) =>
                     mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "")
                     break;
                 case "updateIndexFileForTvontario":
-                    console.log("updateIndexFileForTvontario")
                     // Update progressbars
                     mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Replace @digital-learning for @tvontario in index.js")
 
@@ -532,12 +621,22 @@ ipcMain.handle("update-repos", async (event, reposPath, tasks, commitMessage) =>
                     mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "")
                     break;
                 case "updatePackageFileForTvontario":
-                    console.log("updatePackageFileForTvontario")
                     // Update progressbars
                     mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Replace @digital-learning for @tvontario in package.json")
 
                     // This function replace @digital-learning for @tvontario in package.json
                     updatePackageFileForTvontario(reposPath[index]);
+                    // Update progressbars
+                    progressBarValue += progressIncrement
+                    mainWindow.setProgressBar(progressBarValue)
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "")
+                    break;
+                case "updateILOsToLatestVersion":
+                    // Update progressbars
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Updating ILOs to latest")
+
+                    // Run commands for npm install ilo_name @latest
+                    await updateILOsToLatestVersion(reposPath[index])
                     // Update progressbars
                     progressBarValue += progressIncrement
                     mainWindow.setProgressBar(progressBarValue)

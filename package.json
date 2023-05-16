@@ -58,7 +58,7 @@
     },
     "build": {
         "appId": "com.RepositoryAutomation",
-        "productName": "Repository Automation",
+        "productName": "RepositoryAutomation",
         "copyright": "Repository Automation Copyrights",
         "files": [
             "build/**/*"

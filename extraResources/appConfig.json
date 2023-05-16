@@ -4,13 +4,13 @@
             "label": "Update Gitlab to tvontario",
             "value": "update-gitlab-to-tvontario",
             "department": "elem",
-            "description": "This task will perform the following actions: \n 1. perform `git pull` command \n 2. update **.gitlab-ci.yml** and **webpack.config.js** files \n 3. update **package.json** to point to `@tvontario` \n 4. delete **vendor.min.js**, **tvo_k8.css**, **package-lock.json**, and **node_modules** \n 5. perform `npm install` command follow by `npm run build` command"
+            "description": "This task will perform the following actions: \n 1. perform `git pull` command \n 2. update **.gitlab-ci.yml** and **webpack.config.js** files \n 3. update **index.js** and **package.json** to point to `@tvontario` \n 4. update ILOs build version to latest on package.json file \n 5. add &ldquo;department&rdquo; : &ldquo;elem&rdquo; in any widget .json files (containing **flowchart**, **flashcards**, **sorting**, **fill-in-the-blank**, **multiple-choice**, **matching**, **number-line**, **ten-frame**, **hundred-chart**, **grid-mapping**, **three-d-shape**, **protractor**, **chart**, **money**, or **ebook-reader** in their name) \n 6. delete **vendor.min.js**, **tvo_k8.css**, **package-lock.json**, and **node_modules** \n 7. perform `npm install` command follow by `npm run build` command"
         },
         {
             "label": "Update ILOs version",
             "value": "ilos-update",
             "department": "elem",
-            "description": "This task will perform the following actions: \n 1. perform `git pull` command \n 2. update ILOs build version on package.json file \n 3. add &ldquo;department&rdquo; : &ldquo;elem&rdquo; in any widget .json files (containing **flowchart**, **flashcards**, **sorting**, **fill-in-the-blank**, **fillintheblank**, **fib**, **multiple-choice**, **multiplechoice**, or **matching** in their name) \n 4. delete **vendor.min.js**, **tvo_k8.css**, **package-lock.json**, and **node_modules** \n 5. perform `npm install` command follow by `npm run build` command"
+            "description": "This task will perform the following actions: \n 1. perform `git pull` command \n 2. update ILOs build version to latest on package.json file \n 3. add &ldquo;department&rdquo; : &ldquo;elem&rdquo; in any widget .json files (containing **flowchart**, **flashcards**, **sorting**, **fill-in-the-blank**, **multiple-choice**, **matching**, **number-line**, **ten-frame**, **hundred-chart**, **grid-mapping**, **three-d-shape**, **protractor**, **chart**, **money**, or **ebook-reader** in their name) \n 4. delete **vendor.min.js**, **tvo_k8.css**, **package-lock.json**, and **node_modules** \n 5. perform `npm install` command follow by `npm run build` command"
         },
         {
             "label": "Rebuild K8 CSS and vendor.min.js",
@@ -45,12 +45,14 @@
             "updateIndexFileForTvontario",
             "updatePackageFileForTvontario",
             "updateILOsToLatestVersion",
-            "addPropertiesToILOsWidgetsFiles"
+            "addDepartmentProperty",
+            "deleteBuildFiles",
+            "npmRunBuild"
         ],
         "ilos-update": [
             "gitPull",
             "updateILOsToLatestVersion",
-            "addPropertiesToILOsWidgetsFiles",
+            "addDepartmentProperty",
             "deleteBuildFiles",
             "npmRunBuild"
         ],

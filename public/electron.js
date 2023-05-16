@@ -215,7 +215,7 @@ function addDepartmentProperty(widgetsPath) {
         .readdirSync(widgetsPath, { withFileTypes: true })
         .filter((file) => {
             // Match only json files containing at least one of the ILOs name in RegEx
-            return file.isFile() && file.name.match(/flowchart|flashcards|sorting|fill-in-the-blank|fillintheblank|fib|f-i-b|multiple-choice|multiplechoice|multiple_choice|matching|number-line|numberline|number_line|ten-frame|tenframe|ten_frame|hundred-chart|hundredchart|hundred_chart|grid-mapping|gridmapping|grid_mapping|three-d-shape|three_d_shape|3d-shape|3dshape|3d_shape|protractor|chart|money|ebook-reader|ebookreader|ebook_reader/) && file.name.includes(".json")})
+            return file.isFile() && file.name.match(/.json|.JSON/)})
         .map((file) => path.join(widgetsPath, file.name));
 
     // Loop through all ilo_name.json files
@@ -318,6 +318,7 @@ function updateIndexFileForTvontario(repoPath) {
 // This function search and replace @digital-learning for @tvontario in package.json. 
 // In addition, it will update the dependencies html5-media-controller, k8-bootstrap-css, k8-components and k8-top-nav 
 // as well as repository url.
+// Also add the course repo name into the packgake.json name property.
 function updatePackageFileForTvontario(repoPath) {
     // Read data from package.json
     const packageFileData = fs.readFileSync(`${path.join(repoPath, "package.json")}`);
@@ -344,6 +345,9 @@ function updatePackageFileForTvontario(repoPath) {
     packageFileContent.dependencies["k8-top-nav"] = "gitlab:tvontario/digital-learning-projects/course-components/elementary/k8-top-nav.git"
     
     packageFileContent.repository["url"] = "https://gitlab.com/tvontario/digital-learning-projects/elementary/k8-course-repo.git"
+
+    // Update name with course repo name
+    packageFileContent.name = path.basename(repoPath)
 
     // Write new content into package.json
     fs.writeFileSync(`${path.join(repoPath, "package.json")}`, JSON.stringify(packageFileContent, null, 4))

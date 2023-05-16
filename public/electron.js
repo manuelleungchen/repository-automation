@@ -210,13 +210,12 @@ function deleteBuildFilesSec(repoPath) {
 }
 
 // This function make sure each json file in widgets folder contains "department": "elem" 
-// as well as iloStartText, iloEndText, iloStartLink and iloEndLink properties
-function addPropertiesToILOsWidgetsFiles(widgetsPath) {
+function addDepartmentProperty(widgetsPath) {
     const widgetsFiles = fs
         .readdirSync(widgetsPath, { withFileTypes: true })
         .filter((file) => {
             // Match only json files containing at least one of the ILOs name in RegEx
-            return file.isFile() && file.name.match(/flowchart|flashcards|sorting|fill-in-the-blank|fillintheblank|fib|f-i-b|multiple-choice|multiplechoice|matching/) && file.name.includes(".json")})
+            return file.isFile() && file.name.match(/flowchart|flashcards|sorting|fill-in-the-blank|fillintheblank|fib|f-i-b|multiple-choice|multiplechoice|multiple_choice|matching|number-line|numberline|number_line|ten-frame|tenframe|ten_frame|hundred-chart|hundredchart|hundred_chart|grid-mapping|gridmapping|grid_mapping|three-d-shape|three_d_shape|3d-shape|3dshape|3d_shape|protractor|chart|money|ebook-reader|ebookreader|ebook_reader/) && file.name.includes(".json")})
         .map((file) => path.join(widgetsPath, file.name));
 
     // Loop through all ilo_name.json files
@@ -225,95 +224,10 @@ function addPropertiesToILOsWidgetsFiles(widgetsPath) {
         const jsonFileData = fs.readFileSync(jsonPath);
         let jsonFileContent = JSON.parse(jsonFileData);
 
-        const jsonFileName = path.basename(jsonPath);
-
-        let iloName = ""
-
-        // Check if ILO is Number line
-        if (jsonFileName.match(/number-line|numberline|number_line/)) {
-            iloName = "Number line"
-        }
-        // Check if ILO is Ten frame
-        else if (jsonFileName.match(/ten-frame|tenframe|ten_frame/)) {
-            iloName = "Ten frame"
-        }
-        // Check if ILO is Hundred chart
-        else if (jsonFileName.match(/hundred-chart|hundredchart|hundred_chart/)) {
-            iloName = "Hundred chart"
-        }
-        // Check if ILO is Multiple choice
-        else if (jsonFileName.match(/multiple-choice|multiplechoice/)) {
-            iloName = "Multiple choice"
-        }
-        // Check if ILO is Fill in the blanks
-        else if (jsonFileName.match(/fill-in-the-blank|fillintheblank|fib|f-i-b/)) {
-            iloName = "Fill in the Blanks"
-        }
-        // Check if ILO is Grid mapping
-        else if (jsonFileName.match(/grid-mapping|gridmapping|grid_mapping/)) {
-            iloName = "Grid mapping"
-        }
-         // Check if ILO is Matching
-         else if (jsonFileName.match(/matching/)) {
-            iloName = "Matching"
-        }
-         // Check if ILO is Three-d-shapes
-         else if (jsonFileName.match(/three-d-shape|three_d_shape|3d-shape|3dshape|3d_shape/)) {
-            iloName = "Three-d-shapes"
-        }
-         // Check if ILO is Protractor
-         else if (jsonFileName.match(/protractor/)) {
-            iloName = "Protractor"
-        }
-         // Check if ILO is Charts
-         else if (jsonFileName.match(/chart/)) {
-            iloName = "Charts"
-        }
-         // Check if ILO is Money
-         else if (jsonFileName.match(/money/)) {
-            iloName = "Money"
-        }
-         // Check if ILO is Ebook reader
-         else if (jsonFileName.match(/ebook-reader|ebookreader|ebook_reader/)) {
-            iloName = "Ebook reader"
-        }
-        // Check if ILO is Flowchart
-        else if (jsonFileName.match(/flowchart/)) {
-            iloName = "Flowchart"
-        }
-        // Check if ILO is Sorting table
-        else if (jsonFileName.match(/sorting/)) {
-            iloName = "Sorting table"
-        }
-        // Check if ILO is Flashcards
-        else if (jsonFileName.match(/flashcard/)) {
-            iloName = "Flashcards"
-        }
-
         // If key and value "department" = "elem" is not present, add it.
         if (!(jsonFileContent.hasOwnProperty("department")) || jsonFileContent.department !== "elem") {
             jsonFileContent.department = "elem";
-            fs.writeFileSync(jsonPath, JSON.stringify(jsonFileContent, null, 2))
-        }
-        // If key and value "iloStartText" = "Beginning of ILO name interactive activity." is not present, add it.
-        if (!(jsonFileContent.hasOwnProperty("iloStartText"))) {
-            jsonFileContent.iloStartText = `Beginning of ${iloName} interactive activity.`;
-            fs.writeFileSync(jsonPath, JSON.stringify(jsonFileContent, null, 2))
-        }
-        // If key and value "iloEndText" = "End of ILO name interactive activity." is not present, add it.
-        if (!(jsonFileContent.hasOwnProperty("iloEndText"))) {
-            jsonFileContent.iloEndText = `End of ${iloName} interactive activity.`;
-            fs.writeFileSync(jsonPath, JSON.stringify(jsonFileContent, null, 2))
-        }
-        // If key and value "iloStartLink" = "Enter interactive activity ILO name or press link to skip to end of activity." is not present, add it.
-        if (!(jsonFileContent.hasOwnProperty("iloStartLink"))) {
-            jsonFileContent.iloStartLink = `Enter interactive activity ${iloName} or press link to skip to end of activity.`;
-            fs.writeFileSync(jsonPath, JSON.stringify(jsonFileContent, null, 2))
-        }
-         // If key and value "iloEndLink" = "Press link to return to start of interactive activity ILO name." is not present, add it.
-         if (!(jsonFileContent.hasOwnProperty("iloEndLink"))) {
-            jsonFileContent.iloEndLink = `Press link to return to start of interactive activity ${iloName}.`;
-            fs.writeFileSync(jsonPath, JSON.stringify(jsonFileContent, null, 2))
+            fs.writeFileSync(jsonPath, JSON.stringify(jsonFileContent, null, 4))
         }
     })
 }
@@ -432,7 +346,7 @@ function updatePackageFileForTvontario(repoPath) {
     packageFileContent.repository["url"] = "https://gitlab.com/tvontario/digital-learning-projects/elementary/k8-course-repo.git"
 
     // Write new content into package.json
-    fs.writeFileSync(`${path.join(repoPath, "package.json")}`, JSON.stringify(packageFileContent, null, 2))
+    fs.writeFileSync(`${path.join(repoPath, "package.json")}`, JSON.stringify(packageFileContent, null, 4))
 }
 
 // This function updates the ILOs versions in package.json and make sure that installed ILOs are referenced in index.js
@@ -565,12 +479,12 @@ ipcMain.handle("update-repos", async (event, reposPath, tasks, commitMessage) =>
                     mainWindow.setProgressBar(progressBarValue)
                     mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "")
                     break;
-                case "addPropertiesToILOsWidgetsFiles":
+                case "addDepartmentProperty":
                     // Update progressbars
                     mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Updating ILOs json files")
 
                     // Update widgets .json files
-                    addPropertiesToILOsWidgetsFiles(`${path.join(reposPath[index], "widgets")}`)
+                    addDepartmentProperty(`${path.join(reposPath[index], "widgets")}`)
                     // Update progressbars
                     progressBarValue += progressIncrement
                     mainWindow.setProgressBar(progressBarValue)
@@ -691,7 +605,7 @@ ipcMain.handle('select-folder', async (event, data) => {
             "reposLocation": `${filePaths[0]}`
         }
         // Write json data into a json file in 
-        fs.writeFileSync(`${path.join(app.getPath("userData"), "reposLocation.json")}`, JSON.stringify(jsonData, null, 2))
+        fs.writeFileSync(`${path.join(app.getPath("userData"), "reposLocation.json")}`, JSON.stringify(jsonData, null, 4))
 
         // Send repos path to renderer
         return ["saved", filePaths[0]];

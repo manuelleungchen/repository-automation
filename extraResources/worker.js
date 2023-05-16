@@ -11,42 +11,25 @@ function executeShellCommands(type, repoPath, filePath, commitMessage, commandSt
             execSync(`cd ${repoPath} && git add . && git commit -m "${commitMessage}" && git push`);
             break;
         case "deleteBuildFiles":
-            fs.rm(`${repoPath}/dependencies/vendor.min.js`, (err) => {
-                if (err) {
-                    console.error(err.message);
-                }
-            })
-            fs.rm(`${repoPath}/dependencies/tvo_k8.css`, (err) => {
-                if (err) {
-                    console.error(err.message);
-                }
-            })
-            fs.rm(`${repoPath}/package-lock.json`, (err) => {
-                if (err) {
-                    console.error(err.message);
-                }
-            })
-
-            // try {
-            //     fs.rmSync(`${repoPath}/dependencies/vendor.min.js`);
-            // }
-            // catch (error) {
-            //     console.log(error.message);
-            // }
-            // try {
-            //     fs.rmSync(`${repoPath}/dependencies/tvo_k8.css`);
-            // }
-            // catch (error) {
-            //     console.log(error.message);
-            // }
-            // try {
-            //     fs.rmSync(`${repoPath}/package-lock.json`);
-            // }
-            // catch (error) {
-            //     console.log(error.message);
-            // }
-
-            // // Delete node_modules folder
+            try {
+                fs.rmSync(`${repoPath}/dependencies/vendor.min.js`);
+            }
+            catch (error) {
+                console.log(error.message);
+            }
+            try {
+                fs.rmSync(`${repoPath}/dependencies/tvo_k8.css`);
+            }
+            catch (error) {
+                console.log(error.message);
+            }
+            try {
+                fs.rmSync(`${repoPath}/package-lock.json`);
+            }
+            catch (error) {
+                console.log(error.message);
+            }
+            // Delete node_modules folder
             try {
                 fs.rmSync(`${repoPath}/node_modules`, { recursive: true });
             }
@@ -55,42 +38,25 @@ function executeShellCommands(type, repoPath, filePath, commitMessage, commandSt
             }
             break;
         case "deleteBuildFilesSec":
-            fs.rm(`${repoPath}/dependencies/vendor.min.js`, (err) => {
-                if (err) {
-                    console.error(err.message);
-                }
-            })
-            fs.rm(`${repoPath}/dependencies/ilc_core.css`, (err) => {
-                if (err) {
-                    console.error(err.message);
-                }
-            })
-            fs.rm(`${repoPath}/package-lock.json`, (err) => {
-                if (err) {
-                    console.error(err.message);
-                }
-            })
-
-            // try {
-            //     fs.rmSync(`${repoPath}/dependencies/vendor.min.js`);
-            // }
-            // catch (error) {
-            //     console.log(error.message);
-            // }
-            // try {
-            //     fs.rmSync(`${repoPath}/dependencies/ilc_core.css`);
-            // }
-            // catch (error) {
-            //     console.log(error.message);
-            // }
-            // try {
-            //     fs.rmSync(`${repoPath}/package-lock.json`);
-            // }
-            // catch (error) {
-            //     console.log(error.message);
-            // }
-
-            // // Delete node_modules folder
+            try {
+                fs.rmSync(`${repoPath}/dependencies/vendor.min.js`);
+            }
+            catch (error) {
+                console.log(error.message);
+            }
+            try {
+                fs.rmSync(`${repoPath}/dependencies/ilc_core.css`);
+            }
+            catch (error) {
+                console.log(error.message);
+            }
+            try {
+                fs.rmSync(`${repoPath}/package-lock.json`);
+            }
+            catch (error) {
+                console.log(error.message);
+            }
+            // Delete node_modules folder
             try {
                 fs.rmSync(`${repoPath}/node_modules`, { recursive: true });
             }

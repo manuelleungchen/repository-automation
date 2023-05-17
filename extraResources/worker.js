@@ -2,6 +2,9 @@ const { parentPort, workerData } = require("worker_threads");
 const fs = require("fs");
 const { execSync } = require("child_process");   // Import exec method from child_process module
 
+const os = require('os');   
+const isMac = os.platform() === "darwin";  
+
 function executeShellCommands(type, repoPath, filePath, commitMessage, commandString) {
     switch (type) {
         case "gitPull":
@@ -68,10 +71,20 @@ function executeShellCommands(type, repoPath, filePath, commitMessage, commandSt
             execSync(`cd ${repoPath} && npm install && npm run build`);
             break;
         case "ymlFileUpdate":
-            execSync(`cd ${repoPath} && cp -r ${filePath} .gitlab-ci.yml`);
+            if (isMac) {
+                execSync(`cd ${repoPath} && cp -r ${filePath} .gitlab-ci.yml`);
+            }
+            else {
+                execSync(`cd ${repoPath} && copy ${filePath} .gitlab-ci.yml`);
+            }
             break;
         case "webpackConfigFileUpdate":
-            execSync(`cd ${repoPath} && cp -r ${filePath} webpack.config.js`);
+            if (isMac) {
+                execSync(`cd ${repoPath} && cp -r ${filePath} webpack.config.js`);
+            }
+            else {
+                execSync(`cd ${repoPath} && copy ${filePath} webpack.config.js`);
+            }
             break;
         case "npmInstallPackage":
             execSync(`cd ${repoPath} && ${commandString}`);

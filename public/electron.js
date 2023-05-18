@@ -211,25 +211,30 @@ function deleteBuildFilesSec(repoPath) {
 
 // This function make sure each json file in widgets folder contains "department": "elem" 
 function addDepartmentProperty(widgetsPath) {
-    const widgetsFiles = fs
-        .readdirSync(widgetsPath, { withFileTypes: true })
-        .filter((file) => {
-            // Match only json files containing at least one of the ILOs name in RegEx
-            return file.isFile() && file.name.match(/.json|.JSON/)})
-        .map((file) => path.join(widgetsPath, file.name));
+    try {
+        const widgetsFiles = fs
+            .readdirSync(widgetsPath, { withFileTypes: true })
+            .filter((file) => {
+                // Match only json files containing at least one of the ILOs name in RegEx
+                return file.isFile() && file.name.match(/.json|.JSON/)
+            })
+            .map((file) => path.join(widgetsPath, file.name));
 
-    // Loop through all ilo_name.json files
-    widgetsFiles.forEach((jsonPath) => {
-        // Read data from json file
-        const jsonFileData = fs.readFileSync(jsonPath);
-        let jsonFileContent = JSON.parse(jsonFileData);
+        // Loop through all ilo_name.json files
+        widgetsFiles.forEach((jsonPath) => {
+            // Read data from json file
+            const jsonFileData = fs.readFileSync(jsonPath);
+            let jsonFileContent = JSON.parse(jsonFileData);
 
-        // If key and value "department" = "elem" is not present, add it.
-        if (!(jsonFileContent.hasOwnProperty("department")) || jsonFileContent.department !== "elem") {
-            jsonFileContent.department = "elem";
-            fs.writeFileSync(jsonPath, JSON.stringify(jsonFileContent, null, 4))
-        }
-    })
+            // If key and value "department" = "elem" is not present, add it.
+            if (!(jsonFileContent.hasOwnProperty("department")) || jsonFileContent.department !== "elem") {
+                jsonFileContent.department = "elem";
+                fs.writeFileSync(jsonPath, JSON.stringify(jsonFileContent, null, 4))
+            }
+        })
+    } catch (error) {
+        console.log(error)
+    }
 }
 
 // This function executes npm install and npm run build commands in shell
@@ -302,17 +307,22 @@ function webpackConfigFileUpdate(repoPath) {
 
 // This function search and replace @digital-learning for @tvontario in src/index.js. 
 function updateIndexFileForTvontario(repoPath) {
-    // Read data from index.js
-    const indexFileData = fs.readFileSync(`${path.join(repoPath, "src/index.js")}`);
-    let indexFileContent = indexFileData.toString();
+    try {
+        // Read data from index.js
+        const indexFileData = fs.readFileSync(`${path.join(repoPath, "src/index.js")}`);
+        let indexFileContent = indexFileData.toString();
 
-    const regex = new RegExp(`@digital-learning`, "gm");
+        const regex = new RegExp(`@digital-learning`, "gm");
 
-    // Replace @digital-learning for @tvontario in index.js
-    indexFileContent = indexFileContent.replace(regex, "@tvontario");
+        // Replace @digital-learning for @tvontario in index.js
+        indexFileContent = indexFileContent.replace(regex, "@tvontario");
 
-    // Write new content into index.js
-    fs.writeFileSync(`${path.join(repoPath, "src/index.js")}`, indexFileContent)
+        // Write new content into index.js
+        fs.writeFileSync(`${path.join(repoPath, "src/index.js")}`, indexFileContent)
+    } catch (error) {
+        console.log(error)
+        showErrorBox(`${error}`)
+    }
 }
 
 // This function search and replace @digital-learning for @tvontario in package.json. 
@@ -320,88 +330,96 @@ function updateIndexFileForTvontario(repoPath) {
 // as well as repository url.
 // Also add the course repo name into the packgake.json name property.
 function updatePackageFileForTvontario(repoPath) {
-    // Read data from package.json
-    const packageFileData = fs.readFileSync(`${path.join(repoPath, "package.json")}`);
-    let packageFileContent = JSON.parse(packageFileData);
+    try {
+        // Read data from package.json
+        const packageFileData = fs.readFileSync(`${path.join(repoPath, "package.json")}`);
+        let packageFileContent = JSON.parse(packageFileData);
 
-    const regex = new RegExp(`@digital-learning`, "gm");
+        const regex = new RegExp(`@digital-learning`, "gm");
 
-    // Loop through all dependencies in package.json
-    for (const [key] of Object.entries(packageFileContent.dependencies)) {
-        // Check which dependencies include "@digital-learning"
-        if (key.includes("@digital-learning")) {
-            // Replace @digital-learning for @tvontario in key
-            const newKeyName = key.replace(regex, "@tvontario");
-            
-            packageFileContent.dependencies[newKeyName] = packageFileContent.dependencies[key]; // Assign new key
-            delete packageFileContent.dependencies[key]; // Delete old key
+        // Loop through all dependencies in package.json
+        for (const [key] of Object.entries(packageFileContent.dependencies)) {
+            // Check which dependencies include "@digital-learning"
+            if (key.includes("@digital-learning")) {
+                // Replace @digital-learning for @tvontario in key
+                const newKeyName = key.replace(regex, "@tvontario");
+
+                packageFileContent.dependencies[newKeyName] = packageFileContent.dependencies[key]; // Assign new key
+                delete packageFileContent.dependencies[key]; // Delete old key
+            }
         }
+
+        // Update miscellaneous tvo dependancies and repository url
+        packageFileContent.dependencies["html5-media-controller"] = "gitlab:tvontario/digital-learning-projects/course-components/secondary/html5-media-controller.git#1.0.1"
+        packageFileContent.dependencies["k8-bootstrap-css"] = "gitlab:tvontario/digital-learning-projects/course-components/elementary/k8-bootstrap-css.git"
+        packageFileContent.dependencies["k8-components"] = "gitlab:tvontario/digital-learning-projects/course-components/elementary/k8-components.git"
+        packageFileContent.dependencies["k8-top-nav"] = "gitlab:tvontario/digital-learning-projects/course-components/elementary/k8-top-nav.git"
+
+        packageFileContent.repository["url"] = "https://gitlab.com/tvontario/digital-learning-projects/elementary/k8-course-repo.git"
+
+        // Update name with course repo name
+        packageFileContent.name = path.basename(repoPath)
+
+        // Write new content into package.json
+        fs.writeFileSync(`${path.join(repoPath, "package.json")}`, JSON.stringify(packageFileContent, null, 4))
+    } catch (error) {
+        console.log(error)
+        showErrorBox(`${error}`)
     }
-
-    // Update miscellaneous tvo dependancies and repository url
-    packageFileContent.dependencies["html5-media-controller"] = "gitlab:tvontario/digital-learning-projects/course-components/secondary/html5-media-controller.git#1.0.1"
-    packageFileContent.dependencies["k8-bootstrap-css"] = "gitlab:tvontario/digital-learning-projects/course-components/elementary/k8-bootstrap-css.git"
-    packageFileContent.dependencies["k8-components"] = "gitlab:tvontario/digital-learning-projects/course-components/elementary/k8-components.git"
-    packageFileContent.dependencies["k8-top-nav"] = "gitlab:tvontario/digital-learning-projects/course-components/elementary/k8-top-nav.git"
-    
-    packageFileContent.repository["url"] = "https://gitlab.com/tvontario/digital-learning-projects/elementary/k8-course-repo.git"
-
-    // Update name with course repo name
-    packageFileContent.name = path.basename(repoPath)
-
-    // Write new content into package.json
-    fs.writeFileSync(`${path.join(repoPath, "package.json")}`, JSON.stringify(packageFileContent, null, 4))
 }
 
 // This function updates the ILOs versions in package.json and make sure that installed ILOs are referenced in index.js
 async function updateILOsToLatestVersion(repoPath) {
     // This function updated the ILOs versions in package.json
+    try {
+        // Read data from package.json and index.js
+        const packageFileData = fs.readFileSync(`${path.join(repoPath, "package.json")}`);
+        let packageFileContent = JSON.parse(packageFileData);
+        const indexFileData = fs.readFileSync(`${path.join(repoPath, "src/index.js")}`);
+        let indexFileContent = indexFileData.toString();
 
-    // Read data from package.json and index.js
-    const packageFileData = fs.readFileSync(`${path.join(repoPath, "package.json")}`);
-    let packageFileContent = JSON.parse(packageFileData);
-    const indexFileData = fs.readFileSync(`${path.join(repoPath, "src/index.js")}`);
-    let indexFileContent = indexFileData.toString();
+        // List all ILOs included in the course
+        let ILOs = [];
 
-    // List all ILOs included in the course
-    let ILOs = [];
-
-    // Loop through all dependencies in package.json
-    for (const [key] of Object.entries(packageFileContent.dependencies)) {
-        // Check which dependencies include "@tvontario"
-        if (key.includes("@tvontario")) {
-            // Saved all ILOs installed
-            ILOs.push(key);
+        // Loop through all dependencies in package.json
+        for (const [key] of Object.entries(packageFileContent.dependencies)) {
+            // Check which dependencies include "@tvontario"
+            if (key.includes("@tvontario")) {
+                // Saved all ILOs installed
+                ILOs.push(key);
+            }
         }
+
+        // Loop through each item on ILOs array and uncomment ILOs included in package.json
+        // return each ilo with "@latest" added
+        const ILOsInstallList = ILOs.map(ilo => {
+            // Get ILO name
+            const ILOname = ilo.split("/")[1];
+            // Create new Regex "^\/\/\s*(require\(('|")@tvontario\/ILO_NAME.*\n)""
+            const regex_comment = new RegExp(`^\\/\\/\\s*(require\\(('|")@tvontario\\/${ILOname}.*\\n)`, "gm");
+            // match lines
+            // starting with //
+            // ignore following whitespaces
+            // having text "app" afterwards, capture from app to line-ending as group ($1 reference)
+            const replacement = `$1`;
+
+            // Uncomment lines in index.js
+            indexFileContent = indexFileContent.replace(regex_comment, replacement);
+
+            return `${ilo}@latest`
+
+        }).join(" ")
+
+        // Update package.json dependencies to match most stable version of each ILOs
+        // Run commands for npm install @tvontario/ilo_name@latest
+        await npmInstallPackage(repoPath, `npm install ${ILOsInstallList}`)
+
+        // Write new content into index.js
+        fs.writeFileSync(`${path.join(repoPath, "src/index.js")}`, indexFileContent)
+    } catch (error) {
+        console.log(error)
+        showErrorBox(`${error}`)
     }
-    
-    // Loop through each item on ILOs array and uncomment ILOs included in package.json
-    // return each ilo with "@latest" added
-    const ILOsInstallList = ILOs.map(ilo => {
-        // Get ILO name
-        const ILOname = ilo.split("/")[1];
-        // Create new Regex "^\/\/\s*(require\(('|")@tvontario\/ILO_NAME.*\n)""
-        const regex_comment = new RegExp(`^\\/\\/\\s*(require\\(('|")@tvontario\\/${ILOname}.*\\n)`, "gm");
-        // match lines
-        // starting with //
-        // ignore following whitespaces
-        // having text "app" afterwards, capture from app to line-ending as group ($1 reference)
-        const replacement = `$1`;
-
-        // Uncomment lines in index.js
-        indexFileContent = indexFileContent.replace(regex_comment, replacement);
-
-        return `${ilo}@latest`
-
-    }).join(" ")
-
-    // Update package.json dependencies to match most stable version of each ILOs
-    // Run commands for npm install @tvontario/ilo_name@latest
-    await npmInstallPackage(repoPath, `npm install ${ILOsInstallList}`)
-
-    // Write new content into index.js
-    fs.writeFileSync(`${path.join(repoPath, "src/index.js")}`, indexFileContent)
-    // return "ILOs included in index.js";
 }
 
 // End of all script functions

@@ -158,6 +158,23 @@ function gitPull(repoPath) {
     })
 }
 
+// This function executes git diff command in shell
+function gitDiff(repoPath) {
+    return new Promise((resolve, reject) => {
+        const worker = new Worker(path.join(ASSETS_PATH, `worker.js`), { workerData: { commandType: "gitDiff", repoPath: repoPath } });
+        worker.on('message', resolve);
+        worker.on('error', (error) => {
+            reject(error)
+            console.log(error)
+        });
+        worker.on('exit', (code) => {
+            if (code !== 0)
+                reject(new Error(`Worker stopped with exit code ${code}`));
+        })
+    })
+}
+
+
 // This function executes git push command in shell
 function gitPush(repoPath, commitMessage) {
     return new Promise((resolve, reject) => {
@@ -472,8 +489,16 @@ ipcMain.handle("update-repos", async (event, reposPath, tasks, commitMessage) =>
                     // Update progressbars
                     mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Pushing repo")
 
-                    // This function updates course by doing a git pull command
-                    await gitPush(reposPath[index], commitMessage);
+                    // This function check if there are changes to commit
+                    let areThereChangesToCommit = await gitDiff(reposPath[index])
+
+                    // This function updates course by doing a git pull command if there are changes to commit
+                    if (areThereChangesToCommit) {
+                        await gitPush(reposPath[index], commitMessage);
+                    }
+                    else {
+                        console.log("No changes to commit")
+                    }
                     // Update progressbars
                     progressBarValue += progressIncrement
                     mainWindow.setProgressBar(progressBarValue)

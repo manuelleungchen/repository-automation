@@ -6,9 +6,16 @@ const os = require('os');
 const isMac = os.platform() === "darwin";  
 
 function executeShellCommands(type, repoPath, filePath, commitMessage, commandString) {
+    // Variable to store any return value if needed
+    let returnValue = "";
+
     switch (type) {
         case "gitPull":
             execSync(`cd ${repoPath} && git checkout master && git pull`);
+            break;
+        case "gitDiff":
+            // --quiet flag prevents the diff from showing and exits with 1 if there was a diff, 0 if not
+            returnValue = parseInt(execSync(`cd ${repoPath} && git diff --quiet; echo $?`).toString())
             break;
         case "gitPush":
             execSync(`cd ${repoPath} && git add . && git commit -m "${commitMessage}" && git push`);
@@ -91,7 +98,7 @@ function executeShellCommands(type, repoPath, filePath, commitMessage, commandSt
             break;
         default:
     }
-    return "Done"
+    return returnValue;
 }
 
 parentPort.postMessage(executeShellCommands(workerData.commandType, workerData.repoPath, workerData.filePath, workerData.commitMessage, workerData.commandString))

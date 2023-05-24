@@ -62,7 +62,7 @@ function TaskPrompt() {
 
     return (
         <section>
-            <h2>Step #3 - Select actions to perform</h2>
+            <h2>Step #3 - Select tasks to automate</h2>
             {tasks.filter(task => task.department === selectedDepart || task.department === "all").map((task, index) => {
                 return (
                     <div className={styles["list-item"]} key={index}>

@@ -19,6 +19,8 @@ const configContent = JSON.parse(fs.readFileSync(configFile, { encoding: "utf-8"
 
 let connectionInterval = null  // Global variable for setInterval
 
+let isUpdateReposCancelled = false;  // Global variable to store if UpdateRepos was cancelled
+
 // Initializing the Electron Window
 function createWindow() {
     // Create the browser window.
@@ -471,8 +473,10 @@ ipcMain.handle("update-repos", async (event, reposPath, tasks, commitMessage) =>
 
     for (let index = 0; index < reposPath.length; index++) {
         mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), `Updating ${reposPath}`)
+        if (isUpdateReposCancelled) { break; }  // Check if isUpdateReposCancelled is true
 
         for (let i = 0; i < functionsList.length; i++) {
+            if (isUpdateReposCancelled) { break; }  // Check if isUpdateReposCancelled is true
             switch (functionsList[i]) {
                 case "gitPull":
                     // Update progressbars
@@ -612,6 +616,9 @@ ipcMain.handle("update-repos", async (event, reposPath, tasks, commitMessage) =>
             showNotification(`Finished with ${path.basename(reposPath[index])}`) :
             showNotification("Automation completed!");
     }
+
+    isUpdateReposCancelled = false  // Reset isUpdateReposCancelled back to false
+
     // Update progressbar status
     mainWindow.webContents.send('update-progressbar', 100, "Automation completed!")
 
@@ -663,6 +670,11 @@ ipcMain.handle('select-folder', async (event, data) => {
 ipcMain.handle('get-config-data', () => {
     return configContent
 })
+
+// Handle request to cancel automation
+ipcMain.on('cancel-automation', (args) => {
+    isUpdateReposCancelled = true;
+});
 
 // Event listeners to handle update events
 // When a new update is available we’ll send a message to the main window, notifying the user of the update. 

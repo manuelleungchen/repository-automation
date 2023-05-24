@@ -121,6 +121,16 @@ function App() {
         setProgressbarStatus("")   // Reset progressbar status to ""
     }
 
+    // This function is passed to handle the cancel button pressed on progressbar
+    const handleCancelAutomation = () => {
+        window.api.cancelAutomation('Cancel Automation');
+        setSelectedTasks([]) // Reset selectedTasks context
+        setSelectedRepos([]) // Reset selectedRepos context
+        setShowProgressbar(!showProgressbar) // Change state to show progressbar
+        setProgressbarValue(0)   // Reset progressbar value to 0
+        setProgressbarStatus("")   // Reset progressbar status to ""
+    }
+
     // This function handle hiding of updater component
     const closeNotification = () => {
         setUpdateStatus("")
@@ -186,7 +196,7 @@ function App() {
                 </main>
             </div>)
             : (
-                <ProgressBar completed={progressbarValue} status={progressbarStatus} handleCloseProgressbar={handleCloseProgressbar} />
+                <ProgressBar completed={progressbarValue} status={progressbarStatus} handleCloseProgressbar={handleCloseProgressbar} handleCancelAutomation={handleCancelAutomation} />
             )
         }
     </>

@@ -34,7 +34,7 @@
             "label": "Push to Gitlab",
             "value": "push-to-gitlab",
             "department": "all",
-            "description": "This task will perform `git add .`, `git commit` and `git push` commands respectively."
+            "description": "This task will perform the following actions: \n 1. perform `git checkout master` and `git pull` commands respectively \n 2. perform `git add .`, `git commit` and `git push` commands respectively"
         }
     ],
     "functionsList": {
@@ -70,6 +70,7 @@
             "gitPull"
         ],
         "push-to-gitlab": [
+            "gitPull",
             "gitPush"
         ]
     }

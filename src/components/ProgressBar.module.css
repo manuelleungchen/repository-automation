@@ -53,8 +53,17 @@
     outline-offset: 3px;
 }
 
-#empty-block {
+#cancel-buton {
     margin-top: 1rem;
     padding: 8px;
+    background-color: var(--warning-color);
+    color: var(--light-font-color);
+    border: none;
+    border-radius: 5px;
     height: 40px;
+}
+
+#cancel-buton:hover, #cancel-buton:focus {
+    outline: 3px solid var(--warning-color);
+    outline-offset: 3px;
 }

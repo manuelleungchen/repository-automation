@@ -1,7 +1,7 @@
 import React from 'react'
 import styles from "./ProgressBar.module.css";  // Import styles
 
-function ProgressBar({ completed, status, handleCloseProgressbar }) {
+function ProgressBar({ completed, status, handleCloseProgressbar, handleCancelAutomation }) {
     let bgColor = ""
 
     if (completed < 50) {
@@ -28,8 +28,7 @@ function ProgressBar({ completed, status, handleCloseProgressbar }) {
                     <span id={styles["progressbar-label"]}>{`${completed}%`}</span>
                 </div>
             </div>
-            {completed === 100 ? <button id={styles["close-buton"]} onClick={handleCloseProgressbar}>Close</button> : <div id={styles["empty-block"]}></div>
-            }
+            {completed === 100 ? <button id={styles["close-buton"]} onClick={handleCloseProgressbar}>Close</button> : <button id={styles["cancel-buton"]} onClick={handleCancelAutomation}>Cancel</button>}
         </div>
     )
 }

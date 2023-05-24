@@ -13,6 +13,7 @@ contextBridge.exposeInMainWorld('api', {
     // Send Methods
     // IPC from Renderer to Main
     restartApp: (callback) => ipcRenderer.send("restart_app", (event) => { callback() }),
+    cancelAutomation: (args) => ipcRenderer.send("cancel-automation", args),
 
     // Invoke Methods
     // IPC from Renderer to Main, back to Renderer

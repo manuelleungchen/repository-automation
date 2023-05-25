@@ -250,7 +250,7 @@ function updateJsonProperties(widgetsPath) {
                 jsonFileContent.department = "elem";
             }
             // If json file is not for a WEIGHTED QUIZ and EBOOK ILO, remove skip link key values pairs (iloStartText, iloEndText, iloStartLink, iloEndLink)
-            if (!(path.basename(jsonPath).toLowerCase().match(/weighted|weight|quiz|ebook|book|e_book|e-book|reader|e_reader|ereader|e_reader/))) {
+            if (!(path.basename(jsonPath).toLowerCase().match(/weighted|weight|quiz|ebook|book|e_book|e-book|ereader|reader|e_reader|e-reader/))) {
                 delete jsonFileContent.iloStartText
                 delete jsonFileContent.iloEndText
                 delete jsonFileContent.iloStartLink

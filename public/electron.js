@@ -228,14 +228,14 @@ function deleteBuildFilesSec(repoPath) {
     })
 }
 
-// This function make sure each json file in widgets folder contains "department": "elem" 
-function addDepartmentProperty(widgetsPath) {
+// This function make sure each json file in widgets folder contains "department": "elem" and remove skip link key values pairs (iloStartText, iloEndText, iloStartLink, iloEndLink) except for WEIGHTED QUIZ and EBOOK.  
+function updateJsonProperties(widgetsPath) {
     try {
         const widgetsFiles = fs
             .readdirSync(widgetsPath, { withFileTypes: true })
             .filter((file) => {
-                // Match only json files containing at least one of the ILOs name in RegEx
-                return file.isFile() && file.name.match(/.json|.JSON/)
+                // Match only json files
+                return file.isFile() && file.name.toLowerCase().includes(".json")
             })
             .map((file) => path.join(widgetsPath, file.name));
 
@@ -248,8 +248,16 @@ function addDepartmentProperty(widgetsPath) {
             // If key and value "department" = "elem" is not present, add it.
             if (!(jsonFileContent.hasOwnProperty("department")) || jsonFileContent.department !== "elem") {
                 jsonFileContent.department = "elem";
-                fs.writeFileSync(jsonPath, JSON.stringify(jsonFileContent, null, 4))
             }
+            // If json file is not for a WEIGHTED QUIZ and EBOOK ILO, remove skip link key values pairs (iloStartText, iloEndText, iloStartLink, iloEndLink)
+            if (!(path.basename(jsonPath).toLowerCase().match(/weighted|weight|quiz|ebook|book|e_book|e-book|reader|e_reader|ereader|e_reader/))) {
+                delete jsonFileContent.iloStartText
+                delete jsonFileContent.iloEndText
+                delete jsonFileContent.iloStartLink
+                delete jsonFileContent.iloEndLink
+            }
+            // Save edits to json file
+            fs.writeFileSync(jsonPath, JSON.stringify(jsonFileContent, null, 4))
         })
     } catch (error) {
         console.log(error)
@@ -530,12 +538,12 @@ ipcMain.handle("update-repos", async (event, reposPath, tasks, commitMessage) =>
                     mainWindow.setProgressBar(progressBarValue)
                     mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "")
                     break;
-                case "addDepartmentProperty":
+                case "updateJsonProperties":
                     // Update progressbars
                     mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Updating ILOs json files")
 
                     // Update widgets .json files
-                    addDepartmentProperty(`${path.join(reposPath[index], "widgets")}`)
+                    updateJsonProperties(`${path.join(reposPath[index], "widgets")}`)
                     // Update progressbars
                     progressBarValue += progressIncrement
                     mainWindow.setProgressBar(progressBarValue)

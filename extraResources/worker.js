@@ -13,9 +13,9 @@ function executeShellCommands(type, repoPath, filePath, commitMessage, commandSt
         case "gitPull":
             execSync(`cd ${repoPath} && git checkout master && git pull`);
             break;
-        case "gitDiff":
-            // --quiet flag prevents the diff from showing and exits with 1 if there was a diff, 0 if not
-            returnValue = parseInt(execSync(`cd ${repoPath} && git diff --quiet; echo $?`).toString())
+        case "gitStatus":
+            // --porcelain - Give the output in an easy-to-parse format. This will remain stable across Git versions. Return 1 if there are changes and 0 if not.
+            returnValue = parseInt(execSync(`cd ${repoPath} && if [ -n "$(git status --porcelain)" ]; then echo "1"; else echo "0"; fi`).toString())
             break;
         case "gitPush":
             execSync(`cd ${repoPath} && git add . && git commit -m "${commitMessage}" && git push`);

@@ -160,10 +160,10 @@ function gitPull(repoPath) {
     })
 }
 
-// This function executes git diff command in shell
-function gitDiff(repoPath) {
+// This function executes git status --porcelain command in shell
+function gitStatus(repoPath) {
     return new Promise((resolve, reject) => {
-        const worker = new Worker(path.join(ASSETS_PATH, `worker.js`), { workerData: { commandType: "gitDiff", repoPath: repoPath } });
+        const worker = new Worker(path.join(ASSETS_PATH, `worker.js`), { workerData: { commandType: "gitStatus", repoPath: repoPath } });
         worker.on('message', resolve);
         worker.on('error', (error) => {
             reject(error)
@@ -175,7 +175,6 @@ function gitDiff(repoPath) {
         })
     })
 }
-
 
 // This function executes git push command in shell
 function gitPush(repoPath, commitMessage) {
@@ -480,7 +479,8 @@ ipcMain.handle("update-repos", async (event, reposPath, tasks, commitMessage) =>
     console.log(functionsList)
 
     for (let index = 0; index < reposPath.length; index++) {
-        mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), `Updating ${reposPath}`)
+        let repoName = path.basename(reposPath[index])
+        mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), `Updating ${repoName}`)
         if (isUpdateReposCancelled) { break; }  // Check if isUpdateReposCancelled is true
 
         for (let i = 0; i < functionsList.length; i++) {
@@ -488,21 +488,21 @@ ipcMain.handle("update-repos", async (event, reposPath, tasks, commitMessage) =>
             switch (functionsList[i]) {
                 case "gitPull":
                     // Update progressbars
-                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Pulling repo")
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), `${repoName} - Pulling repo`)
 
                     // This function updates course by doing a git pull command
                     await gitPull(reposPath[index]);
                     // Update progressbars
                     progressBarValue += progressIncrement
                     mainWindow.setProgressBar(progressBarValue)
-                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "")
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), repoName)
                     break;
                 case "gitPush":
                     // Update progressbars
-                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Pushing repo")
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), `${repoName} - Pushing repo`)
 
                     // This function check if there are changes to commit
-                    let areThereChangesToCommit = await gitDiff(reposPath[index])
+                    let areThereChangesToCommit = await gitStatus(reposPath[index])
 
                     // This function updates course by doing a git pull command if there are changes to commit
                     if (areThereChangesToCommit) {
@@ -514,114 +514,114 @@ ipcMain.handle("update-repos", async (event, reposPath, tasks, commitMessage) =>
                     // Update progressbars
                     progressBarValue += progressIncrement
                     mainWindow.setProgressBar(progressBarValue)
-                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "")
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), repoName)
                     break;
                 case "deleteBuildFiles":
                     // Update progressbars
-                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Deleting tvo_k8.css, vendor.min.js, node_modules and package-lock.json")
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), `${repoName} - Deleting tvo_k8.css, vendor.min.js, node_modules and package-lock.json`)
 
                     // Delete tvo_k8.css, vendor.min.js, node_modules and package-lock.json
                     await deleteBuildFiles(reposPath[index])
                     // Update progressbars
                     progressBarValue += progressIncrement
                     mainWindow.setProgressBar(progressBarValue)
-                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "")
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), repoName)
                     break;
                 case "deleteBuildFilesSec":
                     // Update progressbars
-                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Deleting vendor.min.js, node_modules and package-lock.json")
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), `${repoName} - Deleting vendor.min.js, node_modules and package-lock.json`)
 
                     // Delete vendor.min.js, node_modules and package-lock.json
                     await deleteBuildFilesSec(reposPath[index])
                     // Update progressbars
                     progressBarValue += progressIncrement
                     mainWindow.setProgressBar(progressBarValue)
-                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "")
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), repoName)
                     break;
                 case "updateJsonProperties":
                     // Update progressbars
-                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Updating ILOs json files")
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), `${repoName} - Updating ILOs json files`)
 
                     // Update widgets .json files
                     updateJsonProperties(`${path.join(reposPath[index], "widgets")}`)
                     // Update progressbars
                     progressBarValue += progressIncrement
                     mainWindow.setProgressBar(progressBarValue)
-                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "")
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), repoName)
                     break;
                 case "npmRunBuild":
                     // Update progressbars
-                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Running commands 'NPM install' and 'NPM build'")
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), `${repoName} - Running commands 'NPM install' and 'NPM build'`)
 
                     // Run commands for npm install and npm run build (possible git commands)
                     await npmRunBuild(reposPath[index])
                     // Update progressbars
                     progressBarValue += progressIncrement
                     mainWindow.setProgressBar(progressBarValue)
-                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "")
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), repoName)
                     break;
                 case "ymlFileUpdate":
                     // Update progressbars
-                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Updating .gitlab-ci.yml file")
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), `${repoName} - Updating .gitlab-ci.yml file`)
 
                     // Update .gitlab-ci.yml file
                     await ymlFileUpdate(reposPath[index])
                     // Update progressbars
                     progressBarValue += progressIncrement
                     mainWindow.setProgressBar(progressBarValue)
-                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "")
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), repoName)
                     break;
                 case "webpackConfigFileUpdate":
                     // Update progressbars
-                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Updating webpack.config.js file")
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), `${repoName} - Updating webpack.config.js file`)
 
                     // Update webpack.config.js file
                     await webpackConfigFileUpdate(reposPath[index])
                     // Update progressbars
                     progressBarValue += progressIncrement
                     mainWindow.setProgressBar(progressBarValue)
-                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "")
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), repoName)
                     break;
                 case "updateIndexFileForTvontario":
                     // Update progressbars
-                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Replace @digital-learning for @tvontario in index.js")
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), `${repoName} - Replacing @digital-learning for @tvontario in index.js`)
 
                     // This function replace @digital-learning for @tvontario in index.js
                     updateIndexFileForTvontario(reposPath[index]);
                     // Update progressbars
                     progressBarValue += progressIncrement
                     mainWindow.setProgressBar(progressBarValue)
-                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "")
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), repoName)
                     break;
                 case "updatePackageFileForTvontario":
                     // Update progressbars
-                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Replace @digital-learning for @tvontario in package.json")
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), `${repoName} - Replacing @digital-learning for @tvontario in package.json`)
 
                     // This function replace @digital-learning for @tvontario in package.json
                     updatePackageFileForTvontario(reposPath[index]);
                     // Update progressbars
                     progressBarValue += progressIncrement
                     mainWindow.setProgressBar(progressBarValue)
-                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "")
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), repoName)
                     break;
                 case "updateILOsToLatestVersion":
                     // Update progressbars
-                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "Updating ILOs to latest")
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), `${repoName} - Updating ILOs to latest`)
 
                     // Run commands for npm install ilo_name @latest
                     await updateILOsToLatestVersion(reposPath[index])
                     // Update progressbars
                     progressBarValue += progressIncrement
                     mainWindow.setProgressBar(progressBarValue)
-                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), "")
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), repoName)
                     break;
                 default:
             }
         }
-        console.log(`Finished with ${reposPath[index]} repo`)
+        console.log(`Finished with ${repoName} repo`)
         // Show diff notification depending this is the last repo in the loop
         index + 1 < reposPath.length ?
-            showNotification(`Finished with ${path.basename(reposPath[index])}`) :
+            showNotification(`Finished with ${repoName}`) :
             showNotification("Automation completed!");
     }
 

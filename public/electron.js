@@ -381,6 +381,15 @@ function updatePackageFileForTvontario(repoPath) {
         packageFileContent.dependencies["k8-components"] = "gitlab:tvontario/digital-learning-projects/course-components/elementary/k8-components.git"
         packageFileContent.dependencies["k8-top-nav"] = "gitlab:tvontario/digital-learning-projects/course-components/elementary/k8-top-nav.git"
 
+        // If "k8-french-components" is installed, update location to new gitlab @tvontario
+        if (packageFileContent.dependencies.hasOwnProperty("k8-french-components")) {
+            packageFileContent.dependencies["k8-french-components"] = "gitlab:tvontario/digital-learning-projects/course-components/elementary/k8-french-components.git"
+        }
+        // If "k8-learning-goals"  is installed, update location to new gitlab @tvontario
+        if (packageFileContent.dependencies.hasOwnProperty("k8-learning-goals")) {
+            packageFileContent.dependencies["k8-learning-goals"] = "gitlab:tvontario/digital-learning-projects/course-components/elementary/k8-learning-goals.git"
+        }
+
         packageFileContent.repository["url"] = "https://gitlab.com/tvontario/digital-learning-projects/elementary/k8-course-repo.git"
 
         // Update name with course repo name

@@ -24,25 +24,50 @@ Desktop application that allows running multiple scripts on one or more reposito
 * Rebuild k8 css and vendor.min files
 * Add `"department" : "elem"` in `.json` files located in **widgets** folder
 
+## Computer requirements to use App
+* Node 16 version
+* Access to gitlab interactive ILO
+* Gitlab access token on .npmrc file setup for @tvontario
+* Internet connection with access to gitlab.com
+
 ## Installation
 1. Clone the repo.
 2. Navigate to the project directory.
-3. Run command ```npm install``` to install any dependencies.
+3. Run command `npm install` to install any dependencies.
+4. Run command `npm run pack-win` (for Windows OS) or `npm run pack-mac` (for MacOS).
+5. Install App
+    
+    **For Windows**: Go to repository-automation/dist and double click **Repository Automation Setup x.x.x.exe**
+    
+    **For MacOS**: Go to repository-automation/dist/mac and double click **RepositoryAutomation.app**
 
 ## How to use the App    
 1. Launch the App.
+
 2. Verify location of course repos is correct. Otherwise select the correct folder.
 ![Re screenshot](./src/assets/screenshots/screenshot2.png)
-3. Select one or more actions to perform.
+
+3. Select one or more tasks to perform.
 ![Re screenshot](./src/assets/screenshots/screenshot3.png)
-4. Click on **More info** tab to discover detailed explanation of each action.
+
+4. Click on **More info** tab to discover detailed explanation of each task.
 ![Re screenshot](./src/assets/screenshots/screenshot4.png)
-5. Select one or more repos to execute the previous selected actions.
+
+5. Select one or more repos to execute the previous selected tasks.
 ![Re screenshot](./src/assets/screenshots/screenshot5.png)
-6. Click **Start** button once ready. If the button is the clickable, verify that your computer can access GitLab. This will be indicated with a green cloud icon on the top right corner.
+
+6. Click **RUN** button once ready. 
 ![Re screenshot](./src/assets/screenshots/screenshot6.png)
-7. Check the progress on the automation. Allow notifications for this App to receive updates via push notifications.
-![Re screenshot](./src/assets/screenshots/screenshot7.png)
+
+    **Note**: RUN button is only clickable when the following criterias are meet:
+    * Computer can access GitLab. This will be indicated with a green cloud icon on the top right corner beside GitLab
+    * A tasks is selected
+    * A repo is selected
+    * There is a commit message (Only when Push to Gitlab is selected)
+    ![Re screenshot](./src/assets/screenshots/screenshot7.png)
+
+7. Check the progress on the automation. Allow notifications for this App on computer settings to receive updates via push notifications.
+![Re screenshot](./src/assets/screenshots/screenshot8.png)
 
 ## Available scripts
 In the project directory, you can run:

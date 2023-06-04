@@ -45,8 +45,8 @@ function App() {
     const showReposList = useDelayUnmount(selectedTasks.length > 0 ? true : false, 1750);  // Delay unmount of component to allow animation 
     const [showProgressbar, setShowProgressbar] = useState(false);   // State to toggle Progress bar component
     const [gitlabConnected, setGitlabConnected] = useState(false);   // State for Gitlab connection
-    const [commit, setCommit] = useState('');   // State for commit message
-    const [updateStatus, setUpdateStatus] = useState("update_available");   // State for App update status
+    const [commit, setCommit] = useState("");   // State for commit message
+    const [updateStatus, setUpdateStatus] = useState("");   // State for App update status
 
     // On reload and reposPath change, this will check GitLab connection, update repos path, and get repos list
     useEffect(() => {
@@ -70,12 +70,12 @@ function App() {
 
         // Listen for update available
         window.api.updateAvailable(() => {
-            setUpdateStatus("update_available")
+            setUpdateStatus("available")
         })
 
         // Listen for update downloaded
         window.api.updateDownloaded(() => {
-            setUpdateStatus("update_downloaded")
+            setUpdateStatus("downloaded")
         })
 
         // Clean the listener after the component is dismounted
@@ -192,7 +192,7 @@ function App() {
                             </div>
                         }
                     </div>
-                    {/* {(updateStatus === "update_available" || updateStatus === "update_downloaded") && <UpdatePopUp status={updateStatus} closeNotification={closeNotification} restartApp={restartApp} />} */}
+                    {(updateStatus === "available" || updateStatus === "downloaded") && <UpdatePopUp status={updateStatus} closeNotification={closeNotification} restartApp={restartApp} />}
                 </main>
             </div>)
             : (

@@ -459,6 +459,8 @@ async function updateILOsToLatestVersion(repoPath) {
 
 // End of all script functions
 
+// IPC from Renderer to Main, back to Renderer
+
 // Handle request to get repos
 ipcMain.handle("get-repos", () => {
     let savedReposLoc;
@@ -688,9 +690,16 @@ ipcMain.handle('get-config-data', () => {
     return configContent
 })
 
-// Handle request to cancel automation
+// IPC from Renderer to Main
+
+// When button to cancel automation is pressed, update isUpdateReposCancelled state
 ipcMain.on('cancel-automation', (args) => {
     isUpdateReposCancelled = true;
+});
+
+// When a restart button is pressed, quit app and install new update.
+ipcMain.on('restart-app', () => {
+    autoUpdater.quitAndInstall();
 });
 
 // Event listeners to handle update events
@@ -701,9 +710,4 @@ autoUpdater.on('update-available', () => {
 // Once it downloads, we’ll send another message notifying them that the update will be installed when they quit the app.
 autoUpdater.on('update-downloaded', () => {
     mainWindow.webContents.send('update_downloaded');
-});
-
-// When a restart button is pressed, quit app and install new update.
-ipcMain.on('restart_app', () => {
-    autoUpdater.quitAndInstall();
 });

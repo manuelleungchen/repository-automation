@@ -7,12 +7,12 @@ contextBridge.exposeInMainWorld('api', {
     // IPC from Main to Renderer
     updateProgressbar: (callback) => ipcRenderer.on("update-progressbar", (event, arg1, arg2) => { callback(arg1, arg2) }),
     gitlabStatus: (callback) => ipcRenderer.on("gitlab-status", (event, dataMain) => { callback(dataMain) }),
-    updateAvailable: (callback) => ipcRenderer.on("update_available", (event) => { callback() }),
-    updateDownloaded: (callback) => ipcRenderer.on("update_downloaded", (event) => { callback() }),
+    updateAvailable: (callback) => ipcRenderer.on("update-available", (event) => { callback() }),
+    updateDownloaded: (callback) => ipcRenderer.on("update-downloaded", (event) => { callback() }),
 
     // Send Methods
     // IPC from Renderer to Main
-    restartApp: (callback) => ipcRenderer.send("restart_app", (event) => { callback() }),
+    restartApp: (callback) => ipcRenderer.send("restart-app", (event) => { callback() }),
     cancelAutomation: (args) => ipcRenderer.send("cancel-automation", args),
 
     // Invoke Methods

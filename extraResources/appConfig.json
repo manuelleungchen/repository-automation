@@ -4,25 +4,25 @@
             "label": "Update Gitlab to tvontario",
             "value": "update-gitlab-to-tvontario",
             "department": "elem",
-            "description": "This task will perform the following actions: \n 1. perform `git pull` command \n 2. update **.gitlab-ci.yml** and **webpack.config.js** files \n 3. update **index.js** and **package.json** to point to `@tvontario` \n 4. update package.json name property with course repo name \n 5. update ILOs build version to latest on **package.json** file \n 6. add **&ldquo;department&rdquo; : &ldquo;elem&rdquo;** in any widgets .json files \n 7. remove **skip link key values pairs** (*iloStartText*, *iloEndText*, *iloStartLink*, *iloEndLink*) except for **WEIGHTED QUIZ** and **EBOOK** (containing *weighted*, *weight*, *quiz*, *ebook*, *book*, *e_book*, *e-book*, *ereader*, *reader*, *e_reader*, *e-reader* in their name) \n 8. delete **vendor.min.js**, **tvo_k8.css**, **package-lock.json**, and **node_modules** \n 9. perform `npm install` command follow by `npm run build` command"
+            "description": "This task will perform the following actions: \n 1. perform `git pull` command \n 2. update **.gitlab-ci.yml** and **webpack.config.js** files \n 3. update **index.js** and **package.json** to point to `@tvontario` \n 4. update package.json name property with course repo name \n 5. update npm registry dependencies (including in-house ILOs) version to latest on **package.json** file using `npm install @tvontario/dependency@latest` command \n 6. add **&ldquo;department&rdquo; : &ldquo;elem&rdquo;** in any widgets .json files \n 7. remove **skip link key values pairs** (*iloStartText*, *iloEndText*, *iloStartLink*, *iloEndLink*) except for **WEIGHTED QUIZ** and **EBOOK** (containing *weighted*, *weight*, *quiz*, *ebook*, *book*, *e_book*, *e-book*, *ereader*, *reader*, *e_reader*, *e-reader* in their name) \n 8. delete **vendor.min.js**, **tvo_k8.css**, **package-lock.json**, and **node_modules** \n 9. perform `npm install` command follow by `npm run build` command"
         },
         {
             "label": "Update ILOs version",
             "value": "ilos-update",
             "department": "elem",
-            "description": "This task will perform the following actions: \n 1. perform `git pull` command \n 2. update ILOs build version to latest on **package.json** file \n 3. add **&ldquo;department&rdquo; : &ldquo;elem&rdquo;** in any widgets .json files \n 4. remove **skip link key values pairs** (*iloStartText*, *iloEndText*, *iloStartLink*, *iloEndLink*) except for **WEIGHTED QUIZ** and **EBOOK** (containing *weighted*, *weight*, *quiz*, *ebook*, *book*, *e_book*, *e-book*, *ereader*, *reader*, *e_reader*, *e-reader* in their name) \n 5. delete **vendor.min.js**, **tvo_k8.css**, **package-lock.json**, and **node_modules** \n 6. perform `npm install` command follow by `npm run build` command"
+            "description": "This task will perform the following actions: \n 1. perform `git pull` command \n 2. update npm registry dependencies (including in-house ILOs) version to latest on **package.json** file using `npm install @tvontario/dependency@latest` command \n 3. add **&ldquo;department&rdquo; : &ldquo;elem&rdquo;** in any widgets .json files \n 4. remove **skip link key values pairs** (*iloStartText*, *iloEndText*, *iloStartLink*, *iloEndLink*) except for **WEIGHTED QUIZ** and **EBOOK** (containing *weighted*, *weight*, *quiz*, *ebook*, *book*, *e_book*, *e-book*, *ereader*, *reader*, *e_reader*, *e-reader* in their name) \n 5. delete **vendor.min.js**, **tvo_k8.css**, **ilc_core.css**, **package-lock.json**, and **node_modules** \n 6. perform `npm install` command follow by `npm run build` command"
         },
         {
-            "label": "Rebuild K8 CSS and vendor.min.js",
+            "label": "Update npm registry dependencies",
+            "value": "npm-registry-dependencies-update",
+            "department": "all",
+            "description": "This task will perform the following actions: \n 1. perform `git pull` command \n 2. update npm registry dependencies (including in-house ILOs) version to latest on **package.json** file using `npm install @tvontario/dependency@latest` command \n 3. delete **vendor.min.js**, **tvo_k8.css**, **ilc_core.css**, **package-lock.json**, and **node_modules** \n 4. perform `npm install` command follow by `npm run build` command"
+        },
+        {
+            "label": "Rebuild vendor.min.js and css file (tvo_k8.css or ilc_core.css)",
             "value": "npm-rebuild",
-            "department": "elem",
-            "description": "This task will perform the following actions: \n 1. perform `git pull` command \n 2. delete **vendor.min.js**, **tvo_k8.css**, **package-lock.json**, and **node_modules** \n 3. perform `npm install` command follow by `npm run build` command"
-        },
-        {
-            "label": "Rebuild vendor.min.js",
-            "value": "npm-rebuild-sec",
-            "department": "sec",
-            "description": "This task will perform the following actions: \n 1. perform `git pull` command \n 2. delete **vendor.min.js**, **package-lock.json**, and **node_modules** \n 3. perform `npm install` command follow by `npm run build` command"
+            "department": "all",
+            "description": "This task will perform the following actions: \n 1. perform `git pull` command \n 2. delete **vendor.min.js**, **tvo_k8.css**, **ilc_core.css**, **package-lock.json**, and **node_modules** \n 3. perform `npm install` command follow by `npm run build` command"
         },
         {
             "label": "Pull from Gitlab",
@@ -56,14 +56,15 @@
             "deleteBuildFiles",
             "npmRunBuild"
         ],
-        "npm-rebuild": [
+        "npm-registry-dependencies-update": [
             "gitPull",
+            "updateILOsToLatestVersion",
             "deleteBuildFiles",
             "npmRunBuild"
         ],
-        "npm-rebuild-sec": [
+        "npm-rebuild": [
             "gitPull",
-            "deleteBuildFilesSec",
+            "deleteBuildFiles",
             "npmRunBuild"
         ],
         "pull-from-gitlab": [

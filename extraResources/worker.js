@@ -27,33 +27,14 @@ function executeShellCommands(type, repoPath, filePath, commitMessage, commandSt
             catch (error) {
                 console.log(error.message);
             }
+            // tvo_k8.css file is only on elementary courses
             try {
                 fs.rmSync(`${repoPath}/dependencies/tvo_k8.css`);
             }
             catch (error) {
                 console.log(error.message);
             }
-            try {
-                fs.rmSync(`${repoPath}/package-lock.json`);
-            }
-            catch (error) {
-                console.log(error.message);
-            }
-            // Delete node_modules folder
-            try {
-                fs.rmSync(`${repoPath}/node_modules`, { recursive: true });
-            }
-            catch (error) {
-                console.log(error.message);
-            }
-            break;
-        case "deleteBuildFilesSec":
-            try {
-                fs.rmSync(`${repoPath}/dependencies/vendor.min.js`);
-            }
-            catch (error) {
-                console.log(error.message);
-            }
+            // ilc_core.css file is only on ministry courses
             try {
                 fs.rmSync(`${repoPath}/dependencies/ilc_core.css`);
             }

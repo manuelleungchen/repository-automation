@@ -193,7 +193,7 @@ function gitPush(repoPath, commitMessage) {
     })
 }
 
-// This function executes rm -f and rm -r commands in shell for vendor.min.js, tvo_k8.css, package-lock.json, and node_modules folder
+// This function executes rm -f and rm -r commands in shell for vendor.min.js, tvo_k8.css, ilc_core.css, package-lock.json and node_modules folder
 function deleteBuildFiles(repoPath) {
     return new Promise((resolve, reject) => {
         const worker = new Worker(path.join(ASSETS_PATH, `worker.js`), { workerData: { commandType: "deleteBuildFiles", repoPath: repoPath } });
@@ -210,22 +210,6 @@ function deleteBuildFiles(repoPath) {
     })
 }
 
-// This function executes rm -f and rm -r commands in shell for vendor.min.js, ilc_core.css, package-lock.json, and node_modules folder
-function deleteBuildFilesSec(repoPath) {
-    return new Promise((resolve, reject) => {
-        const worker = new Worker(path.join(ASSETS_PATH, `worker.js`), { workerData: { commandType: "deleteBuildFilesSec", repoPath: repoPath } });
-        worker.on('message', resolve);
-        worker.on('error', (error) => {
-            reject(error)
-            console.log(error)
-            showErrorBox(`${error}`)
-        });
-        worker.on('exit', (code) => {
-            if (code !== 0)
-                reject(new Error(`Worker stopped with exit code ${code}`));
-        })
-    })
-}
 
 // This function make sure each json file in widgets folder contains "department": "elem" and remove skip link key values pairs (iloStartText, iloEndText, iloStartLink, iloEndLink) except for WEIGHTED QUIZ and EBOOK.  
 function updateJsonProperties(widgetsPath) {
@@ -410,7 +394,10 @@ async function updateILOsToLatestVersion(repoPath) {
         // Read data from package.json and index.js
         const packageFileData = fs.readFileSync(`${path.join(repoPath, "package.json")}`);
         let packageFileContent = JSON.parse(packageFileData);
-        const indexFileData = fs.readFileSync(`${path.join(repoPath, "src/index.js")}`);
+
+        const indexPath = path.basename(repoPath).includes("_elem") ? "src/index.js" : "index.js";
+                
+        const indexFileData = fs.readFileSync(`${path.join(repoPath, indexPath)}`);
         let indexFileContent = indexFileData.toString();
 
         // List all ILOs included in the course
@@ -450,7 +437,7 @@ async function updateILOsToLatestVersion(repoPath) {
         await npmInstallPackage(repoPath, `npm install ${ILOsInstallList}`)
 
         // Write new content into index.js
-        fs.writeFileSync(`${path.join(repoPath, "src/index.js")}`, indexFileContent)
+        fs.writeFileSync(`${path.join(repoPath, indexPath)}`, indexFileContent)
     } catch (error) {
         console.log(error)
         showErrorBox(`${error}`)
@@ -529,21 +516,10 @@ ipcMain.handle("update-repos", async (event, reposPath, tasks, commitMessage) =>
                     break;
                 case "deleteBuildFiles":
                     // Update progressbars
-                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), `${repoName} - Deleting tvo_k8.css, vendor.min.js, node_modules and package-lock.json`)
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), `${repoName} - Deleting vendor.min.js, tvo_k8.css, ilc_core.css, package-lock.json and node_modules`)
 
-                    // Delete tvo_k8.css, vendor.min.js, node_modules and package-lock.json
+                    // Delete vendor.min.js, tvo_k8.css, ilc_core.css, package-lock.json and node_modules
                     await deleteBuildFiles(reposPath[index])
-                    // Update progressbars
-                    progressBarValue += progressIncrement
-                    mainWindow.setProgressBar(progressBarValue)
-                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), repoName)
-                    break;
-                case "deleteBuildFilesSec":
-                    // Update progressbars
-                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), `${repoName} - Deleting vendor.min.js, node_modules and package-lock.json`)
-
-                    // Delete vendor.min.js, node_modules and package-lock.json
-                    await deleteBuildFilesSec(reposPath[index])
                     // Update progressbars
                     progressBarValue += progressIncrement
                     mainWindow.setProgressBar(progressBarValue)
@@ -617,7 +593,7 @@ ipcMain.handle("update-repos", async (event, reposPath, tasks, commitMessage) =>
                     break;
                 case "updateILOsToLatestVersion":
                     // Update progressbars
-                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), `${repoName} - Updating ILOs to latest`)
+                    mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), `${repoName} - Updating npm registry dependencies (including in-house ILOs) version to latest`)
 
                     // Run commands for npm install ilo_name @latest
                     await updateILOsToLatestVersion(reposPath[index])

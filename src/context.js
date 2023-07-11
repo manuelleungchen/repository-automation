@@ -4,7 +4,8 @@ import React, { createContext, useState } from "react";
 const DepartContext = createContext();
 const SelectedTasksContext = createContext();
 const SelectedReposContext = createContext();
-
+const ReposPathContext = createContext();
+const TokenContext = createContext();
 
 const DepartContextProvider = ({ children }) => {
     // the value that will be given to the context
@@ -49,4 +50,32 @@ const SelectedReposContextProvider = ({ children }) => {
     );
 };
 
-export { DepartContext, DepartContextProvider, SelectedTasksContext, SelectedTasksContextProvider, SelectedReposContext, SelectedReposContextProvider };
+const ReposPathContextProvider = ({ children }) => {
+    // the value that will be given to the context
+    const [reposPath, setReposPath] = useState("");   // Store repos path 
+    const value = React.useMemo(() => ({
+        reposPath, setReposPath
+    }), [reposPath]);
+    return (
+        // the Provider gives access to the context to its children
+        <ReposPathContext.Provider value={value}>
+            {children}
+        </ReposPathContext.Provider>
+    );
+};
+
+const TokenContextProvider = ({ children }) => {
+    // the value that will be given to the context
+    const [token, setToken] = useState("");   // Store gitlab token
+    const value = React.useMemo(() => ({
+        token, setToken
+    }), [token]);
+    return (
+        // the Provider gives access to the context to its children
+        <TokenContext.Provider value={value}>
+            {children}
+        </TokenContext.Provider>
+    );
+};
+
+export { DepartContext, DepartContextProvider, SelectedTasksContext, SelectedTasksContextProvider, SelectedReposContext, SelectedReposContextProvider, ReposPathContext, ReposPathContextProvider, TokenContext, TokenContextProvider };

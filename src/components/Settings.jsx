@@ -1,0 +1,73 @@
+import React, { useEffect, useState, useContext } from 'react'
+import { ReposPathContext, TokenContext } from '../context';  // import contexts
+
+// Import images
+import connectedIcon from '../assets/img/cloud-check.svg';
+import disconnectedIcon from '../assets/img/emoji-frown.svg';
+import gitlabLogo from '../assets/img/gitlab-logo.svg';
+
+
+// Import styles
+import styles from "./Settings.module.css";
+
+function Settings() {
+    // Get contexts
+    const { reposPath, setReposPath } = useContext(ReposPathContext);
+    const { token, setToken } = useContext(TokenContext);
+
+    const [repos, setRepos] = useState([])
+
+    const [gitlabConnected, setGitlabConnected] = useState(false);   // State for Gitlab connection
+
+    useEffect(() => {
+        console.log("Rendering App Clone component")
+
+        // Setting event listeners
+
+        // Get user data containing reposLocation and gitlabToken values
+        window.api.getUserData().then(data => {
+            setReposPath(data.reposLocation)
+            setToken(data.gitlabToken)
+        })
+    }, [])
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            window.api.saveToken(token)
+        }, 1000)
+
+        return () => clearTimeout(timer)
+    }, [token])
+
+    const onSelectFolder = () => {
+        window.api.selectFolder('Select folder clicked').then(data => {
+            if (data[0] === "saved") {
+                console.log("saved new path")
+                setReposPath(data[1])
+            }
+        })
+    }
+    const handleTokenChange = (event) => {
+        event.preventDefault();
+        setToken(event.target.value)
+    }
+
+    return (
+        <div className="container">
+            <section id={styles.userDataSection}>
+                <h2>User data</h2>
+                <fieldset className={styles.fieldset}>
+                    <legend className={styles.legend}>Repos location</legend>
+                    <p id={styles.url}>{reposPath}</p>
+                    <input type="button" value="Select folder" className={styles.selectFolder} onClick={onSelectFolder} />
+                </fieldset>
+                <fieldset className={styles.fieldset}>
+                    <legend className={styles.legend}>Gitlab Token</legend>
+                    <input type="text" className={styles.textInput} name="token" value={token} placeholder='Enter Gitlab Token' onChange={handleTokenChange} />
+                </fieldset>
+            </section>
+        </div>
+    )
+}
+
+export default Settings

@@ -1,0 +1,143 @@
+#vpn-status {
+    display: block;
+    margin: 0 auto;
+    text-align: right;
+}
+
+#vpn-connected-icon {
+    filter: invert(37%) sepia(97%) saturate(363%) hue-rotate(100deg) brightness(92%) contrast(91%);
+}
+
+#vpn-disconnected-icon {
+    filter: invert(28%) sepia(35%) saturate(3958%) hue-rotate(332deg) brightness(96%) contrast(92%);
+}
+
+#repos-path {
+    word-break: break-all;
+}
+
+#warning-div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    margin: 10px auto;
+    border-radius: 10px;
+    background-color: var(--warning-color);
+    box-shadow: 2px 3px 0px 0px rgb(0 0 0 / 60%);
+    height: 90%;
+}
+
+.select-button {
+    padding: 8px;
+    background-color: var(--secondary-color-light);
+    color: var(--dark-font-color);
+    box-shadow: 2px 3px 0px 0px rgb(0 0 0 / 60%);
+    border: none;
+    border-radius: 5px;
+}
+
+.select-button:focus {
+    outline: 3px solid var(--main-color-dark);
+}
+
+.select-button:hover {
+    background-color: var(--main-color-dark);
+    color: var(--light-font-color);
+}
+
+.repos-list-enter {
+    opacity: 0;
+    transform: translateY(100%);
+}
+
+.repos-list-enter-active {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 1s, transform 500ms;
+}
+
+.repos-list-exit {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.repos-list-exit-active {
+    opacity: 0;
+    transform: translateY(100%);
+    transition: opacity 1s, transform 500ms;
+}
+
+#run-btn {
+    display: block;
+    margin: 20px auto;
+    padding: 8px;
+    width: 100%;
+    background-color: var(--main-color-dark);
+    color: var(--light-font-color);
+    box-shadow: none;
+    border: none;
+    border-radius: 5px;
+}
+
+#run-btn:hover {
+    background-color: var(--warning-color);
+    color: var(--light-font-color);
+}
+
+#run-btn:focus {
+    background-color: var(--warning-color);
+    box-shadow: none;
+    outline: 3px solid var(--warning-color);
+    outline-offset: 3px;
+}
+
+#run-btn:disabled {
+    background: var(--light-font-color);
+    color: var(--secondary-color-light);
+    cursor: no-drop;
+}
+
+/* Component mount and unmount animation */
+.mounted-style {
+    animation: inAnimation 450ms ease-in;
+    overflow-y: hidden
+}
+
+.unmounted-style {
+    animation: outAnimation 700ms ease-out;
+    animation-fill-mode: forwards;
+    overflow-y: hidden
+}
+
+@keyframes inAnimation {
+    0% {
+        opacity: 0;
+        max-height: 0;
+    }
+
+    75% {
+        opacity: 1;
+    }
+
+    100% {
+        max-height: 1200px;
+    }
+}
+
+@keyframes outAnimation {
+    0% {
+        max-height: 1200px;
+        opacity: 1;
+
+    }
+
+    75% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 0;
+        max-height: 0;
+    }
+}

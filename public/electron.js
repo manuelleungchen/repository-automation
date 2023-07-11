@@ -396,7 +396,7 @@ async function updateILOsToLatestVersion(repoPath) {
         let packageFileContent = JSON.parse(packageFileData);
 
         const indexPath = path.basename(repoPath).includes("_elem") ? "src/index.js" : "index.js";
-                
+
         const indexFileData = fs.readFileSync(`${path.join(repoPath, indexPath)}`);
         let indexFileContent = indexFileData.toString();
 
@@ -446,17 +446,18 @@ async function updateILOsToLatestVersion(repoPath) {
 
 // End of all script functions
 
+// Invoke Methods
 // IPC from Renderer to Main, back to Renderer
 
 // Handle request to get repos
 ipcMain.handle("get-repos", () => {
-    let savedReposLoc;
+    let userDataFile;
 
-    // Here we try to update read reposLocation.json file from userdata folder.
-    savedReposLoc = fs.readFileSync(path.join(app.getPath("userData"), "reposLocation.json"), { encoding: "utf-8" });
+    // Here we try to update read userData.json file from userdata folder.
+    userDataFile = fs.readFileSync(path.join(app.getPath("userData"), "userData.json"), { encoding: "utf-8" });
 
-    // Return repos location saved on reposLocation.json file
-    return getAllRepos(JSON.parse(savedReposLoc).reposLocation)
+    // Return repos location saved on userData.json file
+    return getAllRepos(JSON.parse(userDataFile).reposLocation)
 })
 
 // Handle request to update repos
@@ -621,17 +622,6 @@ ipcMain.handle("update-repos", async (event, reposPath, tasks, commitMessage) =>
     mainWindow.setProgressBar(-1)
 })
 
-// Handle request to update repos path
-ipcMain.handle('update-repos-path', () => {
-    let savedReposLoc;
-    checkGitlabConnection()
-
-    // Here we try to update read reposLocation.json file from userdata folder.
-    savedReposLoc = fs.readFileSync(path.join(app.getPath("userData"), "reposLocation.json"), { encoding: "utf-8" });
-    // Send repos path to renderer
-    return JSON.parse(savedReposLoc).reposLocation
-})
-
 // Handle request to select folder
 ipcMain.handle('select-folder', async (event, data) => {
     // Config options for dialog prompt
@@ -649,12 +639,22 @@ ipcMain.handle('select-folder', async (event, data) => {
         return ["canceled", ""];
     }
     else {
-        // Create json data
-        let jsonData = {
-            "reposLocation": `${filePaths[0]}`
+        let jsonData;
+        try {
+            const userDataFile = fs.readFileSync(path.join(app.getPath("userData"), "userData.json"), { encoding: "utf-8" });
+            jsonData = JSON.parse(userDataFile);
+            jsonData.reposLocation = `${filePaths[0]}`;
+
+        } catch (error) {
+            // Create json data
+            jsonData = {
+                "reposLocation": `${filePaths[0]}`,
+                "gitlabToken": ""
+            }
         }
-        // Write json data into a json file in 
-        fs.writeFileSync(`${path.join(app.getPath("userData"), "reposLocation.json")}`, JSON.stringify(jsonData, null, 4))
+
+        // // Write json data into a json file in userData.json
+        fs.writeFileSync(`${path.join(app.getPath("userData"), "userData.json")}`, JSON.stringify(jsonData, null, 4))
 
         // Send repos path to renderer
         return ["saved", filePaths[0]];
@@ -666,6 +666,28 @@ ipcMain.handle('get-config-data', () => {
     return configContent
 })
 
+// Handle request to get user data
+ipcMain.handle('get-user-data', () => {
+    let userDataFile;
+    checkGitlabConnection()
+
+    // Here we try to update read userData.json file from userdata folder.
+    userDataFile = fs.readFileSync(path.join(app.getPath("userData"), "userData.json"), { encoding: "utf-8" });
+    // Send repos path to renderer
+    return JSON.parse(userDataFile)
+})
+
+// Handle request to get gitlab repos
+ipcMain.handle('get-gitlab-repos', () => {
+    return "ok"
+})
+
+// Handle request to clone repos
+ipcMain.handle('clone-repos', () => {
+    return "ok"
+})
+
+// Send Methods
 // IPC from Renderer to Main
 
 // When button to cancel automation is pressed, update isUpdateReposCancelled state
@@ -677,6 +699,26 @@ ipcMain.on('cancel-automation', (args) => {
 ipcMain.on('restart-app', () => {
     autoUpdater.quitAndInstall();
 });
+
+// Handle request to save token
+ipcMain.on('save-token', (event, token) => {
+    // Here we try to update read userData.json file from userdata folder.
+    let jsonData;
+    try {
+        const userDataFile = fs.readFileSync(path.join(app.getPath("userData"), "userData.json"), { encoding: "utf-8" });
+        jsonData = JSON.parse(userDataFile);
+        jsonData.gitlabToken = token;
+
+    } catch (error) {
+        // Create json data
+        jsonData = {
+            "reposLocation": "",
+            "gitlabToken": token
+        }
+    }
+    // Write json data into a json file in userData.json
+    fs.writeFileSync(`${path.join(app.getPath("userData"), "userData.json")}`, JSON.stringify(jsonData, null, 4))
+})
 
 // Event listeners to handle update events
 // When a new update is available we’ll send a message to the main window, notifying the user of the update. 

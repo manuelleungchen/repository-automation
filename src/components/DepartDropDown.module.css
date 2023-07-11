@@ -15,6 +15,7 @@
 
 #depart-select:hover {
     border: var(--main-color-dark) 2px solid;
+    cursor: pointer;
 }
 
 #depart-select:focus {

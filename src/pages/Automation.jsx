@@ -1,21 +1,21 @@
 import { useState, useEffect, useContext } from 'react';
-import { DepartContext, SelectedTasksContext, SelectedReposContext } from './context';  // import contexts
+import { DepartContext, SelectedTasksContext, SelectedReposContext, ReposPathContext } from '../context';  // import contexts
 
 // Import images
-import logo from './assets/img/logo.png';
-import connectedIcon from './assets/img/cloud-check.svg';
-import disconnectedIcon from './assets/img/emoji-frown.svg';
-import gitlabLogo from './assets/img/gitlab-logo.svg';
+import connectedIcon from '../assets/img/cloud-check.svg';
+import disconnectedIcon from '../assets/img/emoji-frown.svg';
+import gitlabLogo from '../assets/img/gitlab-logo.svg';
 
-import styles from "./App.module.css";  // Import styles
+// Import styles
+import styles from "./Automation.module.css";
 
 // Import components
-import ListGroup from './components/ListGroup.js';
-import TaskPrompt from './components/TaskPrompt.js';
-import ProgressBar from "./components/ProgressBar.js";
-import DepartDropDown from "./components/DepartDropDown.js";
-import CommitMessage from './components/CommitMessage.js';
-import UpdatePopUp from './components/UpdatePopUp.js';
+import ListGroup from '../components/ListGroup';
+import TaskPrompt from '../components/TaskPrompt';
+import ProgressBar from "../components/ProgressBar";
+import DepartDropDown from "../components/DepartDropDown";
+import CommitMessage from '../components/CommitMessage';
+import UpdatePopUp from '../components/UpdatePopUp';
 
 // This function will delay the mount and unmount of a component
 function useDelayUnmount(isMounted, delayTime) {
@@ -32,35 +32,36 @@ function useDelayUnmount(isMounted, delayTime) {
     return showDiv;
 }
 
-function App() {
+function Automation() {
     // Get contexts
     const { selectedDepart } = useContext(DepartContext);
     const { selectedTasks, setSelectedTasks } = useContext(SelectedTasksContext);
     const { selectedRepos, setSelectedRepos } = useContext(SelectedReposContext);
-
+    const { reposPath } = useContext(ReposPathContext);
+    
+    // States
     const [repos, setRepos] = useState([]);  // Store all repos
-    const [reposPath, setReposPath] = useState("");  // Store path of where all repos are located
     const [progressbarValue, setProgressbarValue] = useState(0)  // Store progressbar percentage
     const [progressbarStatus, setProgressbarStatus] = useState("")  // Store progressbar status
-    const showReposList = useDelayUnmount(selectedTasks.length > 0 ? true : false, 1750);  // Delay unmount of component to allow animation 
     const [showProgressbar, setShowProgressbar] = useState(false);   // State to toggle Progress bar component
     const [gitlabConnected, setGitlabConnected] = useState(false);   // State for Gitlab connection
     const [commit, setCommit] = useState("");   // State for commit message
     const [updateStatus, setUpdateStatus] = useState("");   // State for App update status
 
+    const showReposList = useDelayUnmount(selectedTasks.length > 0 ? true : false, 1750);  // Delay unmount of component to allow animation 
+
     // On reload and reposPath change, this will check GitLab connection, update repos path, and get repos list
     useEffect(() => {
         console.log("Rendering App component")
+        // console.log(reposPath)
+
         // Setting event listeners
 
         // Update gitlab connection status
         window.api.gitlabStatus(arg => {
             setGitlabConnected(arg)
         })
-        // Update repos path
-        window.api.updateReposPath().then(arg => {
-            setReposPath(arg)
-        })
+        // Get repos path
 
         // Get all course repos
         window.api.getRepos().then(results => {
@@ -85,13 +86,13 @@ function App() {
         };
     }, [reposPath]);
 
-    const onSelectFolder = () => {
-        window.api.selectFolder('Select folder clicked').then(data => {
-            if (data[0] === "saved") {
-                setReposPath(data[1])
-            }
-        })
-    }
+    // const onSelectFolder = () => {
+    //     window.api.selectFolder('Select folder clicked').then(data => {
+    //         if (data[0] === "saved") {
+    //             setReposPath(data[1])
+    //         }
+    //     })
+    // }
 
     // This function update commitMessage state
     const updateCommitMessage = (e) => {
@@ -141,14 +142,10 @@ function App() {
         window.api.restartApp('restart_app');
     }
 
-    return (<>
-        {!showProgressbar ?
-            (<div className={styles["App"]}>
-                <header className={styles["App-header"]}>
-                    <img src={logo} width={50} alt="logo" />
-                    <h1>Repository Automation</h1>
-                </header>
-                <main className="container">
+    return (
+        <>{!showProgressbar ?
+            (<main className="container" style={{paddingBottom: 15}}>
+                <div className="mainContainer">
                     <div className="row">
                         <div className="col-12">
                             <span id={styles["vpn-status"]}>
@@ -162,7 +159,7 @@ function App() {
                             <section>
                                 <h2>Step #1 - Select location of repositories</h2>
                                 <p id={styles["repos-path"]}>{reposPath}</p>
-                                <input type="button" className={styles["select-button"]} onClick={onSelectFolder} value="Select folder" />
+                                {/* <input type="button" className={styles["select-button"]} onClick={onSelectFolder} value="Select folder" /> */}
                             </section>
                         </div>
                         <div className="col-12">
@@ -193,15 +190,11 @@ function App() {
                         }
                     </div>
                     {(updateStatus === "available" || updateStatus === "downloaded") && <UpdatePopUp status={updateStatus} closeNotification={closeNotification} restartApp={restartApp} />}
-                </main>
-            </div>)
-            : (
-                <ProgressBar completed={progressbarValue} status={progressbarStatus} handleCloseProgressbar={handleCloseProgressbar} handleCancelAutomation={handleCancelAutomation} />
-            )
-        }
-    </>
-
+                </div>
+            </main>)
+            : (<ProgressBar completed={progressbarValue} status={progressbarStatus} handleCloseProgressbar={handleCloseProgressbar} handleCancelAutomation={handleCancelAutomation} />)}
+        </>
     );
 }
 
-export default App;
+export default Automation;

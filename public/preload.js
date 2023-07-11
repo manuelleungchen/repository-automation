@@ -14,12 +14,16 @@ contextBridge.exposeInMainWorld('api', {
     // IPC from Renderer to Main
     restartApp: (callback) => ipcRenderer.send("restart-app", (event) => { callback() }),
     cancelAutomation: (args) => ipcRenderer.send("cancel-automation", args),
+    saveToken: (args) => ipcRenderer.send("save-token", args),
+
 
     // Invoke Methods
     // IPC from Renderer to Main, back to Renderer
-    updateReposPath: (args) => ipcRenderer.invoke("update-repos-path", args),
+    getRepos: (args) => ipcRenderer.invoke('get-repos', args),
+    updateRepos: (repos, tasks, commitMessage) => ipcRenderer.invoke('update-repos', repos, tasks, commitMessage),
     selectFolder: (args) => ipcRenderer.invoke("select-folder", args),
     getConfigData: (args) => ipcRenderer.invoke("get-config-data", args),
-    getRepos: (args) => ipcRenderer.invoke('get-repos', args),
-    updateRepos: (repos, tasks, commitMessage) => ipcRenderer.invoke('update-repos', repos, tasks, commitMessage)
+    getUserData: (args) => ipcRenderer.invoke("get-user-data", args),
+    getGitlabRepos: (args) => ipcRenderer.invoke("get-gitlab-repos", args),
+    cloneRepos: (args) => ipcRenderer.invoke("clone-repos", args)
 });

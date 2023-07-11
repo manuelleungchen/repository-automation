@@ -1,0 +1,55 @@
+.appName {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 1rem 0;
+    background-color: var(--secondary-color-light);
+}
+
+.appName h1 {
+    font-size: x-large;
+}
+
+.linksContainer {
+    display: flex;
+    justify-content: space-around;
+    gap: 3px;
+}
+
+.navLink {
+    text-decoration: none;
+    text-align: center;
+    color: var(--light-font-color);
+    background-color: var(--main-color-dark);
+    width: 50%;
+    padding: 0.5rem;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.navLink:hover {
+    color: var(--light-font-color);
+    text-decoration: 2px underline;
+}
+
+.activeNavLink {
+    text-decoration: none;
+    text-align: center;
+    color: var(--light-font-color);
+    background-color: var(--main-color-darkest);
+    width: 50%;
+    padding: 0.5rem;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.activeNavLink:hover {
+    color: var(--light-font-color);
+    text-decoration: 2px underline;
+}
+
+
+
+

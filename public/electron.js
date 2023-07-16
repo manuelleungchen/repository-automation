@@ -4,6 +4,7 @@ const path = require('path');
 const fs = require("fs");
 const { Worker } = require('worker_threads')
 const { autoUpdater } = require('electron-updater');  // electron-updater
+const { net } = require('electron')  // Import net module (client-side API for issuing HTTP(S) requests).
 
 // Useful for Electron apps as GUI apps on macOS and Linux do not inherit the $PATH defined in your dotfiles (.bashrc/.bash_profile/.zshrc/etc).
 // Only Version 3.0 works.
@@ -128,6 +129,32 @@ function showNotification(message) {
 
 function showErrorBox(message) {
     dialog.showErrorBox('Oops! Something went wrong!', message)
+}
+
+// This function takes an url and perform a fetch request
+function paginatedFetchRequest(
+    url = is_required("url"), // Improvised required argument in JS
+    page = 1,
+    previousResponse = []
+) {
+    return net.fetch(`${url}&page=${page}`) // Append the page number to the base URL
+        .then(response => response.json())
+        .then(newResponse => {
+            const response = [...previousResponse, ...newResponse]; // Combine the two arrays
+
+            if (newResponse.length !== 0) {
+                page++;
+
+                return paginatedFetchRequest(url, page, response);
+            }
+
+            let filteredRes = []  // Repos array with just name and ssh_url_to_repo values of each repo
+            for (const [key, value] of Object.entries(response)) {
+                filteredRes.push({"name": value.name, "ssh_url": value.ssh_url_to_repo});
+            }
+
+            return filteredRes;
+        });
 }
 
 // This function gets a list of all course repos (Elementary and Secondary)
@@ -677,14 +704,55 @@ ipcMain.handle('get-user-data', () => {
     return JSON.parse(userDataFile)
 })
 
+// Handle request to get all gitlab repos
+ipcMain.handle('get-all-gitlab-repos', () => {
+    let userDataFile;
+
+    // Here we try to update read userData.json file from userdata folder.
+    userDataFile = fs.readFileSync(path.join(app.getPath("userData"), "userData.json"), { encoding: "utf-8" });
+    // Send repos path to renderer
+    const token = JSON.parse(userDataFile).gitlabToken
+
+    var response = paginated_fetch(`https://gitlab.com/api/v4/groups/61216177/projects?private_token=${token}&include_subgroups=true&order_by=name&sort=asc&per_page=100`)
+    
+    return response;
+})
+
 // Handle request to get gitlab repos
 ipcMain.handle('get-gitlab-repos', () => {
     return "ok"
 })
 
 // Handle request to clone repos
-ipcMain.handle('clone-repos', () => {
-    return "ok"
+ipcMain.handle('clone-repos', (event, reposType) => {
+
+    let userDataFile;
+
+    // Here we try to update read userData.json file from userdata folder.
+    userDataFile = fs.readFileSync(path.join(app.getPath("userData"), "userData.json"), { encoding: "utf-8" });
+    // Send repos path to renderer
+    const token = JSON.parse(userDataFile).gitlabToken
+
+    let groundID;
+
+    switch (reposType) {
+        case "all":
+            groundID = 61216177;
+            break;
+        case "elem":
+            groundID = 61699189;
+            break;
+        case "ilcdcc":
+            groundID = 61538026;
+            break;
+        case "interactives":
+            groundID = 62115972;
+            break;
+        default:
+            break
+    }
+
+    return paginatedFetchRequest(`https://gitlab.com/api/v4/groups/${groundID}/projects?private_token=${token}&include_subgroups=true&order_by=name&sort=asc&per_page=100`)
 })
 
 // Send Methods

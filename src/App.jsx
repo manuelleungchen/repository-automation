@@ -1,8 +1,6 @@
 import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { HashRouter, BrowserRouter, Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
-import Settings from "./components/Settings";
-import Nav from "./components/Nav";
 import Automation from "./pages/Automation";
 import Clone from "./pages/Clone";
 import styles from "./App.module.css";  // Import styles
@@ -13,13 +11,11 @@ export const ContextData = React.createContext();
 
 function App() {
     return (
-        <BrowserRouter>
+        <HashRouter>
             <ReposPathContextProvider>
                 <TokenContextProvider>
                     <div className={styles["App"]}>
                         <Header />
-                        <Settings />
-                        <Nav />
                         <Routes>
                             <Route
                                 path="/"
@@ -38,7 +34,7 @@ function App() {
                     </div>
                 </TokenContextProvider>
             </ReposPathContextProvider>
-        </BrowserRouter>
+        </HashRouter>
     );
 }
 

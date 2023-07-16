@@ -53,20 +53,18 @@ function Settings() {
     }
 
     return (
-        <div className="container">
-            <section id={styles.userDataSection}>
-                <h2>User data</h2>
-                <fieldset className={styles.fieldset}>
-                    <legend className={styles.legend}>Repos location</legend>
-                    <p id={styles.url}>{reposPath}</p>
-                    <input type="button" value="Select folder" className={styles.selectFolder} onClick={onSelectFolder} />
-                </fieldset>
-                <fieldset className={styles.fieldset}>
-                    <legend className={styles.legend}>Gitlab Token</legend>
-                    <input type="text" className={styles.textInput} name="token" value={token} placeholder='Enter Gitlab Token' onChange={handleTokenChange} />
-                </fieldset>
-            </section>
-        </div>
+        <section id={styles.userDataSection}>
+            <h2>User data</h2>
+            <fieldset className={styles.fieldset}>
+                <legend className={styles.legend}>Repos location</legend>
+                <p id={styles.url}>{reposPath}</p>
+                <input type="button" value="Select folder" className={styles.selectFolder} onClick={onSelectFolder} />
+            </fieldset>
+            <fieldset className={styles.fieldset}>
+                <legend className={styles.legend}>Gitlab Token</legend>
+                <input type="text" className={styles.textInput} name="token" value={token} placeholder='Enter Gitlab Token' onChange={handleTokenChange} />
+            </fieldset>
+        </section>
     )
 }
 

@@ -164,7 +164,7 @@ function ListGroup({ repos }) {
 
     return (
         <section>
-            <h2>Step #4 - Select course repositories</h2>
+            <h2>Step #3 - Select course repositories</h2>
             <input type="search" id={styles["search-box"]} placeholder="Search for a course" onChange={filterBySearch} />
             <div className={styles["push-to-sides"]}>
                 <label htmlFor="select-all" id={styles["select-all-label"]}>

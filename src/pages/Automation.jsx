@@ -1,11 +1,6 @@
 import { useState, useEffect, useContext } from 'react';
 import { DepartContext, SelectedTasksContext, SelectedReposContext, ReposPathContext } from '../context';  // import contexts
 
-// Import images
-import connectedIcon from '../assets/img/cloud-check.svg';
-import disconnectedIcon from '../assets/img/emoji-frown.svg';
-import gitlabLogo from '../assets/img/gitlab-logo.svg';
-
 // Import styles
 import styles from "./Automation.module.css";
 
@@ -38,7 +33,7 @@ function Automation() {
     const { selectedTasks, setSelectedTasks } = useContext(SelectedTasksContext);
     const { selectedRepos, setSelectedRepos } = useContext(SelectedReposContext);
     const { reposPath } = useContext(ReposPathContext);
-    
+
     // States
     const [repos, setRepos] = useState([]);  // Store all repos
     const [progressbarValue, setProgressbarValue] = useState(0)  // Store progressbar percentage
@@ -53,7 +48,6 @@ function Automation() {
     // On reload and reposPath change, this will check GitLab connection, update repos path, and get repos list
     useEffect(() => {
         console.log("Rendering App component")
-        // console.log(reposPath)
 
         // Setting event listeners
 
@@ -85,14 +79,6 @@ function Automation() {
             window.api.removeAll()
         };
     }, [reposPath]);
-
-    // const onSelectFolder = () => {
-    //     window.api.selectFolder('Select folder clicked').then(data => {
-    //         if (data[0] === "saved") {
-    //             setReposPath(data[1])
-    //         }
-    //     })
-    // }
 
     // This function update commitMessage state
     const updateCommitMessage = (e) => {
@@ -144,53 +130,34 @@ function Automation() {
 
     return (
         <>{!showProgressbar ?
-            (<main className="container" style={{paddingBottom: 15}}>
-                <div className="mainContainer">
-                    <div className="row">
-                        <div className="col-12">
-                            <span id={styles["vpn-status"]}>
-                                <img src={gitlabLogo} height={40} alt="GitLab icon" />
-                                {gitlabConnected ? (<img src={connectedIcon} width={25} id={styles["vpn-connected-icon"]} alt="Cloud check icon" />
-                                ) : (<img src={disconnectedIcon} width={25} id={styles["vpn-disconnected-icon"]} alt="Emoji frown icon" />
-                                )}
-                            </span>
-                        </div>
-                        <div className="col-12">
-                            <section>
-                                <h2>Step #1 - Select location of repositories</h2>
-                                <p id={styles["repos-path"]}>{reposPath}</p>
-                                {/* <input type="button" className={styles["select-button"]} onClick={onSelectFolder} value="Select folder" /> */}
-                            </section>
-                        </div>
-                        <div className="col-12">
-                            <section>
-                                <h2>Step #2 - Select department</h2>
-                                <DepartDropDown />
-                            </section>
-                        </div>
-                        <div className="col-12">
-                            {/* Show tasks list when there are repos for selected department */}
-                            {repos.some((obj) => obj.name.includes(selectedDepart === "elem" ? "elem" : "html")) ?
-                                <TaskPrompt />
-                                :
-                                <div id={styles["warning-div"]}>
-                                    <p><strong>{selectedDepart === "elem" ? "Elementary" : "Secondary"} course repos are not available in this location. Please select another depart or location.</strong></p>
-                                </div>
-                            }
-                        </div>
-                        {/* Show repos list and RUN button when there is 1 or more tasks are selected */}
-                        {showReposList &&
-                            <div className={styles[selectedTasks.length > 0 ? "mounted-style" : "unmounted-style"]}>
-                                <ListGroup repos={repos} />
-                                {/* Show commit message input when 'push-to-gitlab' task is selected */}
-                                {selectedTasks.includes('push-to-gitlab') && <CommitMessage updateCommitMessage={updateCommitMessage} />}
-                                {/* Disable RUN button if selectedTasks are 0, selectedRepos are 0, gitlabConnected is false, or (task 'push-to-gitlab' was selected and commit message is empty) */}
-                                <input type="button" id={styles["run-btn"]} value="RUN" onClick={handleSubmit} disabled={(selectedTasks.length === 0 || selectedRepos.length === 0 || gitlabConnected === false || (selectedTasks.includes('push-to-gitlab') && commit === "")) ? true : false} tabIndex={0} />
+            (<main className="container">
+                <div className="row">
+                    <div className="col-12">
+                        <section>
+                            <h2>Step #1 - Select department</h2>
+                            <DepartDropDown />
+                        </section>
+                        {/* Show tasks list when there are repos for selected department */}
+                        {repos.some((obj) => obj.name.includes(selectedDepart === "elem" ? "elem" : "html")) ?
+                            <TaskPrompt />
+                            :
+                            <div id={styles["warning-div"]}>
+                                <p><strong>{selectedDepart === "elem" ? "Elementary" : "Secondary"} course repos are not available in this location. Please select another depart or location.</strong></p>
                             </div>
                         }
+                    {/* Show repos list and RUN button when there is 1 or more tasks are selected */}
+                    {showReposList &&
+                        <div className={styles[selectedTasks.length > 0 ? "mounted-style" : "unmounted-style"]}>
+                            <ListGroup repos={repos} />
+                            {/* Show commit message input when 'push-to-gitlab' task is selected */}
+                            {selectedTasks.includes('push-to-gitlab') && <CommitMessage updateCommitMessage={updateCommitMessage} />}
+                            {/* Disable RUN button if selectedTasks are 0, selectedRepos are 0, gitlabConnected is false, or (task 'push-to-gitlab' was selected and commit message is empty) */}
+                            <input type="button" id={styles["run-btn"]} value="RUN" onClick={handleSubmit} disabled={(selectedTasks.length === 0 || selectedRepos.length === 0 || gitlabConnected === false || (selectedTasks.includes('push-to-gitlab') && commit === "")) ? true : false} tabIndex={0} />
+                        </div>
+                    }
                     </div>
-                    {(updateStatus === "available" || updateStatus === "downloaded") && <UpdatePopUp status={updateStatus} closeNotification={closeNotification} restartApp={restartApp} />}
                 </div>
+                {(updateStatus === "available" || updateStatus === "downloaded") && <UpdatePopUp status={updateStatus} closeNotification={closeNotification} restartApp={restartApp} />}
             </main>)
             : (<ProgressBar completed={progressbarValue} status={progressbarStatus} handleCloseProgressbar={handleCloseProgressbar} handleCancelAutomation={handleCancelAutomation} />)}
         </>

@@ -88,31 +88,28 @@ app.on('window-all-closed', function () {
 
 // When electron app is on focus, set interval to call checkGitlabConnection func
 app.on('browser-window-focus', (event, win) => {
+    console.log("App in focus")
     checkGitlabConnection()
-    connectionInterval = setInterval(checkGitlabConnection, 600000) // Check VPN every 10 mins
+    connectionInterval = setInterval(checkGitlabConnection, 6000) // Check Gitlab Online Status every 10 mins
 })
 
 // // When electron app is out focus, stop interval calling checkGitlabConnection func
 app.on('browser-window-blur', (event, win) => {
-    clearInterval(connectionInterval);
+    console.log("App not in focus")
+    clearInterval(connectionInterval);   // Reset counter of connectionInterval back to 0
 })
 
-// Catch Error: net::ERR_NAME_NOT_RESOLVED from HTTP/HTTPS requests inside checkGitlabConnection()
-process.on('uncaughtException', (err) => {
-    if (err.toString() === "Error: net::ERR_NAME_NOT_RESOLVED") {
-        mainWindow.webContents.send('gitlab-status', false)
+// This function checks if gitlab.com is online by issuing HTTP/HTTPS requests
+async function checkGitlabConnection() {
+    try {
+        const response = await net.fetch('https://gitlab.com/tvontario/digital-learning-projects');
+        console.log("gitlab.com is online")
+        mainWindow.webContents.send('gitlab-status', true);
+    } catch (error) {
+        console.log("gitlab.com is offline")
+        console.log(error)
+        mainWindow.webContents.send('gitlab-status', false);
     }
-})
-
-// This function checks if there is a VPN connection by issuing HTTP/HTTPS requests using Chromium's native networking library
-function checkGitlabConnection() {
-    const { net } = require('electron')  // Import net module (client-side API for issuing HTTP(S) requests).
-    const request = net.request('https://gitlab.com/tvontario/')
-    request.on('response', (response) => {
-        console.log("Gitlab connected")
-        mainWindow.webContents.send('gitlab-status', true)
-    })
-    request.end()
 }
 
 // This function creates Native OS Notification
@@ -696,7 +693,6 @@ ipcMain.handle('get-config-data', () => {
 // Handle request to get user data
 ipcMain.handle('get-user-data', () => {
     let userDataFile;
-    checkGitlabConnection()
 
     // Here we try to update read userData.json file from userdata folder.
     userDataFile = fs.readFileSync(path.join(app.getPath("userData"), "userData.json"), { encoding: "utf-8" });
@@ -713,7 +709,7 @@ ipcMain.handle('get-all-gitlab-repos', () => {
     // Send repos path to renderer
     const token = JSON.parse(userDataFile).gitlabToken
 
-    var response = paginated_fetch(`https://gitlab.com/api/v4/groups/61216177/projects?private_token=${token}&include_subgroups=true&order_by=name&sort=asc&per_page=100`)
+    var response = paginatedFetchRequest(`https://gitlab.com/api/v4/groups/61216177/projects?private_token=${token}&include_subgroups=true&order_by=name&sort=asc&per_page=100`)
     
     return response;
 })

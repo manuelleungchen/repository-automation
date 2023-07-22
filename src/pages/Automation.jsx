@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from 'react';
-import { DepartContext, SelectedTasksContext, SelectedReposContext, ReposPathContext } from '../context';  // import contexts
+import { DepartContext, SelectedTasksContext, SelectedReposContext, ReposPathContext, GitlabOnlineContext } from '../context';  // import contexts
 
 // Import styles
 import styles from "./Automation.module.css";
@@ -33,13 +33,13 @@ function Automation() {
     const { selectedTasks, setSelectedTasks } = useContext(SelectedTasksContext);
     const { selectedRepos, setSelectedRepos } = useContext(SelectedReposContext);
     const { reposPath } = useContext(ReposPathContext);
+    const { gitlabOnline } = useContext(GitlabOnlineContext);
 
     // States
     const [repos, setRepos] = useState([]);  // Store all repos
     const [progressbarValue, setProgressbarValue] = useState(0)  // Store progressbar percentage
     const [progressbarStatus, setProgressbarStatus] = useState("")  // Store progressbar status
     const [showProgressbar, setShowProgressbar] = useState(false);   // State to toggle Progress bar component
-    const [gitlabConnected, setGitlabConnected] = useState(false);   // State for Gitlab connection
     const [commit, setCommit] = useState("");   // State for commit message
     const [updateStatus, setUpdateStatus] = useState("");   // State for App update status
 
@@ -50,12 +50,6 @@ function Automation() {
         console.log("Rendering App component")
 
         // Setting event listeners
-
-        // Update gitlab connection status
-        window.api.gitlabStatus(arg => {
-            setGitlabConnected(arg)
-        })
-        // Get repos path
 
         // Get all course repos
         window.api.getRepos().then(results => {
@@ -74,10 +68,10 @@ function Automation() {
         })
 
         // Clean the listener after the component is dismounted
-        return () => {
-            console.log("removing all event")
-            window.api.removeAll()
-        };
+        // return () => {
+        //     console.log("removing all event")
+        //     window.api.removeAll()
+        // };
     }, [reposPath]);
 
     // This function update commitMessage state
@@ -151,8 +145,8 @@ function Automation() {
                             <ListGroup repos={repos} />
                             {/* Show commit message input when 'push-to-gitlab' task is selected */}
                             {selectedTasks.includes('push-to-gitlab') && <CommitMessage updateCommitMessage={updateCommitMessage} />}
-                            {/* Disable RUN button if selectedTasks are 0, selectedRepos are 0, gitlabConnected is false, or (task 'push-to-gitlab' was selected and commit message is empty) */}
-                            <input type="button" id={styles["run-btn"]} value="RUN" onClick={handleSubmit} disabled={(selectedTasks.length === 0 || selectedRepos.length === 0 || gitlabConnected === false || (selectedTasks.includes('push-to-gitlab') && commit === "")) ? true : false} tabIndex={0} />
+                            {/* Disable RUN button if selectedTasks are 0, selectedRepos are 0, gitlabOnline is false, or (task 'push-to-gitlab' was selected and commit message is empty) */}
+                            <input type="button" id={styles["run-btn"]} value="RUN" onClick={handleSubmit} disabled={(selectedTasks.length === 0 || selectedRepos.length === 0 || gitlabOnline === false || (selectedTasks.includes('push-to-gitlab') && commit === "")) ? true : false} tabIndex={0} />
                         </div>
                     }
                     </div>

@@ -1,12 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react'
 import { ReposPathContext, TokenContext } from '../context';  // import contexts
 
-// Import images
-import connectedIcon from '../assets/img/cloud-check.svg';
-import disconnectedIcon from '../assets/img/emoji-frown.svg';
-import gitlabLogo from '../assets/img/gitlab-logo.svg';
-
-
 // Import styles
 import styles from "./Settings.module.css";
 
@@ -17,19 +11,17 @@ function Settings() {
 
     const [repos, setRepos] = useState([])
 
-    const [gitlabConnected, setGitlabConnected] = useState(false);   // State for Gitlab connection
-
     useEffect(() => {
-        console.log("Rendering App Clone component")
+        console.log("Rendering Settings component")
 
         // Setting event listeners
-
+        
         // Get user data containing reposLocation and gitlabToken values
         window.api.getUserData().then(data => {
             setReposPath(data.reposLocation)
             setToken(data.gitlabToken)
         })
-    }, [])
+    }, []) 
 
     useEffect(() => {
         const timer = setTimeout(() => {

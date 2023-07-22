@@ -6,6 +6,7 @@ const SelectedTasksContext = createContext();
 const SelectedReposContext = createContext();
 const ReposPathContext = createContext();
 const TokenContext = createContext();
+const GitlabOnlineContext = createContext();
 
 const DepartContextProvider = ({ children }) => {
     // the value that will be given to the context
@@ -78,4 +79,18 @@ const TokenContextProvider = ({ children }) => {
     );
 };
 
-export { DepartContext, DepartContextProvider, SelectedTasksContext, SelectedTasksContextProvider, SelectedReposContext, SelectedReposContextProvider, ReposPathContext, ReposPathContextProvider, TokenContext, TokenContextProvider };
+const GitlabOnlineContextProvider = ({ children }) => {
+    // the value that will be given to the context
+    const [gitlabOnline, setGitlabOnline] = useState(false);   // Store gitlab connection status
+    const value = React.useMemo(() => ({
+        gitlabOnline, setGitlabOnline
+    }), [gitlabOnline]);
+    return (
+        // the Provider gives access to the context to its children
+        <GitlabOnlineContext.Provider value={value}>
+            {children}
+        </GitlabOnlineContext.Provider>
+    );
+};
+
+export { DepartContext, DepartContextProvider, SelectedTasksContext, SelectedTasksContextProvider, SelectedReposContext, SelectedReposContextProvider, ReposPathContext, ReposPathContextProvider, TokenContext, TokenContextProvider, GitlabOnlineContext, GitlabOnlineContextProvider };

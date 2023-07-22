@@ -5,7 +5,7 @@ import Automation from "./pages/Automation";
 import Clone from "./pages/Clone";
 import styles from "./App.module.css";  // Import styles
 
-import { DepartContextProvider, SelectedTasksContextProvider, SelectedReposContextProvider, ReposPathContextProvider, TokenContextProvider } from './context';
+import { DepartContextProvider, SelectedTasksContextProvider, SelectedReposContextProvider, ReposPathContextProvider, TokenContextProvider, GitlabOnlineContextProvider } from './context';
 
 export const ContextData = React.createContext();
 
@@ -14,24 +14,26 @@ function App() {
         <HashRouter>
             <ReposPathContextProvider>
                 <TokenContextProvider>
-                    <div className={styles["App"]}>
-                        <Header />
-                        <Routes>
-                            <Route
-                                path="/"
-                                element={
-                                    <DepartContextProvider>
-                                        <SelectedTasksContextProvider>
-                                            <SelectedReposContextProvider>
-                                                <Automation />
-                                            </SelectedReposContextProvider>
-                                        </SelectedTasksContextProvider>
-                                    </DepartContextProvider>
-                                }
-                            />
-                            <Route path="/clone" element={<Clone />} />
-                        </Routes>
-                    </div>
+                    <GitlabOnlineContextProvider>
+                        <div className={styles["App"]}>
+                            <Header />
+                            <Routes>
+                                <Route
+                                    path="/"
+                                    element={
+                                        <DepartContextProvider>
+                                            <SelectedTasksContextProvider>
+                                                <SelectedReposContextProvider>
+                                                    <Automation />
+                                                </SelectedReposContextProvider>
+                                            </SelectedTasksContextProvider>
+                                        </DepartContextProvider>
+                                    }
+                                />
+                                <Route path="/clone" element={<Clone />} />
+                            </Routes>
+                        </div>
+                    </GitlabOnlineContextProvider>
                 </TokenContextProvider>
             </ReposPathContextProvider>
         </HashRouter>

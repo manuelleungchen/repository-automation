@@ -9,20 +9,21 @@ import styles from "./Clone.module.css";
 // import TaskPrompt from '../components/TaskPrompt';
 
 function Clone() {
-    const [repos, setRepos] = useState([])
+    const [repos, setRepos] = useState([]);
     const { reposPath } = useContext(ReposPathContext);
     const { token } = useContext(TokenContext);
-
 
     useEffect(() => {
         console.log("Rendering App Clone component")
 
         // Setting event listeners
+        
         // Get all gitlab repos
-        window.api.getAllGitlabRepos().then(arg => {
-            console.log(arg)
-        })
-
+        if (token !== "") {
+            window.api.getAllGitlabRepos().then(arg => {
+                console.log(arg)
+            })
+        }
     }, [reposPath, token])
 
 

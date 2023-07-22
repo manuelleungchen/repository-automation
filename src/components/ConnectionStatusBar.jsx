@@ -16,14 +16,11 @@ function ConnectionStatusBar() {
 
     useEffect(() => {
         console.log("Rendering Connection Status component")
-        console.log(gitlabOnline)
-
 
         // Setting event listeners
 
         // Update gitlab connection status
         window.api.gitlabStatus(arg => {
-            console.log(`Gitlab status : ${arg}`);
             setGitlabOnline(arg)
         })
     }, [])

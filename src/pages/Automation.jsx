@@ -66,12 +66,7 @@ function Automation() {
         window.api.updateDownloaded(() => {
             setUpdateStatus("downloaded")
         })
-
-        // Clean the listener after the component is dismounted
-        // return () => {
-        //     console.log("removing all event")
-        //     window.api.removeAll()
-        // };
+        
     }, [reposPath]);
 
     // This function update commitMessage state

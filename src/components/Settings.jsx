@@ -23,14 +23,6 @@ function Settings() {
         })
     }, []) 
 
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            window.api.saveToken(token)
-        }, 1000)
-
-        return () => clearTimeout(timer)
-    }, [token])
-
     const onSelectFolder = () => {
         window.api.selectFolder('Select folder clicked').then(data => {
             if (data[0] === "saved") {
@@ -39,9 +31,11 @@ function Settings() {
             }
         })
     }
+    
     const handleTokenChange = (event) => {
         event.preventDefault();
-        setToken(event.target.value)
+        setToken(event.target.value);
+        window.api.saveToken(event.target.value);
     }
 
     return (

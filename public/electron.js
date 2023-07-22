@@ -9,6 +9,7 @@ const { net } = require('electron')  // Import net module (client-side API for i
 // Useful for Electron apps as GUI apps on macOS and Linux do not inherit the $PATH defined in your dotfiles (.bashrc/.bash_profile/.zshrc/etc).
 // Only Version 3.0 works.
 const fixPath = require('fix-path');
+const { error } = require('console');
 
 const ASSETS_PATH = app.isPackaged ? path.join(process.resourcesPath, '') : path.join(app.getAppPath(), `extraResources`);
 
@@ -90,7 +91,7 @@ app.on('window-all-closed', function () {
 app.on('browser-window-focus', (event, win) => {
     console.log("App in focus")
     checkGitlabConnection()
-    connectionInterval = setInterval(checkGitlabConnection, 6000) // Check Gitlab Online Status every 10 mins
+    connectionInterval = setInterval(checkGitlabConnection, 600000) // Check Gitlab Online Status every 10 mins
 })
 
 // // When electron app is out focus, stop interval calling checkGitlabConnection func
@@ -137,20 +138,27 @@ function paginatedFetchRequest(
     return net.fetch(`${url}&page=${page}`) // Append the page number to the base URL
         .then(response => response.json())
         .then(newResponse => {
-            const response = [...previousResponse, ...newResponse]; // Combine the two arrays
 
-            if (newResponse.length !== 0) {
-                page++;
+            try {
+                const response = [...previousResponse, ...newResponse]; // Combine the two arrays
 
-                return paginatedFetchRequest(url, page, response);
+                if (newResponse.length !== 0) {
+                    page++;
+                    return paginatedFetchRequest(url, page, response);
+                }
+
+                let filteredRes = []  // Repos array with just name and ssh_url_to_repo values of each repo
+                
+                for (const [key, value] of Object.entries(response)) {
+                    filteredRes.push({ "name": value.name, "ssh_url": value.ssh_url_to_repo });
+                }
+
+                return filteredRes;
+
+            } catch (error) {
+                showErrorBox(`Problem fetching Gitlab repos. ${error}. Check Gitlab Access token.`)
+                return []
             }
-
-            let filteredRes = []  // Repos array with just name and ssh_url_to_repo values of each repo
-            for (const [key, value] of Object.entries(response)) {
-                filteredRes.push({"name": value.name, "ssh_url": value.ssh_url_to_repo});
-            }
-
-            return filteredRes;
         });
 }
 
@@ -710,7 +718,7 @@ ipcMain.handle('get-all-gitlab-repos', () => {
     const token = JSON.parse(userDataFile).gitlabToken
 
     var response = paginatedFetchRequest(`https://gitlab.com/api/v4/groups/61216177/projects?private_token=${token}&include_subgroups=true&order_by=name&sort=asc&per_page=100`)
-    
+ 
     return response;
 })
 

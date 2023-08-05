@@ -148,9 +148,9 @@ function paginatedFetchRequest(
                 }
 
                 let filteredRes = []  // Repos array with just name and ssh_url_to_repo values of each repo
-                
+
                 for (const [key, value] of Object.entries(response)) {
-                    filteredRes.push({ "name": value.name, "ssh_url": value.ssh_url_to_repo });
+                    filteredRes.push({ "name": value.name, "path": value.ssh_url_to_repo, "namespace": value.namespace.name });
                 }
 
                 return filteredRes;
@@ -709,7 +709,7 @@ ipcMain.handle('get-user-data', () => {
 })
 
 // Handle request to get all gitlab repos
-ipcMain.handle('get-all-gitlab-repos', () => {
+ipcMain.handle('get-gitlab-repos', (event, reposType) => {
     let userDataFile;
 
     // Here we try to update read userData.json file from userdata folder.
@@ -717,25 +717,9 @@ ipcMain.handle('get-all-gitlab-repos', () => {
     // Send repos path to renderer
     const token = JSON.parse(userDataFile).gitlabToken
 
-    var response = paginatedFetchRequest(`https://gitlab.com/api/v4/groups/61216177/projects?private_token=${token}&include_subgroups=true&order_by=name&sort=asc&per_page=100`)
- 
-    return response;
-})
+    // var response = paginatedFetchRequest(`https://gitlab.com/api/v4/groups/61699189/projects?private_token=${token}&include_subgroups=true&order_by=name&sort=asc&per_page=100`)
 
-// Handle request to get gitlab repos
-ipcMain.handle('get-gitlab-repos', () => {
-    return "ok"
-})
-
-// Handle request to clone repos
-ipcMain.handle('clone-repos', (event, reposType) => {
-
-    let userDataFile;
-
-    // Here we try to update read userData.json file from userdata folder.
-    userDataFile = fs.readFileSync(path.join(app.getPath("userData"), "userData.json"), { encoding: "utf-8" });
-    // Send repos path to renderer
-    const token = JSON.parse(userDataFile).gitlabToken
+    // return response;
 
     let groundID;
 
@@ -757,6 +741,62 @@ ipcMain.handle('clone-repos', (event, reposType) => {
     }
 
     return paginatedFetchRequest(`https://gitlab.com/api/v4/groups/${groundID}/projects?private_token=${token}&include_subgroups=true&order_by=name&sort=asc&per_page=100`)
+})
+
+// Handle request to search gitlab repos
+ipcMain.handle('search-gitlab-repos', async (event, reposType, search) => {
+    let userDataFile;
+
+    // Here we try to update read userData.json file from userdata folder.
+    userDataFile = fs.readFileSync(path.join(app.getPath("userData"), "userData.json"), { encoding: "utf-8" });
+    // Send repos path to renderer
+    const token = JSON.parse(userDataFile).gitlabToken
+
+    let groupID;
+
+    // get gitlab group id based on repos type
+
+    switch (reposType) {
+        case "elem":
+            groupID = 61699189;
+            break;
+        case "sec":
+            groupID = 61538026;
+            break;
+        case "ilo":
+            groupID = 62115972;
+            break;
+        case "all":
+            groupID = 61216177;
+            break;
+        default:
+            break
+    }
+
+    // Fetch list of repo
+    let response = await paginatedFetchRequest(`https://gitlab.com/api/v4/groups/${groupID}/search?private_token=${token}&scope=projects&search=${search}`)
+
+    // Sorted response by repo name
+    response = response.sort((a, b) => {
+        if (a.name < b.name) {
+            return -1;
+        }
+    })
+
+    return response;
+})
+
+// Handle request to clone repos
+ipcMain.handle('clone-repos', (event, reposList) => {
+
+    let userDataFile;
+
+    // Here we try to update read userData.json file from userdata folder.
+    userDataFile = fs.readFileSync(path.join(app.getPath("userData"), "userData.json"), { encoding: "utf-8" });
+    // Send repos path to renderer
+    const reposLocation = JSON.parse(userDataFile).reposLocation;
+
+    // Clone repos 
 })
 
 // Send Methods

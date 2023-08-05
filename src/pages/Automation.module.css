@@ -10,6 +10,22 @@
     height: 90%;
 }
 
+#search-box {
+    display: block;
+    margin: auto;
+    padding: 10px;
+    height: 40px;
+    width: 100%;
+    background-color: var(--light-font-color);
+    border: none;
+    border-radius: 5px;
+    box-shadow: 2px 3px 0px 0px rgb(0 0 0 / 60%);
+}
+
+#search-box:focus {
+    outline: 3px solid var(--main-color-dark);
+}
+
 .repos-list-enter {
     opacity: 0;
     transform: translateY(100%);

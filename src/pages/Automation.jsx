@@ -31,12 +31,15 @@ function Automation() {
     // Get contexts
     const { selectedDepart } = useContext(DepartContext);
     const { selectedTasks, setSelectedTasks } = useContext(SelectedTasksContext);
-    const { selectedRepos, setSelectedRepos } = useContext(SelectedReposContext);
+    // const { selectedRepos, setSelectedRepos } = useContext(SelectedReposContext);
     const { reposPath } = useContext(ReposPathContext);
     const { gitlabOnline } = useContext(GitlabOnlineContext);
 
     // States
     const [repos, setRepos] = useState([]);  // Store all repos
+    const [filtedRepos, setFiltedRepos] = useState([]);  // Store filted repos
+    const [selectedRepos, setSelectedRepos] = useState([]);    // Store all repos selected
+
     const [progressbarValue, setProgressbarValue] = useState(0)  // Store progressbar percentage
     const [progressbarStatus, setProgressbarStatus] = useState("")  // Store progressbar status
     const [showProgressbar, setShowProgressbar] = useState(false);   // State to toggle Progress bar component
@@ -54,7 +57,7 @@ function Automation() {
         // Get all course repos
         window.api.getRepos().then(results => {
             setRepos(results)
-            console.log("Courses", results)
+            setFiltedRepos(results);        
         })
 
         // Listen for update available
@@ -66,7 +69,6 @@ function Automation() {
         window.api.updateDownloaded(() => {
             setUpdateStatus("downloaded")
         })
-        
     }, [reposPath]);
 
     // This function update commitMessage state
@@ -117,6 +119,28 @@ function Automation() {
         window.api.restartApp('restart_app');
     }
 
+    // Handle update of selectedRepos state
+    const updateSelectedRepos = (reposPath) => {
+        setSelectedRepos(reposPath)
+    }
+
+    // This function will filte repos checklist
+    const filterBySearch = (event) => {
+        // Access input value
+        const query = event.target.value;
+
+        if (query !== "") {
+            // Include all elements which includes the search query
+            let updatedList = repos.filter((item) => {
+                return item.name.includes(query.toLowerCase())
+            });
+            // Updated Repos list with updated list
+            setFiltedRepos(updatedList);
+        } else {
+            setFiltedRepos(repos);        
+        }
+    };
+
     return (
         <>{!showProgressbar ?
             (<main className="container">
@@ -134,16 +158,20 @@ function Automation() {
                                 <p><strong>{selectedDepart === "elem" ? "Elementary" : "Secondary"} course repos are not available in this location. Please select another depart or location.</strong></p>
                             </div>
                         }
-                    {/* Show repos list and RUN button when there is 1 or more tasks are selected */}
-                    {showReposList &&
-                        <div className={styles[selectedTasks.length > 0 ? "mounted-style" : "unmounted-style"]}>
-                            <ListGroup repos={repos} />
-                            {/* Show commit message input when 'push-to-gitlab' task is selected */}
-                            {selectedTasks.includes('push-to-gitlab') && <CommitMessage updateCommitMessage={updateCommitMessage} />}
-                            {/* Disable RUN button if selectedTasks are 0, selectedRepos are 0, gitlabOnline is false, or (task 'push-to-gitlab' was selected and commit message is empty) */}
-                            <input type="button" id={styles["run-btn"]} value="RUN" onClick={handleSubmit} disabled={(selectedTasks.length === 0 || selectedRepos.length === 0 || gitlabOnline === false || (selectedTasks.includes('push-to-gitlab') && commit === "")) ? true : false} tabIndex={0} />
-                        </div>
-                    }
+                        {/* Show repos list and RUN button when there is 1 or more tasks are selected */}
+                        {showReposList &&
+                            <div className={styles[selectedTasks.length > 0 ? "mounted-style" : "unmounted-style"]}>
+                                <section>
+                                    <h2>Step #3 - Select course repositories</h2>
+                                    <input type="search" id={styles["search-box"]} placeholder="Search for a course" onChange={filterBySearch} />
+                                    <ListGroup repos={filtedRepos} updateSelectedRepos={updateSelectedRepos} />
+                                </section>
+                                {/* Show commit message input when 'push-to-gitlab' task is selected */}
+                                {selectedTasks.includes('push-to-gitlab') && <CommitMessage updateCommitMessage={updateCommitMessage} />}
+                                {/* Disable RUN button if selectedTasks are 0, selectedRepos are 0, gitlabOnline is false, or (task 'push-to-gitlab' was selected and commit message is empty) */}
+                                <input type="button" id={styles["run-btn"]} value="RUN" onClick={handleSubmit} disabled={(selectedTasks.length === 0 || selectedRepos.length === 0 || gitlabOnline === false || (selectedTasks.includes('push-to-gitlab') && commit === "")) ? true : false} tabIndex={0} />
+                            </div>
+                        }
                     </div>
                 </div>
                 {(updateStatus === "available" || updateStatus === "downloaded") && <UpdatePopUp status={updateStatus} closeNotification={closeNotification} restartApp={restartApp} />}

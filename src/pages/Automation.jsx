@@ -57,7 +57,7 @@ function Automation() {
         // Get all course repos
         window.api.getRepos().then(results => {
             setRepos(results)
-            setFiltedRepos(results);        
+            // setFiltedRepos(results.filter(repo => repo.name.includes(selectedDepart === "elem" ? "elem" : "html")));        
         })
 
         // Listen for update available
@@ -70,6 +70,10 @@ function Automation() {
             setUpdateStatus("downloaded")
         })
     }, [reposPath]);
+
+    useEffect(() => {
+        setFiltedRepos(repos.filter(repo => repo.name.includes(selectedDepart === "elem" ? "elem" : "html")));        
+    }, [repos, selectedDepart]);
 
     // This function update commitMessage state
     const updateCommitMessage = (e) => {

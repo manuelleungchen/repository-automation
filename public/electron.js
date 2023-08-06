@@ -225,6 +225,22 @@ function gitPush(repoPath, commitMessage) {
     })
 }
 
+// This function executes git clone command in shell
+function gitClone(reposLocation, repoPath) {
+    return new Promise((resolve, reject) => {
+        const worker = new Worker(path.join(ASSETS_PATH, `worker.js`), { workerData: { commandType: "gitClone", repoPath: repoPath, reposLocation: reposLocation } });
+        worker.on('message', resolve);
+        worker.on('error', (error) => {
+            reject(error)
+            console.log(error)
+        });
+        worker.on('exit', (code) => {
+            if (code !== 0)
+                reject(new Error(`Worker stopped with exit code ${code}`));
+        })
+    })
+}
+
 // This function executes rm -f and rm -r commands in shell for vendor.min.js, tvo_k8.css, ilc_core.css, package-lock.json and node_modules folder
 function deleteBuildFiles(repoPath) {
     return new Promise((resolve, reject) => {
@@ -709,7 +725,7 @@ ipcMain.handle('get-user-data', () => {
 })
 
 // Handle request to get all gitlab repos
-ipcMain.handle('get-gitlab-repos', (event, reposType) => {
+ipcMain.handle('get-gitlab-repos', async (event, reposType) => {
     let userDataFile;
 
     // Here we try to update read userData.json file from userdata folder.
@@ -717,30 +733,30 @@ ipcMain.handle('get-gitlab-repos', (event, reposType) => {
     // Send repos path to renderer
     const token = JSON.parse(userDataFile).gitlabToken
 
-    // var response = paginatedFetchRequest(`https://gitlab.com/api/v4/groups/61699189/projects?private_token=${token}&include_subgroups=true&order_by=name&sort=asc&per_page=100`)
-
-    // return response;
-
-    let groundID;
+    let groupID;
 
     switch (reposType) {
-        case "all":
-            groundID = 61216177;
-            break;
         case "elem":
-            groundID = 61699189;
+            groupID = 61699189;
             break;
-        case "ilcdcc":
-            groundID = 61538026;
+        case "sec":
+            groupID = 61538026;
             break;
-        case "interactives":
-            groundID = 62115972;
+        case "ilo":
+            groupID = 62115972;
+            break;
+        case "all":
+            groupID = 61216177;
             break;
         default:
             break
     }
 
-    return paginatedFetchRequest(`https://gitlab.com/api/v4/groups/${groundID}/projects?private_token=${token}&include_subgroups=true&order_by=name&sort=asc&per_page=100`)
+
+        let response = await paginatedFetchRequest(`https://gitlab.com/api/v4/groups/${groupID}/projects?private_token=${token}&include_subgroups=true&order_by=name&sort=asc&per_page=100`)
+
+    return response;
+
 })
 
 // Handle request to search gitlab repos
@@ -787,7 +803,9 @@ ipcMain.handle('search-gitlab-repos', async (event, reposType, search) => {
 })
 
 // Handle request to clone repos
-ipcMain.handle('clone-repos', (event, reposList) => {
+ipcMain.handle('clone-repos', async (event, reposList) => {
+
+    const reposListCounter = reposList.length;   // Variable with repos count
 
     let userDataFile;
 
@@ -796,7 +814,25 @@ ipcMain.handle('clone-repos', (event, reposList) => {
     // Send repos path to renderer
     const reposLocation = JSON.parse(userDataFile).reposLocation;
 
+    // Create progress bar
+    let progressBarValue = 0
+    const progressIncrement = 1 / (reposListCounter)
+
     // Clone repos 
+    for (let i = 0; i < reposListCounter; i++) {
+        try {
+            await gitClone(reposLocation, reposList[i]);
+        } catch (error) {
+            console.log(error)
+        }
+        progressBarValue += progressIncrement
+        mainWindow.setProgressBar(progressBarValue)
+        mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), `Cloning ${path.basename(reposList[i])}`)
+    }
+
+    showNotification(`Finished cloning repositor${reposListCounter > 1 ? "ies" : "y"}!`);
+
+    return "Finished cloning!"
 })
 
 // Send Methods

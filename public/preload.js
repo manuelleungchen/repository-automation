@@ -24,7 +24,6 @@ contextBridge.exposeInMainWorld('api', {
     selectFolder: (args) => ipcRenderer.invoke("select-folder", args),
     getConfigData: (args) => ipcRenderer.invoke("get-config-data", args),
     getUserData: (args) => ipcRenderer.invoke("get-user-data", args),
-    // getAllGitlabRepos: (args) => ipcRenderer.invoke("get-all-gitlab-repos", args),
     getGitlabRepos: (args) => ipcRenderer.invoke("get-gitlab-repos", args),
     searchGitlabRepos: (...args) => ipcRenderer.invoke("search-gitlab-repos", ...args),
     cloneRepos: (args) => ipcRenderer.invoke("clone-repos", args)

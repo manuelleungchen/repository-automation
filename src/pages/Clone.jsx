@@ -6,6 +6,7 @@ import styles from "./Clone.module.css";
 
 // Import components
 import ListGroup from "../components/ListGroup"
+import ProgressBar from "../components/ProgressBar";
 
 function Clone() {
     const [repos, setRepos] = useState([]);  // Store all fetch from gitlab
@@ -13,6 +14,9 @@ function Clone() {
 
     const [search, setSearch] = useState("");
     const [repoType, setRepoType] = useState("");
+    const [progressbarValue, setProgressbarValue] = useState(0)  // Store progressbar percentage
+    const [progressbarStatus, setProgressbarStatus] = useState("")  // Store progressbar status
+    const [showProgressbar, setShowProgressbar] = useState(false);   // State to toggle Progress bar component
 
     const selectEl = useRef(null);
 
@@ -26,34 +30,47 @@ function Clone() {
 
     }, [reposPath, token, repos])
 
-    const handleFetchAndCloneRequest = (e) => {
+    const handleFetchAndCloneRequest = async (e) => {
         e.preventDefault();
+
+        let gitlabRepos;
 
         // Fetch repos
-        // window.api.getGitlabRepos(e.target.value).then(arg => {
-        //     console.log(arg)
-        // })
+        gitlabRepos = await window.api.getGitlabRepos(e.target.value).then(arg => {
+            console.log(arg)
+            return arg.map(repo => repo.path);
+        })
 
-        // Clone repos
-        // window.api.cloneRepos().then(arg => {
-        //     console.log(arg)
-        // })
+        // Listen for progressbar updates from Main
+        window.api.updateProgressbar((value, status) => {
+            setProgressbarValue(value)
+            setProgressbarStatus(status)
+        })
+        
+        // Change state to show progressbar
+        setShowProgressbar(!showProgressbar)
+
+        // Send to Main repos list to clone
+        await window.api.cloneRepos(gitlabRepos).then(arg => {
+            console.log(arg)
+        })
     }
 
-    const handleCloneRequest = (e) => {
+    const handleCloneRequest = async (e) => {
         e.preventDefault();
 
+        // Listen for progressbar updates from Main
+        window.api.updateProgressbar((value, status) => {
+            setProgressbarValue(value)
+            setProgressbarStatus(status)
+        })
+        // Change state to show progressbar
+        setShowProgressbar(!showProgressbar)
 
-        // const reposRequest = repos.filter(repo => checked.includes(repo.name))
-
-        console.log(selectedRepos)
-
-        // window.api.cloneRepos(reposRequest).then(arg => {
-        //     console.log(arg)
-        // })
-
-
-        // setRepos([])
+        // Send to Main repos list to clone
+        await window.api.cloneRepos(selectedRepos).then(arg => {
+            console.log(arg)
+        })
     }
 
     const handleReposSearch = async (e) => {
@@ -69,38 +86,61 @@ function Clone() {
         setSelectedRepos(reposPath)
     }
 
+    // This function is passed to handle the close button pressed on progressbar
+    const handleCloseProgressbar = () => {
+        setSelectedRepos([]) // Reset selectedRepos context
+        setShowProgressbar(!showProgressbar) // Change state to show progressbar
+        setProgressbarValue(0)   // Reset progressbar value to 0
+        setProgressbarStatus("")   // Reset progressbar status to ""
+    }
+
+    // This function is passed to handle the cancel button pressed on progressbar
+    const handleCancelAutomation = () => {
+        // window.api.cancelAutomation('Cancel Automation');
+        setSelectedRepos([]) // Reset selectedRepos context
+        setShowProgressbar(!showProgressbar) // Change state to show progressbar
+        setProgressbarValue(0)   // Reset progressbar value to 0
+        setProgressbarStatus("")   // Reset progressbar status to ""
+    }
+
     return (
-        <main className="container">
-            <div className="row">
-                <div className="col-12">
-                    <section>
-                        <h2>Clone all repos by categories</h2>
-                        <div className={styles["cloneButtons"]}>
-                            <button value={"elem"} onClick={handleFetchAndCloneRequest}>Elementary courses</button>
-                            <button value={"sec"} onClick={handleFetchAndCloneRequest}>Secondary courses</button>
-                            <button value={"ilo"} onClick={handleFetchAndCloneRequest}>Interactives</button>
-                            <button value={"all"} onClick={handleFetchAndCloneRequest}>All courses</button>
-                        </div>
-                    </section>
-                    <section>
-                        <h2>Search and clone repos by name</h2>
-                        <form className={styles.form} onSubmit={handleReposSearch}>
-                            <label htmlFor="depart-select">Type:</label>
-                            <select id={styles["department-option"]} name="depart" value={repoType} ref={selectEl} onChange={(e => setRepoType(e.target.value))}>
-                                <option value="elem">Elementary</option>
-                                <option value="sec">Secondary</option>
-                                <option value="ilo">Interactives</option>
-                                <option value="all">All</option>
-                            </select>
-                            <input id={styles["searchArea"]} type="search" value={search} placeholder="Enter repo name" onChange={(e => setSearch(e.target.value))} />
-                            <input type="submit" value="Search" className={styles["formSubmit"]} />
-                        </form>
-                        {repos.length > 0 && <ListGroup repos={repos} updateSelectedRepos={updateSelectedRepos} />}
-                    </section>
+        <>{!showProgressbar ?
+            (<main className="container">
+                <div className="row">
+                    <div className="col-12">
+                        <section>
+                            <h2>Clone all repos by categories</h2>
+                            <div className={styles["cloneButtonsDiv"]}>
+                                <button value={"elem"} onClick={handleFetchAndCloneRequest}>Elementary courses</button>
+                                <button value={"sec"} onClick={handleFetchAndCloneRequest}>Secondary courses</button>
+                                <button value={"ilo"} onClick={handleFetchAndCloneRequest}>Interactives</button>
+                                <button value={"all"} onClick={handleFetchAndCloneRequest}>All courses</button>
+                            </div>
+                        </section>
+                        <section>
+                            <h2>Search and clone repos by name</h2>
+                            <form className={styles.form} onSubmit={handleReposSearch}>
+                                <label htmlFor="depart-select">Type:</label>
+                                <select id={styles["department-option"]} name="depart" value={repoType} ref={selectEl} onChange={(e => setRepoType(e.target.value))}>
+                                    <option value="elem">Elementary</option>
+                                    <option value="sec">Secondary</option>
+                                    <option value="ilo">Interactives</option>
+                                    <option value="all">All</option>
+                                </select>
+                                <input id={styles["searchArea"]} type="search" value={search} placeholder="Enter repo name" onChange={(e => setSearch(e.target.value))} />
+                                <input type="submit" value="Search" className={styles["formSubmit"]} />
+                            </form>
+                            {repos.length > 0 && <ListGroup repos={repos} updateSelectedRepos={updateSelectedRepos} />}
+                        </section>
+                        {selectedRepos.length > 0 && <button id={styles["clone-btn"]} onClick={handleCloneRequest}>Clone</button>}
+                    </div>
                 </div>
-            </div>
-        </main>
+            </main>)
+            : (<ProgressBar completed={progressbarValue} status={progressbarStatus} handleCloseProgressbar={handleCloseProgressbar} handleCancelAutomation={handleCancelAutomation} />)}
+        </>
+
     )
+
 }
 
 export default Clone

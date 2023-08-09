@@ -15,7 +15,7 @@
 .linksContainer {
     display: flex;
     justify-content: space-around;
-    gap: 3px;
+    gap: 0.5rem;
 }
 
 .navLink {
@@ -25,8 +25,9 @@
     background-color: var(--main-color-dark);
     width: 50%;
     padding: 0.5rem;
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
+    border-radius: 10px;
+    /* border-top-left-radius: 10px; */
+    /* border-top-right-radius: 10px; */
 }
 
 .navLink:hover {
@@ -41,8 +42,10 @@
     background-color: var(--main-color-darkest);
     width: 50%;
     padding: 0.5rem;
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
+    border-radius: 10px;
+
+    /* border-top-left-radius: 10px; */
+    /* border-top-right-radius: 10px; */
 }
 
 .activeNavLink:hover {

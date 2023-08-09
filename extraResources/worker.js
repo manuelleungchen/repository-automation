@@ -2,10 +2,10 @@ const { parentPort, workerData } = require("worker_threads");
 const fs = require("fs");
 const { execSync } = require("child_process");   // Import exec method from child_process module
 
-const os = require('os');   
-const isMac = os.platform() === "darwin";  
+const os = require('os');
+const isMac = os.platform() === "darwin";
 
-function executeShellCommands(type, repoPath, filePath, commitMessage, commandString) {
+function executeShellCommands(type, repoPath, filePath, commitMessage, commandString, reposLocation) {
     // Variable to store any return value if needed
     let returnValue = "";
 
@@ -19,6 +19,9 @@ function executeShellCommands(type, repoPath, filePath, commitMessage, commandSt
             break;
         case "gitPush":
             execSync(`cd ${repoPath} && git add . && git commit -m "${commitMessage}" && git push`);
+            break;
+        case "gitClone":
+            execSync(`cd ${reposLocation} && git clone ${repoPath}`);
             break;
         case "deleteBuildFiles":
             try {
@@ -82,4 +85,4 @@ function executeShellCommands(type, repoPath, filePath, commitMessage, commandSt
     return returnValue;
 }
 
-parentPort.postMessage(executeShellCommands(workerData.commandType, workerData.repoPath, workerData.filePath, workerData.commitMessage, workerData.commandString))
+parentPort.postMessage(executeShellCommands(workerData.commandType, workerData.repoPath, workerData.filePath, workerData.commitMessage, workerData.commandString, workerData.reposLocation))

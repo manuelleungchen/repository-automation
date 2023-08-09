@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { DepartContext, SelectedTasksContext, SelectedReposContext } from '../context';   // import contexts
+import { DepartContext, SelectedTasksContext } from '../context';   // import contexts
 
 import styles from "./DepartDropDown.module.css";  // Import styles
 
@@ -7,14 +7,12 @@ const DepartDropDown = () => {
     // Get contexts
     const { selectedDepart, setSelectedDepart } = useContext(DepartContext);
     const { setSelectedTasks } = useContext(SelectedTasksContext);
-    const { setSelectedRepos } = useContext(SelectedReposContext);
 
     // Handle updating selectedDepart context
     const handleChange = (e) => {
         setSelectedDepart(e.target.value)
         // Reset selectedTasks and selectedRepos contexts
         setSelectedTasks([])
-        setSelectedRepos([])
     }
 
     return (

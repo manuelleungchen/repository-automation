@@ -1,5 +1,4 @@
-import { useState, useEffect, useRef, useContext } from "react";
-import { DepartContext, SelectedReposContext } from '../context';   // import contexts
+import { useState, useEffect, useRef } from "react";
 
 import styles from "./ListGroup.module.css";  // Import styles
 
@@ -9,13 +8,10 @@ const getWindowSize = () => {
     return { innerWidth, innerHeight };
 }
 
-function ListGroup({ repos }) {
-    // Get contexts
-    const { selectedDepart } = useContext(DepartContext);
-    const { selectedRepos, setSelectedRepos } = useContext(SelectedReposContext);
+function ListGroup({ repos, updateSelectedRepos }) {
 
     const [filtedRepos, setFiltedRepos] = useState([]);  // Store all course repos by depart
-
+    const [checked, setChecked] = useState([]);   // Store selected checkboxes
     const [cursor, setCursor] = useState(undefined);   // Store position of current checklist item in state
     const [windowSize, setWindowSize] = useState(getWindowSize());  // Store window width
     const [gripColsCount, setGripColsCount] = useState(0);  // Store Grip Cols Count
@@ -38,27 +34,30 @@ function ListGroup({ repos }) {
         getColsCount(windowSize.innerWidth)
     }, [windowSize.innerWidth])
 
-    // Update repos list when props repos change
+    // Update filtered repos list when props repos change
     useEffect(() => {
-        // Create new array selected and hidden properties and filter items by depart
-        setFiltedRepos(repos.map(repo => ({ ...repo, selected: false, hidden: false })).filter(repo => repo.name.includes((selectedDepart === "elem") ? "elem" : "html")))
-    }, [repos, selectedDepart])
+        // Create new array with selected property
+        setFiltedRepos(repos.map(repo => ({ ...repo, selected: false })))
+    }, [repos])
 
-    // Use effect to update select all checkbox if all repos are checked
+    // UseEffect to update select all checkbox if all repos are checked
     useEffect(() => {
         // Update checked value on Select All checkbox
-        selectedAllRef.current.checked = !(filtedRepos.filter((obj) => { return obj.hidden === false }).some((obj) => {
-            return obj.selected === false;
-        }))
+        if (filtedRepos.length !== 0) {
+            selectedAllRef.current.checked = !(filtedRepos.some((obj) => {
+                return obj.selected === false;
+            }))
+        }
     }, [filtedRepos])
 
-    // Handle update of selectedRepos context
-    const updateSelectedRepos = (checkedRepos) => {
+    // // Handle update of selectedRepos state from parent component
+    const handleSelectedRepos = (checkedRepos) => {
         let reposPath = [];
         checkedRepos.forEach((checkedRepo, index) => {
             if (checkedRepo.selected === true) { reposPath.push(filtedRepos[index].path) }
         })
-        setSelectedRepos(reposPath)
+        setChecked(reposPath)
+        updateSelectedRepos(reposPath)
     }
 
     // Get the number of columns in grip
@@ -77,32 +76,12 @@ function ListGroup({ repos }) {
         }
     }
 
-    // This function will filte repos checklist
-    const filterBySearch = (event) => {
-        // Access input value
-        const query = event.target.value;
-        // Create copy of item list
-        var updatedList = [...filtedRepos];
-        // Include all elements which includes the search query
-        updatedList = updatedList.map((item) => {
-            if (item.name.includes(query.toLowerCase())) {
-                item.hidden = false;
-            }
-            else {
-                item.hidden = true;
-            }
-            return item;
-        });
-        // Updated Repos list with updated list
-        setFiltedRepos(updatedList);
-    };
-
     // Handle toggled checkbox
     const handleOnCheckboxChange = (position) => {
         let reposClone = [...filtedRepos]
         reposClone[position].selected = !reposClone[position].selected
         setFiltedRepos(reposClone)
-        updateSelectedRepos(reposClone)
+        handleSelectedRepos(reposClone)
     };
 
     // This function set current checkbox on focus
@@ -123,7 +102,7 @@ function ListGroup({ repos }) {
             }
         });
         setFiltedRepos(newReposArr)
-        updateSelectedRepos(newReposArr)
+        handleSelectedRepos(newReposArr)
     };
 
     // Call useKeyDown hook for each key (Arrows Up, Down, Right, Left, Space and Enter)
@@ -163,9 +142,7 @@ function ListGroup({ repos }) {
     const selectedAllRef = useRef(undefined);
 
     return (
-        <section>
-            <h2>Step #4 - Select course repositories</h2>
-            <input type="search" id={styles["search-box"]} placeholder="Search for a course" onChange={filterBySearch} />
+        <>
             <div className={styles["push-to-sides"]}>
                 <label htmlFor="select-all" id={styles["select-all-label"]}>
                     <input type="checkbox"
@@ -176,38 +153,37 @@ function ListGroup({ repos }) {
                     />
                     Select All
                 </label>
-                <p id={styles["selected-count"]}>{selectedRepos.length} selected</p>
+                <p id={styles["selected-count"]}>{checked.length} selected</p>
             </div>
             <p id={styles["nav-instructions"]}><small>Use arrows and space/enter keys, or mouse to select.</small></p>
             <div id={styles["checklist-container"]} onKeyDown={handleKeyDown}>
                 <div className="row">
                     {filtedRepos.map((repo, index) => {
-                        if (!repo.hidden) {
-                            return (
-                                <div key={index} className="col-sm-12 col-md-6 col-lg-4 col-xl-3">
-                                    <label
-                                        ref={(element) => { checkboxesRefs.current[index] = element }}
-                                        className={`${styles.item} ${(index === cursor) ? styles.active : ""}`}
-                                        htmlFor={`checkbox-${index}`}
+                        return (
+                            <div key={index} className="col-sm-12 col-md-6 col-lg-4 col-xl-3">
+                                <label
+                                    ref={(element) => { checkboxesRefs.current[index] = element }}
+                                    className={`${styles.item} ${(index === cursor) ? styles.active : ""}`}
+                                    htmlFor={`checkbox-${index}`}
+                                    onFocus={() => setCursor(index)}
+                                    tabIndex={0}
+                                >
+                                    <input
+                                        type="checkbox"
+                                        id={`checkbox-${index}`}
+                                        checked={repo.selected || false}
+                                        onChange={() => handleOnCheckboxChange(index)}
                                         onFocus={() => setCursor(index)}
-                                        tabIndex={0}
-                                    >
-                                        <input
-                                            type="checkbox"
-                                            id={`checkbox-${index}`}
-                                            checked={repo.selected || false}
-                                            onChange={() => handleOnCheckboxChange(index)}
-                                            tabIndex={-1}
-                                        />
-                                        <span>{repo.name}</span>
-                                    </label>
-                                </div>
-                            )
-                        }
+                                        tabIndex={-1}
+                                    />
+                                    <span>{repo.name}</span>
+                                </label>
+                            </div>
+                        )
                     })}
                 </div>
             </div>
-        </section>
+        </>
     );
 }
 

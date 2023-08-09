@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from "react";
-import { DepartContext, SelectedTasksContext, SelectedReposContext } from '../context';   // import contexts
+import { DepartContext, SelectedTasksContext } from '../context';   // import contexts
 
 import styles from "./TaskPrompt.module.css";  // Import styles
 import ReactMarkdown from 'react-markdown';
@@ -7,8 +7,7 @@ import ReactMarkdown from 'react-markdown';
 function TaskPrompt() {
     // Get contexts
     const { selectedDepart } = useContext(DepartContext);
-    const { selectedTasks, setSelectedTasks } = useContext(SelectedTasksContext);
-    const { setSelectedRepos } = useContext(SelectedReposContext);
+    const { setSelectedTasks } = useContext(SelectedTasksContext);
 
     // Array that containes all the tasks available to run in the App 
     const [tasks, setTasks] = useState([])
@@ -36,10 +35,6 @@ function TaskPrompt() {
         checkedTasks.forEach((checkedTask, index) => {
             if (checkedTask === true) { tasksName.push(tasks[index].value) }
         })
-        if (tasksName.length === 0 || (tasksName.length > 0 && selectedTasks.length === 0)) {
-            // Reset selectedRepos context
-            setSelectedRepos([])
-        }
         // Reset selectedTasks context
         setSelectedTasks(tasksName);
     }
@@ -62,7 +57,7 @@ function TaskPrompt() {
 
     return (
         <section>
-            <h2>Step #3 - Select tasks to automate</h2>
+            <h2>Step #2 - Select tasks to automate</h2>
             {tasks.filter(task => task.department === selectedDepart || task.department === "all").map((task, index) => {
                 return (
                     <div className={styles["list-item"]} key={index}>

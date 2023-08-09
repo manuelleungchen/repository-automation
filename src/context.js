@@ -3,9 +3,9 @@ import React, { createContext, useState } from "react";
 // create context
 const DepartContext = createContext();
 const SelectedTasksContext = createContext();
-const SelectedReposContext = createContext();
 const ReposPathContext = createContext();
 const TokenContext = createContext();
+const GitlabOnlineContext = createContext();
 
 const DepartContextProvider = ({ children }) => {
     // the value that will be given to the context
@@ -33,20 +33,6 @@ const SelectedTasksContextProvider = ({ children }) => {
         <SelectedTasksContext.Provider value={value}>
             {children}
         </SelectedTasksContext.Provider>
-    );
-};
-
-const SelectedReposContextProvider = ({ children }) => {
-    // the value that will be given to the context
-    const [selectedRepos, setSelectedRepos] = useState([]);   // Store all selected repos
-    const value = React.useMemo(() => ({
-        selectedRepos, setSelectedRepos
-    }), [selectedRepos]);
-    return (
-        // the Provider gives access to the context to its children
-        <SelectedReposContext.Provider value={value}>
-            {children}
-        </SelectedReposContext.Provider>
     );
 };
 
@@ -78,4 +64,18 @@ const TokenContextProvider = ({ children }) => {
     );
 };
 
-export { DepartContext, DepartContextProvider, SelectedTasksContext, SelectedTasksContextProvider, SelectedReposContext, SelectedReposContextProvider, ReposPathContext, ReposPathContextProvider, TokenContext, TokenContextProvider };
+const GitlabOnlineContextProvider = ({ children }) => {
+    // the value that will be given to the context
+    const [gitlabOnline, setGitlabOnline] = useState(false);   // Store gitlab connection status
+    const value = React.useMemo(() => ({
+        gitlabOnline, setGitlabOnline
+    }), [gitlabOnline]);
+    return (
+        // the Provider gives access to the context to its children
+        <GitlabOnlineContext.Provider value={value}>
+            {children}
+        </GitlabOnlineContext.Provider>
+    );
+};
+
+export { DepartContext, DepartContextProvider, SelectedTasksContext, SelectedTasksContextProvider, ReposPathContext, ReposPathContextProvider, TokenContext, TokenContextProvider, GitlabOnlineContext, GitlabOnlineContextProvider };

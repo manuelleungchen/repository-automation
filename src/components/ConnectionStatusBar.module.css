@@ -1,0 +1,13 @@
+#vpn-status {
+    display: block;
+    margin: 0 auto;
+    text-align: right;
+}
+
+#vpn-connected-icon {
+    filter: invert(37%) sepia(97%) saturate(363%) hue-rotate(100deg) brightness(92%) contrast(91%);
+}
+
+#vpn-disconnected-icon {
+    filter: invert(28%) sepia(35%) saturate(3958%) hue-rotate(332deg) brightness(96%) contrast(92%);
+}

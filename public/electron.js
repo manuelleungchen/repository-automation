@@ -4,10 +4,12 @@ const path = require('path');
 const fs = require("fs");
 const { Worker } = require('worker_threads')
 const { autoUpdater } = require('electron-updater');  // electron-updater
+const { net } = require('electron')  // Import net module (client-side API for issuing HTTP(S) requests).
 
 // Useful for Electron apps as GUI apps on macOS and Linux do not inherit the $PATH defined in your dotfiles (.bashrc/.bash_profile/.zshrc/etc).
 // Only Version 3.0 works.
 const fixPath = require('fix-path');
+const { error } = require('console');
 
 const ASSETS_PATH = app.isPackaged ? path.join(process.resourcesPath, '') : path.join(app.getAppPath(), `extraResources`);
 
@@ -87,31 +89,28 @@ app.on('window-all-closed', function () {
 
 // When electron app is on focus, set interval to call checkGitlabConnection func
 app.on('browser-window-focus', (event, win) => {
+    console.log("App in focus")
     checkGitlabConnection()
-    connectionInterval = setInterval(checkGitlabConnection, 600000) // Check VPN every 10 mins
+    connectionInterval = setInterval(checkGitlabConnection, 600000) // Check Gitlab Online Status every 10 mins
 })
 
 // // When electron app is out focus, stop interval calling checkGitlabConnection func
 app.on('browser-window-blur', (event, win) => {
-    clearInterval(connectionInterval);
+    console.log("App not in focus")
+    clearInterval(connectionInterval);   // Reset counter of connectionInterval back to 0
 })
 
-// Catch Error: net::ERR_NAME_NOT_RESOLVED from HTTP/HTTPS requests inside checkGitlabConnection()
-process.on('uncaughtException', (err) => {
-    if (err.toString() === "Error: net::ERR_NAME_NOT_RESOLVED") {
-        mainWindow.webContents.send('gitlab-status', false)
+// This function checks if gitlab.com is online by issuing HTTP/HTTPS requests
+async function checkGitlabConnection() {
+    try {
+        const response = await net.fetch('https://gitlab.com/tvontario/digital-learning-projects');
+        console.log("gitlab.com is online")
+        mainWindow.webContents.send('gitlab-status', true);
+    } catch (error) {
+        console.log("gitlab.com is offline")
+        console.log(error)
+        mainWindow.webContents.send('gitlab-status', false);
     }
-})
-
-// This function checks if there is a VPN connection by issuing HTTP/HTTPS requests using Chromium's native networking library
-function checkGitlabConnection() {
-    const { net } = require('electron')  // Import net module (client-side API for issuing HTTP(S) requests).
-    const request = net.request('https://gitlab.com/tvontario/')
-    request.on('response', (response) => {
-        console.log("Gitlab connected")
-        mainWindow.webContents.send('gitlab-status', true)
-    })
-    request.end()
 }
 
 // This function creates Native OS Notification
@@ -128,6 +127,39 @@ function showNotification(message) {
 
 function showErrorBox(message) {
     dialog.showErrorBox('Oops! Something went wrong!', message)
+}
+
+// This function takes an url and perform a fetch request
+function paginatedFetchRequest(
+    url = is_required("url"), // Improvised required argument in JS
+    page = 1,
+    previousResponse = []
+) {
+    return net.fetch(`${url}&page=${page}`) // Append the page number to the base URL
+        .then(response => response.json())
+        .then(newResponse => {
+
+            try {
+                const response = [...previousResponse, ...newResponse]; // Combine the two arrays
+
+                if (newResponse.length !== 0) {
+                    page++;
+                    return paginatedFetchRequest(url, page, response);
+                }
+
+                let filteredRes = []  // Repos array with just name and ssh_url_to_repo values of each repo
+
+                for (const [key, value] of Object.entries(response)) {
+                    filteredRes.push({ "name": value.name, "path": value.ssh_url_to_repo, "namespace": value.namespace.name });
+                }
+
+                return filteredRes;
+
+            } catch (error) {
+                showErrorBox(`Problem fetching Gitlab repos. ${error}. Check Gitlab Access token.`)
+                return []
+            }
+        });
 }
 
 // This function gets a list of all course repos (Elementary and Secondary)
@@ -185,6 +217,22 @@ function gitPush(repoPath, commitMessage) {
             reject(error)
             console.log(error)
             showErrorBox(`${error}`)
+        });
+        worker.on('exit', (code) => {
+            if (code !== 0)
+                reject(new Error(`Worker stopped with exit code ${code}`));
+        })
+    })
+}
+
+// This function executes git clone command in shell
+function gitClone(reposLocation, repoPath) {
+    return new Promise((resolve, reject) => {
+        const worker = new Worker(path.join(ASSETS_PATH, `worker.js`), { workerData: { commandType: "gitClone", repoPath: repoPath, reposLocation: reposLocation } });
+        worker.on('message', resolve);
+        worker.on('error', (error) => {
+            reject(error)
+            console.log(error)
         });
         worker.on('exit', (code) => {
             if (code !== 0)
@@ -669,7 +717,6 @@ ipcMain.handle('get-config-data', () => {
 // Handle request to get user data
 ipcMain.handle('get-user-data', () => {
     let userDataFile;
-    checkGitlabConnection()
 
     // Here we try to update read userData.json file from userdata folder.
     userDataFile = fs.readFileSync(path.join(app.getPath("userData"), "userData.json"), { encoding: "utf-8" });
@@ -677,14 +724,115 @@ ipcMain.handle('get-user-data', () => {
     return JSON.parse(userDataFile)
 })
 
-// Handle request to get gitlab repos
-ipcMain.handle('get-gitlab-repos', () => {
-    return "ok"
+// Handle request to get all gitlab repos
+ipcMain.handle('get-gitlab-repos', async (event, reposType) => {
+    let userDataFile;
+
+    // Here we try to update read userData.json file from userdata folder.
+    userDataFile = fs.readFileSync(path.join(app.getPath("userData"), "userData.json"), { encoding: "utf-8" });
+    // Send repos path to renderer
+    const token = JSON.parse(userDataFile).gitlabToken
+
+    let groupID;
+
+    switch (reposType) {
+        case "elem":
+            groupID = 61699189;
+            break;
+        case "sec":
+            groupID = 61538026;
+            break;
+        case "ilo":
+            groupID = 62115972;
+            break;
+        case "all":
+            groupID = 61216177;
+            break;
+        default:
+            break
+    }
+
+
+        let response = await paginatedFetchRequest(`https://gitlab.com/api/v4/groups/${groupID}/projects?private_token=${token}&include_subgroups=true&order_by=name&sort=asc&per_page=100`)
+
+    return response;
+
+})
+
+// Handle request to search gitlab repos
+ipcMain.handle('search-gitlab-repos', async (event, reposType, search) => {
+    let userDataFile;
+
+    // Here we try to update read userData.json file from userdata folder.
+    userDataFile = fs.readFileSync(path.join(app.getPath("userData"), "userData.json"), { encoding: "utf-8" });
+    // Send repos path to renderer
+    const token = JSON.parse(userDataFile).gitlabToken
+
+    let groupID;
+
+    // get gitlab group id based on repos type
+
+    switch (reposType) {
+        case "elem":
+            groupID = 61699189;
+            break;
+        case "sec":
+            groupID = 61538026;
+            break;
+        case "ilo":
+            groupID = 62115972;
+            break;
+        case "all":
+            groupID = 61216177;
+            break;
+        default:
+            break
+    }
+
+    // Fetch list of repo
+    let response = await paginatedFetchRequest(`https://gitlab.com/api/v4/groups/${groupID}/search?private_token=${token}&scope=projects&search=${search}`)
+
+    // Sorted response by repo name
+    response = response.sort((a, b) => {
+        if (a.name < b.name) {
+            return -1;
+        }
+    })
+
+    return response;
 })
 
 // Handle request to clone repos
-ipcMain.handle('clone-repos', () => {
-    return "ok"
+ipcMain.handle('clone-repos', async (event, reposList) => {
+
+    const reposListCounter = reposList.length;   // Variable with repos count
+
+    let userDataFile;
+
+    // Here we try to update read userData.json file from userdata folder.
+    userDataFile = fs.readFileSync(path.join(app.getPath("userData"), "userData.json"), { encoding: "utf-8" });
+    // Send repos path to renderer
+    const reposLocation = JSON.parse(userDataFile).reposLocation;
+
+    // Create progress bar
+    let progressBarValue = 0
+    const progressIncrement = 1 / (reposListCounter)
+
+    // Clone repos 
+    for (let i = 0; i < reposListCounter; i++) {
+        try {
+            await gitClone(reposLocation, reposList[i]);
+        } catch (error) {
+            console.log(error)
+        }
+        progressBarValue += progressIncrement
+        mainWindow.setProgressBar(progressBarValue)
+        mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), `Cloning ${path.basename(reposList[i])}`)
+    }
+
+    showNotification(`Finished cloning repositor${reposListCounter > 1 ? "ies" : "y"}!`);
+
+    return "Finished cloning!"
 })
 
 // Send Methods

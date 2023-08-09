@@ -25,5 +25,6 @@ contextBridge.exposeInMainWorld('api', {
     getConfigData: (args) => ipcRenderer.invoke("get-config-data", args),
     getUserData: (args) => ipcRenderer.invoke("get-user-data", args),
     getGitlabRepos: (args) => ipcRenderer.invoke("get-gitlab-repos", args),
+    searchGitlabRepos: (...args) => ipcRenderer.invoke("search-gitlab-repos", ...args),
     cloneRepos: (args) => ipcRenderer.invoke("clone-repos", args)
 });

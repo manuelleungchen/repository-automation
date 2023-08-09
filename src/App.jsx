@@ -1,11 +1,11 @@
 import React from "react";
-import { HashRouter, BrowserRouter, Routes, Route } from "react-router-dom";
+import { HashRouter, Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
 import Automation from "./pages/Automation";
 import Clone from "./pages/Clone";
 import styles from "./App.module.css";  // Import styles
 
-import { DepartContextProvider, SelectedTasksContextProvider, SelectedReposContextProvider, ReposPathContextProvider, TokenContextProvider, GitlabOnlineContextProvider } from './context';
+import { DepartContextProvider, SelectedTasksContextProvider, ReposPathContextProvider, TokenContextProvider, GitlabOnlineContextProvider } from './context';
 
 export const ContextData = React.createContext();
 
@@ -23,9 +23,7 @@ function App() {
                                     element={
                                         <DepartContextProvider>
                                             <SelectedTasksContextProvider>
-                                                <SelectedReposContextProvider>
-                                                    <Automation />
-                                                </SelectedReposContextProvider>
+                                                <Automation />
                                             </SelectedTasksContextProvider>
                                         </DepartContextProvider>
                                     }

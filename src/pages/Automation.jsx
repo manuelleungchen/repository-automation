@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from 'react';
-import { DepartContext, SelectedTasksContext, SelectedReposContext, ReposPathContext, GitlabOnlineContext } from '../context';  // import contexts
+import { DepartContext, SelectedTasksContext, ReposPathContext, GitlabOnlineContext } from '../context';  // import contexts
 
 // Import styles
 import styles from "./Automation.module.css";
@@ -31,7 +31,6 @@ function Automation() {
     // Get contexts
     const { selectedDepart } = useContext(DepartContext);
     const { selectedTasks, setSelectedTasks } = useContext(SelectedTasksContext);
-    // const { selectedRepos, setSelectedRepos } = useContext(SelectedReposContext);
     const { reposPath } = useContext(ReposPathContext);
     const { gitlabOnline } = useContext(GitlabOnlineContext);
 
@@ -57,7 +56,6 @@ function Automation() {
         // Get all course repos
         window.api.getRepos().then(results => {
             setRepos(results)
-            // setFiltedRepos(results.filter(repo => repo.name.includes(selectedDepart === "elem" ? "elem" : "html")));        
         })
 
         // Listen for update available
@@ -72,7 +70,7 @@ function Automation() {
     }, [reposPath]);
 
     useEffect(() => {
-        setFiltedRepos(repos.filter(repo => repo.name.includes(selectedDepart === "elem" ? "elem" : "html")));        
+        filterReposByDepart();        
     }, [repos, selectedDepart]);
 
     // This function update commitMessage state
@@ -94,23 +92,25 @@ function Automation() {
         await window.api.updateRepos(selectedRepos, selectedTasks, commit)
     }
 
-    // This function is passed to handle the close button pressed on progressbar
-    const handleCloseProgressbar = () => {
+    // This function will reset state values
+    const resetStates = () => {
         setSelectedTasks([]) // Reset selectedTasks context
         setSelectedRepos([]) // Reset selectedRepos context
         setShowProgressbar(!showProgressbar) // Change state to show progressbar
         setProgressbarValue(0)   // Reset progressbar value to 0
         setProgressbarStatus("")   // Reset progressbar status to ""
+        filterReposByDepart();     
+    }
+
+    // This function is passed to handle the close button pressed on progressbar
+    const handleCloseProgressbar = () => {
+        resetStates();      
     }
 
     // This function is passed to handle the cancel button pressed on progressbar
     const handleCancelAutomation = () => {
         window.api.cancelAutomation('Cancel Automation');
-        setSelectedTasks([]) // Reset selectedTasks context
-        setSelectedRepos([]) // Reset selectedRepos context
-        setShowProgressbar(!showProgressbar) // Change state to show progressbar
-        setProgressbarValue(0)   // Reset progressbar value to 0
-        setProgressbarStatus("")   // Reset progressbar status to ""
+        resetStates();     
     }
 
     // This function handle hiding of updater component
@@ -128,6 +128,11 @@ function Automation() {
         setSelectedRepos(reposPath)
     }
 
+    // This function will update filteredRepos state based on repos state and selected depart
+    const filterReposByDepart = () => {
+        setFiltedRepos(repos.filter(repo => repo.name.includes(selectedDepart === "elem" ? "elem" : "html")));        
+    }
+
     // This function will filte repos checklist
     const filterBySearch = (event) => {
         // Access input value
@@ -135,13 +140,13 @@ function Automation() {
 
         if (query !== "") {
             // Include all elements which includes the search query
-            let updatedList = repos.filter((item) => {
+            let updatedList = filtedRepos.filter((item) => {
                 return item.name.includes(query.toLowerCase())
             });
             // Updated Repos list with updated list
             setFiltedRepos(updatedList);
         } else {
-            setFiltedRepos(repos);        
+            filterReposByDepart();  
         }
     };
 

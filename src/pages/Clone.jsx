@@ -96,7 +96,7 @@ function Clone() {
 
     // This function is passed to handle the cancel button pressed on progressbar
     const handleCancelAutomation = () => {
-        // window.api.cancelAutomation('Cancel Automation');
+        window.api.cancelAutomation('Cancel Automation');
         setSelectedRepos([]) // Reset selectedRepos context
         setShowProgressbar(!showProgressbar) // Change state to show progressbar
         setProgressbarValue(0)   // Reset progressbar value to 0

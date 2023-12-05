@@ -125,8 +125,23 @@ function showNotification(message) {
     new Notification(options).show()
 }
 
+// This function will show native Error box
 function showErrorBox(message) {
     dialog.showErrorBox('Oops! Something went wrong!', message)
+}
+
+// This function will show native Message box
+function showMessageBox(message) {
+    let options = {
+        type: 'question',
+        buttons: ['&Yes', '&No'],
+        title: 'Confirm cloning',
+        // icon: dialogIcon,
+        normalizeAccessKeys: true,
+        message: message
+    };
+    // Return index of button selection
+    return dialog.showMessageBoxSync(mainWindow, options)
 }
 
 // This function takes an url and perform a fetch request
@@ -806,31 +821,52 @@ ipcMain.handle('search-gitlab-repos', async (event, reposType, search) => {
 ipcMain.handle('clone-repos', async (event, reposList) => {
 
     const reposListCounter = reposList.length;   // Variable with repos count
+    let promptSelection = 1;
 
-    let userDataFile;
-
-    // Here we try to update read userData.json file from userdata folder.
-    userDataFile = fs.readFileSync(path.join(app.getPath("userData"), "userData.json"), { encoding: "utf-8" });
-    // Send repos path to renderer
-    const reposLocation = JSON.parse(userDataFile).reposLocation;
-
-    // Create progress bar
-    let progressBarValue = 0
-    const progressIncrement = 1 / (reposListCounter)
-
-    // Clone repos 
-    for (let i = 0; i < reposListCounter; i++) {
-        try {
-            await gitClone(reposLocation, reposList[i]);
-        } catch (error) {
-            console.log(error)
-        }
-        progressBarValue += progressIncrement
-        mainWindow.setProgressBar(progressBarValue)
-        mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), `Cloning ${path.basename(reposList[i])}`)
+    // Check if the number of repos selected to be cloned are more than 10 repos
+    if (reposListCounter > 10) {
+        // Prompt user for confirmation
+        promptSelection = showMessageBox(`You are about to clone ${reposListCounter} repos. Do you really want to continue?`);
     }
 
-    showNotification(`Finished cloning repositor${reposListCounter > 1 ? "ies" : "y"}!`);
+    // Check if the number of repos selected to be cloned are less or equal than 10 repos, or user selected "Yes" on previoes confirmation prompt
+    if (promptSelection === 0 || reposListCounter <= 10 ) {
+        let userDataFile;
+
+        // Here we try to update read userData.json file from userdata folder.
+        userDataFile = fs.readFileSync(path.join(app.getPath("userData"), "userData.json"), { encoding: "utf-8" });
+        // Send repos path to renderer
+        const reposLocation = JSON.parse(userDataFile).reposLocation;
+
+        // Create progress bar
+        let progressBarValue = 0
+        const progressIncrement = 1 / (reposListCounter)
+
+        // Clone repos 
+        for (let i = 0; i < reposListCounter; i++) {
+
+            if (isUpdateReposCancelled) { break; }  // Check if isUpdateReposCancelled is true
+
+            mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), `Cloning ${path.basename(reposList[i])}`)
+
+            try {
+                await gitClone(reposLocation, reposList[i]);
+            } catch (error) {
+                console.log(error)
+                showErrorBox(`${error}`)
+            }
+            progressBarValue += progressIncrement
+            mainWindow.setProgressBar(progressBarValue)
+            mainWindow.webContents.send('update-progressbar', Math.round(progressBarValue * 100), `Finished cloning ${path.basename(reposList[i])}`)
+        }
+
+        showNotification(`Finished cloning repositor${reposListCounter > 1 ? "ies" : "y"}!`);
+    }
+
+    // If user selected "No" on confirmation prompt, show progressbar close button.
+    if (promptSelection === 1) {
+        mainWindow.webContents.send('update-progressbar', Math.round(100), `Cloning of ${reposListCounter} repos cancelled. Please press on "Close" to return`)
+    }
 
     return "Finished cloning!"
 })

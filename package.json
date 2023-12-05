@@ -17,7 +17,7 @@
         "eject-react": "react-scripts eject",
         "start-electron": "nodemon --exec electron .",
         "dev": "concurrently \"BROWSER=none npm run start-react\" \"wait-on http://localhost:3000 && npm run start-electron\"",
-        "pack-mac": "npm run build-react && electron-builder build --arm64",
+        "pack-mac": "npm run build-react && electron-builder build --mac",
         "pack-win": "npm run build-react && electron-builder build --win",
         "pack-linux": "npm run build-react && electron-builder build --linux",
         "build": "npm run build-react && electron-builder build --mac --win --publish never",

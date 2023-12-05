@@ -10,19 +10,22 @@ Desktop application that allows running multiple scripts on one or more reposito
 ## Table of Contents   
 * [Features](#Features)
 * [Installation](#Installation)
-* [How to use the App ](#How-to-use-the-App)
+* [How to run scripts with the App](#How-to-run-scripts-with-the-App)
+* [How to clone repos with the App](#How-to-clone-repos-with-the-App)
+
 * [Available scripts](#Available-scripts)
 * [Credits](#Credits)
 * [License](#License)
 * [Questions](#Questions)
 
 ## Features
-* Detect if GitLab is online
+* Check if GitLab.com is online
 * Search and select multiple repos
 * Pull selected repos
 * Push selected repos
 * Rebuild k8 css and vendor.min files
 * Add `"department" : "elem"` in `.json` files located in **widgets** folder
+* Clone selected repos
 
 ## Computer requirements to use App
 * Node 16 version
@@ -41,10 +44,12 @@ Desktop application that allows running multiple scripts on one or more reposito
     
     **For MacOS**: Go to repository-automation/dist/mac and double click **RepositoryAutomation.app**
 
-## How to use the App    
+## How to run scripts with the App 
 1. Launch the App.
 
-2. Verify location of course repos is correct. Otherwise select the correct folder.
+2. Verify location of course repos is correct on the User Data sectiop. Otherwise select the correct folder. 
+    **Note:** Gitlab token is not needed to run scripts.
+
 ![Re screenshot](./src/assets/screenshots/screenshot2.png)
 
 3. Select one or more tasks to perform.
@@ -67,7 +72,45 @@ Desktop application that allows running multiple scripts on one or more reposito
     ![Re screenshot](./src/assets/screenshots/screenshot7.png)
 
 7. Check the progress on the automation. Allow notifications for this App on computer settings to receive updates via push notifications.
+
+    **Note:** If needed, press "Cancel" button to stop automation.
+
 ![Re screenshot](./src/assets/screenshots/screenshot8.png)
+
+## How to clone repos with the App
+1. Launch the App.
+
+2. Verify that both location of course repos and Gitlab tokken are correct are correct on the User Data sectiop. Otherwise select the correct folder and enter your Gitlab token. 
+
+![Re screenshot](./src/assets/screenshots/screenshot2.png)
+
+3. Use dropdown and searchbar to search for repos by name.
+    **Note: There are 4 clone actions available as well. Some of those option will clone more than 100 repos.
+![Re screenshot](./src/assets/screenshots/screenshot10.png)
+
+4. Select a repo type and enter name to narrow down the search. Press "Search" or "return" key
+![Re screenshot](./src/assets/screenshots/screenshot11.png)
+
+5. Select one or more repos to clone.
+![Re screenshot](./src/assets/screenshots/screenshot12.png)
+
+6. Click **Clone** button to start cloning. 
+![Re screenshot](./src/assets/screenshots/screenshot13.png)
+
+    There will be a prompt to confirm cloning when repos selected are more than 10.
+
+![Re screenshot](./src/assets/screenshots/screenshot14.png)
+
+
+7. Check the progress on the cloning progress. Allow notifications for this App on computer settings to receive updates via push notifications.
+
+    **Note:** If needed, press "Cancel" button to stop automation.
+
+![Re screenshot](./src/assets/screenshots/screenshot15.png)
+
+8. Once it finished cloning. Press on "Close" button to return to main menu.
+
+![Re screenshot](./src/assets/screenshots/screenshot16.png)
 
 ## Available scripts
 In the project directory, you can run:
